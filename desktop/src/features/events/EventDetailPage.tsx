@@ -1,15 +1,31 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { eventSubdirectories } from "./eventFolders";
 import { archiveEvent, deleteEvent, getEvent } from "../../services/eventService";
+import {
+  addSource,
+  importMedia,
+  listEventJobs,
+  listOriginalMedia,
+  listSources,
+  scanSources
+} from "../../services/importService";
 import type { ContentEvent } from "../../types/events";
+import type { ImportResponse, MediaSource, OriginalMedia, ScanResponse } from "../../types/importing";
+import type { ProcessingJob } from "../../types/jobs";
 
 export function EventDetailPage() {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const numericEventId = Number(eventId);
   const [event, setEvent] = useState<ContentEvent | null>(null);
+  const [sources, setSources] = useState<MediaSource[]>([]);
+  const [mediaItems, setMediaItems] = useState<OriginalMedia[]>([]);
+  const [jobs, setJobs] = useState<ProcessingJob[]>([]);
+  const [sourcePath, setSourcePath] = useState("");
+  const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
+  const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +51,106 @@ export function EventDetailPage() {
     }
   }
 
+  async function loadImportState(currentEventId: number) {
+    try {
+      const [sourceResponse, mediaResponse, jobResponse] = await Promise.all([
+        listSources(currentEventId),
+        listOriginalMedia(currentEventId),
+        listEventJobs(currentEventId)
+      ]);
+      setSources(sourceResponse);
+      setMediaItems(mediaResponse.items);
+      setJobs(jobResponse.items);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudo cargar el estado de importacion."
+      );
+    }
+  }
+
   useEffect(() => {
     void loadEvent();
   }, [numericEventId]);
+
+  useEffect(() => {
+    if (event) {
+      void loadImportState(event.id);
+    }
+  }, [event?.id]);
+
+  async function handleAddSource(formEvent: FormEvent<HTMLFormElement>) {
+    formEvent.preventDefault();
+    if (!event || sourcePath.trim().length === 0) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await addSource(event.id, sourcePath);
+      setSourcePath("");
+      setMessage("Fuente local registrada.");
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error ? currentError.message : "No se pudo registrar la fuente."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleScan() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const scan = await scanSources(event.id);
+      setLastScan(scan);
+      setMessage(`Escaneo completado: ${scan.supported_files} archivos compatibles.`);
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error ? currentError.message : "No se pudo escanear la fuente."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleImport() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const importResult = await importMedia(event.id);
+      setLastImport(importResult);
+      setMessage(
+        `Importacion completada: ${importResult.imported_files} nuevos, ${importResult.skipped_files} omitidos.`
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error ? currentError.message : "No se pudo importar el material."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   async function handleArchive() {
     if (!event) {
@@ -134,6 +247,131 @@ export function EventDetailPage() {
             ))}
           </section>
 
+          <section className="import-panel">
+            <div className="section-heading-row">
+              <div>
+                <p className="section-label">Importacion</p>
+                <h2>Fuente local</h2>
+              </div>
+              <div className="settings-actions">
+                <button
+                  className="outline-action"
+                  disabled={actionLoading || sources.length === 0}
+                  onClick={handleScan}
+                  type="button"
+                >
+                  Escanear
+                </button>
+                <button
+                  className="secondary-action"
+                  disabled={actionLoading || sources.length === 0}
+                  onClick={handleImport}
+                  type="button"
+                >
+                  Importar a 01_Originales
+                </button>
+              </div>
+            </div>
+
+            <form className="source-form" onSubmit={handleAddSource}>
+              <label className="field-group">
+                <span>Carpeta fuente</span>
+                <input
+                  onChange={(formEvent) => setSourcePath(formEvent.target.value)}
+                  placeholder="C:\\Fotos\\Evento"
+                  value={sourcePath}
+                />
+              </label>
+              <button
+                className="secondary-action"
+                disabled={actionLoading || sourcePath.trim().length === 0}
+                type="submit"
+              >
+                Registrar fuente
+              </button>
+            </form>
+
+            <div className="source-grid">
+              {sources.length === 0 ? (
+                <article className="empty-state">
+                  <h2>No hay fuentes registradas</h2>
+                  <p>Registra una carpeta local externa al evento para escanear e importar.</p>
+                </article>
+              ) : null}
+              {sources.map((source) => (
+                <article className="source-card" key={source.id}>
+                  <p className="metric-label">Fuente</p>
+                  <code>{source.source_path}</code>
+                  <strong>{source.status}</strong>
+                  <span>{source.notes ?? `${source.file_count} archivos compatibles`}</span>
+                </article>
+              ))}
+            </div>
+
+            {lastScan ? (
+              <p className="import-summary">
+                Escaneo job #{lastScan.job_id}: {lastScan.supported_files} compatibles,{" "}
+                {lastScan.unsupported_files} no compatibles, {lastScan.failed_files} fallidos.
+              </p>
+            ) : null}
+            {lastImport ? (
+              <p className="import-summary">
+                Importacion job #{lastImport.job_id}: {lastImport.imported_files} nuevos,{" "}
+                {lastImport.skipped_files} omitidos, {lastImport.failed_files} fallidos.
+              </p>
+            ) : null}
+          </section>
+
+          <section className="media-panel">
+            <div className="section-heading-row">
+              <div>
+                <p className="section-label">Material original</p>
+                <h2>{mediaItems.length} archivos importados</h2>
+              </div>
+            </div>
+            <div className="media-table">
+              {mediaItems.length === 0 ? (
+                <article className="empty-state">
+                  <h2>Sin material importado</h2>
+                  <p>Escanea e importa una fuente para llenar esta seccion.</p>
+                </article>
+              ) : null}
+              {mediaItems.map((media) => (
+                <article className="media-row" key={media.id}>
+                  <div>
+                    <p className="metric-label">{media.media_type}</p>
+                    <h2>{media.filename}</h2>
+                    <code>{media.relative_path ?? media.original_path}</code>
+                  </div>
+                  <div>
+                    <p className="metric-label">Tamano</p>
+                    <strong>{formatBytes(media.file_size_bytes)}</strong>
+                  </div>
+                  <div>
+                    <p className="metric-label">Fecha base</p>
+                    <strong>{media.date_source ?? "Pendiente"}</strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="jobs-panel">
+            <p className="section-label">Jobs recientes</p>
+            {jobs.slice(0, 5).map((job) => (
+              <article className="job-row" key={job.id}>
+                <strong>{job.job_type}</strong>
+                <span>{job.status}</span>
+                <span>{job.progress_percent}%</span>
+                <span>
+                  {job.processed_items}/{job.total_items} procesados
+                </span>
+                <span>{job.failed_items} fallidos</span>
+              </article>
+            ))}
+            {jobs.length === 0 ? <p>No hay jobs registrados para este evento.</p> : null}
+          </section>
+
           <section className="settings-actions">
             <button
               className="outline-action"
@@ -156,4 +394,17 @@ export function EventDetailPage() {
       ) : null}
     </section>
   );
+}
+
+function formatBytes(value: number | null) {
+  if (value === null) {
+    return "Sin dato";
+  }
+  if (value < 1024) {
+    return `${value} B`;
+  }
+  if (value < 1024 * 1024) {
+    return `${(value / 1024).toFixed(1)} KB`;
+  }
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }

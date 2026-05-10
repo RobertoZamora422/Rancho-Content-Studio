@@ -32,6 +32,18 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 6. El usuario puede abrir el detalle, ver la ruta local, archivar o dar de baja logicamente.
 7. Archivar o dar de baja no borra carpetas ni archivos.
 
+## Flujo de importacion implementado en Fase 5
+
+1. El usuario abre el detalle de un evento.
+2. Registra una carpeta fuente local externa a la carpeta del evento.
+3. El backend escanea la fuente y cuenta archivos compatibles/no compatibles.
+4. El backend registra un job `scan_folder`.
+5. El usuario ejecuta importacion.
+6. El backend copia archivos compatibles a `01_Originales` sin modificar la fuente.
+7. El backend registra `original_media`, checksum, tamano, tipo y fecha base por fecha de archivo.
+8. El backend registra un job `import_media` y logs por archivo.
+9. Repetir la importacion omite archivos ya importados por checksum.
+
 ## Flujo de procesamiento futuro
 
 1. Generar miniaturas.

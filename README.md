@@ -20,7 +20,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3 y Fase 4:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4 y Fase 5:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -32,6 +32,8 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3 y Fase 4:
 - Configuracion local editable para carpeta raiz, FFmpeg y ExifTool.
 - Eventos locales: crear, listar, abrir, archivar y dar de baja logicamente.
 - Generacion de estructura local de carpetas por evento.
+- Importacion desde carpeta local hacia `01_Originales` sin modificar la fuente.
+- Registro de fuentes, material original y jobs de escaneo/importacion.
 - Scaffold Tauri preparado.
 
 No incluye todavia importacion, analisis visual, curacion, mejoras, piezas ni exportacion final.
@@ -151,6 +153,33 @@ Al crear un evento, el backend exige que `workspace.root` exista y genera una ca
 
 La pantalla `#/events` permite crear y listar eventos. La ruta `#/events/{id}` muestra detalle, ruta local, carpetas creadas y acciones de archivo/baja logica.
 
+## Fase 5 implementada
+
+La Fase 5 agrega importacion local inicial:
+
+- `POST /api/events/{id}/sources`: registra una carpeta fuente externa al evento.
+- `GET /api/events/{id}/sources`: lista fuentes registradas.
+- `POST /api/events/{id}/scan`: escanea archivos compatibles.
+- `POST /api/events/{id}/import`: copia archivos compatibles a `01_Originales`.
+- `GET /api/events/{id}/media/original`: lista material original importado.
+- `GET /api/jobs/{id}` y `GET /api/events/{id}/jobs`: consultan jobs y logs.
+
+Reglas aplicadas:
+
+- La carpeta fuente debe existir.
+- La carpeta fuente no puede estar dentro de la carpeta del evento.
+- Los archivos fuente no se modifican ni se borran.
+- La importacion copia archivos compatibles a `01_Originales`.
+- La importacion es idempotente por checksum dentro del evento; si se ejecuta otra vez, omite archivos ya importados.
+- Los errores por archivo se registran en `processing_job_log` y no detienen todo el proceso.
+
+Extensiones iniciales compatibles:
+
+- Imagen: `.jpg`, `.jpeg`, `.png`, `.webp`, `.tif`, `.tiff`, `.heic`.
+- Video: `.mp4`, `.mov`, `.m4v`, `.avi`, `.mkv`, `.webm`, `.mts`, `.m2ts`.
+
+La pantalla `#/events/{id}` permite registrar fuente, escanear, importar, ver material original y revisar jobs recientes.
+
 ## Backend
 
 ```powershell
@@ -178,6 +207,15 @@ Eventos:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8000/api/events
+```
+
+Fuentes e importacion:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/sources
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/scan
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/import
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 ```
 
 Pruebas:
@@ -220,10 +258,11 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 ## Limitaciones pendientes
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
-- Los endpoints de importacion, jobs, curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
+- Los endpoints de curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
-- No existe procesamiento multimedia aun.
+- No existe analisis visual, miniaturas ni lectura avanzada de metadatos aun.
 - La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
+- La seleccion de carpeta todavia es manual por texto; el selector nativo Tauri queda pendiente.
 - No se ha validado `npm run tauri dev` porque requiere Rust/Cargo y dependencias Tauri del sistema.
 
 ## Variables utiles
@@ -278,6 +317,14 @@ Para validar Fase 4:
 2. Abrir `http://127.0.0.1:5173/#/events`.
 3. Crear un evento.
 4. Abrir el detalle y confirmar la ruta local generada.
+
+Para validar Fase 5:
+
+1. Abrir el detalle de un evento en `#/events/{id}`.
+2. Registrar una carpeta fuente local con archivos de prueba.
+3. Ejecutar `Escanear`.
+4. Ejecutar `Importar a 01_Originales`.
+5. Confirmar que los archivos aparecen en `Material original` y que la carpeta fuente queda intacta.
 
 ## Reglas centrales
 

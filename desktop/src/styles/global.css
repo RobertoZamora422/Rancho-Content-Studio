@@ -266,7 +266,13 @@ h2 {
 .detail-grid article,
 .path-panel,
 .folder-tile,
-.list-toolbar {
+.list-toolbar,
+.import-panel,
+.media-panel,
+.jobs-panel,
+.source-card,
+.media-row,
+.job-row {
   background: #ffffff;
   border: 1px solid #ded8cc;
   border-radius: 8px;
@@ -431,6 +437,74 @@ h2 {
   font-weight: 800;
 }
 
+.import-panel,
+.media-panel,
+.jobs-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.section-heading-row {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.section-heading-row h2 {
+  margin-bottom: 0;
+}
+
+.source-form {
+  align-items: end;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.source-grid,
+.media-table {
+  display: grid;
+  gap: 12px;
+}
+
+.source-card {
+  display: grid;
+  gap: 8px;
+}
+
+.source-card code,
+.media-row code {
+  color: #303a33;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.source-card span,
+.import-summary,
+.jobs-panel p {
+  color: #555e57;
+  margin: 0;
+}
+
+.media-row {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(220px, 1fr) 120px 160px;
+}
+
+.media-row h2 {
+  margin-bottom: 6px;
+}
+
+.job-row {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(160px, 1fr) repeat(4, auto);
+}
+
 .validation-card {
   display: grid;
   gap: 8px;
@@ -497,8 +571,16 @@ h2 {
   .event-form,
   .event-row,
   .detail-grid,
-  .folder-grid {
+  .folder-grid,
+  .source-form,
+  .media-row,
+  .job-row {
     grid-template-columns: 1fr;
+  }
+
+  .section-heading-row {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   h1 {

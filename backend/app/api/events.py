@@ -5,6 +5,13 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.events import EventCreate, EventListResponse, EventResponse, EventUpdate
+from app.schemas.importing import (
+    ImportResponse,
+    OriginalMediaListResponse,
+    ScanResponse,
+    SourceCreate,
+    SourceResponse,
+)
 from app.services.event_service import (
     archive_event,
     create_event,
@@ -12,6 +19,13 @@ from app.services.event_service import (
     list_events,
     logically_delete_event,
     update_event,
+)
+from app.services.import_service import (
+    add_source,
+    import_event_media,
+    list_original_media,
+    list_sources,
+    scan_event_sources,
 )
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -52,3 +66,35 @@ def delete_existing_event(event_id: int, db: Session = Depends(get_db)) -> Event
 @router.post("/{event_id}/archive", response_model=EventResponse)
 def archive_existing_event(event_id: int, db: Session = Depends(get_db)) -> EventResponse:
     return archive_event(db, event_id)
+
+
+@router.get("/{event_id}/sources", response_model=list[SourceResponse])
+def read_event_sources(event_id: int, db: Session = Depends(get_db)) -> list[SourceResponse]:
+    return list_sources(db, event_id)
+
+
+@router.post("/{event_id}/sources", response_model=SourceResponse, status_code=201)
+def create_event_source(
+    event_id: int,
+    payload: SourceCreate,
+    db: Session = Depends(get_db),
+) -> SourceResponse:
+    return add_source(db, event_id, payload)
+
+
+@router.post("/{event_id}/scan", response_model=ScanResponse)
+def scan_event(event_id: int, db: Session = Depends(get_db)) -> ScanResponse:
+    return scan_event_sources(db, event_id)
+
+
+@router.post("/{event_id}/import", response_model=ImportResponse)
+def import_media(event_id: int, db: Session = Depends(get_db)) -> ImportResponse:
+    return import_event_media(db, event_id)
+
+
+@router.get("/{event_id}/media/original", response_model=OriginalMediaListResponse)
+def read_original_media(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> OriginalMediaListResponse:
+    return OriginalMediaListResponse(items=list_original_media(db, event_id))
