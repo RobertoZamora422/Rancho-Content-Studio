@@ -24,6 +24,22 @@ La Fase 1 crea datos iniciales idempotentes:
 
 La implementacion actual crea las tablas principales definidas en el modelo logico. Los campos se mantienen practicos para las primeras fases: identificadores enteros, claves foraneas, rutas locales, estados como texto, timestamps y campos JSON serializados como texto cuando aun no hay contrato final de detalle.
 
+## Campos usados en Fase 6
+
+`original_media` guarda los resultados de metadatos y miniaturas:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| capture_datetime | datetime nullable | Fecha de captura normalizada. |
+| date_source | string nullable | Fuente de fecha: ExifTool, fecha de archivo o fecha del evento. |
+| width | integer nullable | Ancho detectado cuando esta disponible. |
+| height | integer nullable | Alto detectado cuando esta disponible. |
+| duration_seconds | float nullable | Duracion de video cuando se puede leer. |
+| thumbnail_path | string nullable | Ruta relativa de la miniatura dentro de la carpeta del evento. |
+| metadata_json | text nullable | Metadatos tecnicos extraidos y advertencias serializadas como JSON. |
+
+La columna `metadata_json` se agrega de forma incremental en bases SQLite existentes hasta introducir migraciones Alembic.
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

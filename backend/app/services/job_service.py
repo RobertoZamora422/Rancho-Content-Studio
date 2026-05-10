@@ -64,6 +64,21 @@ def finish_job(
     job.error_message = error_message
 
 
+def update_job_progress(
+    job: ProcessingJob,
+    total_items: int,
+    processed_items: int,
+    failed_items: int,
+) -> None:
+    job.total_items = total_items
+    job.processed_items = processed_items
+    job.failed_items = failed_items
+    job.progress_percent = 100 if total_items == 0 else round(
+        ((processed_items + failed_items) / total_items) * 100,
+        2,
+    )
+
+
 def get_job(db: Session, job_id: int) -> JobResponse:
     job = db.scalar(
         select(ProcessingJob)

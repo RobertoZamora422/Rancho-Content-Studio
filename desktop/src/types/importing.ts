@@ -37,6 +37,16 @@ export type ImportResponse = {
   total_files: number;
 };
 
+export type MetadataProcessResponse = {
+  metadata_job_id: number;
+  thumbnail_job_id: number;
+  total_files: number;
+  metadata_updated: number;
+  metadata_failed: number;
+  thumbnails_generated: number;
+  thumbnail_failed: number;
+};
+
 export type OriginalMedia = {
   id: number;
   event_id: number;
@@ -55,6 +65,8 @@ export type OriginalMedia = {
   height: number | null;
   duration_seconds: number | null;
   thumbnail_path: string | null;
+  thumbnail_url: string | null;
+  metadata_json: string | null;
   status: string;
   original_exists: boolean;
   imported_at: string;

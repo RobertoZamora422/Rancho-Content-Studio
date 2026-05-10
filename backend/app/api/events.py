@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.schemas.events import EventCreate, EventListResponse, EventResponse, EventUpdate
 from app.schemas.importing import (
     ImportResponse,
+    MetadataProcessResponse,
     OriginalMediaListResponse,
     ScanResponse,
     SourceCreate,
@@ -27,6 +28,7 @@ from app.services.import_service import (
     list_sources,
     scan_event_sources,
 )
+from app.services.metadata_service import process_event_metadata_and_thumbnails
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -90,6 +92,14 @@ def scan_event(event_id: int, db: Session = Depends(get_db)) -> ScanResponse:
 @router.post("/{event_id}/import", response_model=ImportResponse)
 def import_media(event_id: int, db: Session = Depends(get_db)) -> ImportResponse:
     return import_event_media(db, event_id)
+
+
+@router.post("/{event_id}/process-metadata", response_model=MetadataProcessResponse)
+def process_metadata(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> MetadataProcessResponse:
+    return process_event_metadata_and_thumbnails(db, event_id)
 
 
 @router.get("/{event_id}/media/original", response_model=OriginalMediaListResponse)

@@ -2,6 +2,7 @@ import { API_BASE_URL } from "./healthService";
 import type {
   ImportResponse,
   MediaSource,
+  MetadataProcessResponse,
   OriginalMediaListResponse,
   ScanResponse
 } from "../types/importing";
@@ -52,6 +53,15 @@ export async function importMedia(eventId: number): Promise<ImportResponse> {
     method: "POST"
   });
   return parseResponse<ImportResponse>(response);
+}
+
+export async function processMetadataAndThumbnails(
+  eventId: number
+): Promise<MetadataProcessResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/process-metadata`, {
+    method: "POST"
+  });
+  return parseResponse<MetadataProcessResponse>(response);
 }
 
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {

@@ -48,6 +48,16 @@ class ImportResponse(BaseModel):
     total_files: int
 
 
+class MetadataProcessResponse(BaseModel):
+    metadata_job_id: int
+    thumbnail_job_id: int
+    total_files: int
+    metadata_updated: int
+    metadata_failed: int
+    thumbnails_generated: int
+    thumbnail_failed: int
+
+
 class OriginalMediaResponse(BaseModel):
     id: int
     event_id: int
@@ -66,6 +76,8 @@ class OriginalMediaResponse(BaseModel):
     height: int | None
     duration_seconds: float | None
     thumbnail_path: str | None
+    thumbnail_url: str | None
+    metadata_json: str | None
     status: str
     original_exists: bool
     imported_at: datetime

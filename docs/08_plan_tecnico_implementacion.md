@@ -22,7 +22,17 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4 y Fase 5. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos e importacion local inicial. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos y flujo de importacion desde carpeta local.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y Fase 6. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial y procesamiento de metadatos/miniaturas. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local y vista de material original con miniaturas.
+
+## Fase 6 implementada
+
+- Endpoint `POST /api/events/{id}/process-metadata`.
+- Job `write_metadata` para actualizar fecha de captura, fuente, dimensiones, duracion y `metadata_json`.
+- Job `generate_thumbnails` para crear JPEGs en `metadata/thumbnails`.
+- Endpoint `GET /api/media/original/{media_id}/thumbnail` para que la UI cargue miniaturas sin abrir rutas locales directas.
+- ExifTool se usa si esta disponible; si no, se registra advertencia y se usa fallback local.
+- Para videos se intenta extraer frame con FFmpeg; si falla o no esta disponible, se crea miniatura local de respaldo.
+- La UI de `Material original` muestra miniatura, fecha, fuente y datos tecnicos basicos.
 
 ## Criterios por bloque
 

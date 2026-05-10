@@ -42,6 +42,7 @@ class OriginalMedia(Base):
     height: Mapped[int | None] = mapped_column(Integer, nullable=True)
     duration_seconds: Mapped[float | None] = mapped_column(Float, nullable=True)
     thumbnail_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    metadata_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="imported")
     original_exists: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     imported_at: Mapped[datetime] = mapped_column(

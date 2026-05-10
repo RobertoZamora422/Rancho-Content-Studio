@@ -328,6 +328,8 @@ def to_original_media_response(media: OriginalMedia) -> OriginalMediaResponse:
         height=media.height,
         duration_seconds=media.duration_seconds,
         thumbnail_path=media.thumbnail_path,
+        thumbnail_url=f"/api/media/original/{media.id}/thumbnail" if media.thumbnail_path else None,
+        metadata_json=media.metadata_json,
         status=media.status,
         original_exists=media.original_exists,
         imported_at=media.imported_at,

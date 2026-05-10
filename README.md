@@ -16,11 +16,12 @@ El flujo principal es local:
 - Frontend: React + Vite + TypeScript.
 - Backend local: Python + FastAPI.
 - Base de datos: SQLite.
-- Procesamiento futuro: OpenCV, Pillow, ImageHash, scikit-image, FFmpeg, ExifTool.
+- Procesamiento local inicial: Pillow para miniaturas; futuro OpenCV, ImageHash, scikit-image y FFmpeg avanzado.
+- Metadatos: ExifTool cuando esta disponible, con fallback local.
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4 y Fase 5:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y Fase 6:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -34,9 +35,12 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4 y Fase 5:
 - Generacion de estructura local de carpetas por evento.
 - Importacion desde carpeta local hacia `01_Originales` sin modificar la fuente.
 - Registro de fuentes, material original y jobs de escaneo/importacion.
+- Procesamiento de metadatos y miniaturas sobre material importado.
+- Lectura opcional con ExifTool y fallback local por fecha de archivo.
+- Miniaturas locales para fotos y videos en `metadata/thumbnails`.
 - Scaffold Tauri preparado.
 
-No incluye todavia importacion, analisis visual, curacion, mejoras, piezas ni exportacion final.
+No incluye todavia analisis visual, curacion, mejoras, piezas ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -180,6 +184,25 @@ Extensiones iniciales compatibles:
 
 La pantalla `#/events/{id}` permite registrar fuente, escanear, importar, ver material original y revisar jobs recientes.
 
+## Fase 6 implementada
+
+La Fase 6 agrega procesamiento local de metadatos y miniaturas:
+
+- `POST /api/events/{id}/process-metadata`: ejecuta lectura de metadatos y generacion de miniaturas.
+- `GET /api/media/original/{media_id}/thumbnail`: sirve la miniatura generada al frontend.
+- Job `write_metadata`: actualiza `capture_datetime`, `date_source`, dimensiones, duracion cuando exista y `metadata_json`.
+- Job `generate_thumbnails`: crea miniaturas JPEG en `metadata/thumbnails`.
+- ExifTool se usa si esta configurado o disponible en `PATH`.
+- Si ExifTool no esta disponible, se usa fallback local con fecha de archivo, tamano y dimensiones de imagen cuando Pillow puede leerlas.
+- Para videos, si FFmpeg esta disponible se intenta extraer un frame; si no esta disponible o falla, se genera una miniatura local de respaldo tipo video.
+
+Reglas aplicadas:
+
+- Los originales importados no se modifican.
+- Los errores por archivo se registran en `processing_job_log` y no detienen el procesamiento completo.
+- La ruta guardada en `thumbnail_path` es relativa a la carpeta del evento.
+- La UI de `Material original` usa el endpoint de miniaturas, muestra fecha de captura, fuente de fecha y datos tecnicos basicos.
+
 ## Backend
 
 ```powershell
@@ -215,6 +238,7 @@ Fuentes e importacion:
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/sources
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/scan
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/import
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/process-metadata
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 ```
 
@@ -258,9 +282,12 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 ## Limitaciones pendientes
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
+- Hay un ajuste incremental minimo para agregar `original_media.metadata_json` en bases existentes hasta introducir Alembic.
 - Los endpoints de curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
-- No existe analisis visual, miniaturas ni lectura avanzada de metadatos aun.
+- No existe analisis visual avanzado aun.
+- Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
+- Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
 - La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
 - La seleccion de carpeta todavia es manual por texto; el selector nativo Tauri queda pendiente.
 - No se ha validado `npm run tauri dev` porque requiere Rust/Cargo y dependencias Tauri del sistema.
@@ -325,6 +352,14 @@ Para validar Fase 5:
 3. Ejecutar `Escanear`.
 4. Ejecutar `Importar a 01_Originales`.
 5. Confirmar que los archivos aparecen en `Material original` y que la carpeta fuente queda intacta.
+
+Para validar Fase 6:
+
+1. Importar material en un evento.
+2. En `#/events/{id}`, ejecutar `Procesar metadatos y miniaturas`.
+3. Confirmar que `Material original` muestra miniaturas, fecha de captura, fuente de fecha y datos tecnicos.
+4. Revisar que `metadata/thumbnails` exista dentro de la carpeta del evento.
+5. Consultar los jobs `write_metadata` y `generate_thumbnails` en `GET /api/events/{id}/jobs`.
 
 ## Reglas centrales
 

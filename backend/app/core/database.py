@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
-from sqlalchemy import event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
-from sqlalchemy import create_engine
 
 from app.core.config import get_settings
 
@@ -45,6 +44,18 @@ def init_database() -> None:
     from app import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    ensure_incremental_schema()
+
+
+def ensure_incremental_schema() -> None:
+    """Apply small additive schema changes until Alembic is introduced."""
+    with engine.begin() as connection:
+        media_columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(original_media)")).all()
+        }
+        if "metadata_json" not in media_columns:
+            connection.execute(text("ALTER TABLE original_media ADD COLUMN metadata_json TEXT"))
 
 
 def get_db() -> Generator[Session, None, None]:

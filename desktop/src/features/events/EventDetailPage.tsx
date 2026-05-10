@@ -3,16 +3,24 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { eventSubdirectories } from "./eventFolders";
 import { archiveEvent, deleteEvent, getEvent } from "../../services/eventService";
+import { API_BASE_URL } from "../../services/healthService";
 import {
   addSource,
   importMedia,
   listEventJobs,
   listOriginalMedia,
   listSources,
+  processMetadataAndThumbnails,
   scanSources
 } from "../../services/importService";
 import type { ContentEvent } from "../../types/events";
-import type { ImportResponse, MediaSource, OriginalMedia, ScanResponse } from "../../types/importing";
+import type {
+  ImportResponse,
+  MediaSource,
+  MetadataProcessResponse,
+  OriginalMedia,
+  ScanResponse
+} from "../../types/importing";
 import type { ProcessingJob } from "../../types/jobs";
 
 export function EventDetailPage() {
@@ -26,6 +34,7 @@ export function EventDetailPage() {
   const [sourcePath, setSourcePath] = useState("");
   const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
   const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
+  const [lastMetadata, setLastMetadata] = useState<MetadataProcessResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -146,6 +155,33 @@ export function EventDetailPage() {
     } catch (currentError) {
       setError(
         currentError instanceof Error ? currentError.message : "No se pudo importar el material."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleProcessMetadata() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const result = await processMetadataAndThumbnails(event.id);
+      setLastMetadata(result);
+      setMessage(
+        `Metadatos y miniaturas procesados: ${result.metadata_updated} metadatos, ${result.thumbnails_generated} miniaturas.`
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudieron procesar metadatos y miniaturas."
       );
     } finally {
       setActionLoading(false);
@@ -328,7 +364,23 @@ export function EventDetailPage() {
                 <p className="section-label">Material original</p>
                 <h2>{mediaItems.length} archivos importados</h2>
               </div>
+              <button
+                className="secondary-action"
+                disabled={actionLoading || mediaItems.length === 0}
+                onClick={handleProcessMetadata}
+                type="button"
+              >
+                Procesar metadatos y miniaturas
+              </button>
             </div>
+            {lastMetadata ? (
+              <p className="import-summary">
+                Metadata job #{lastMetadata.metadata_job_id} y thumbnails job #
+                {lastMetadata.thumbnail_job_id}: {lastMetadata.metadata_updated} metadatos,{" "}
+                {lastMetadata.thumbnails_generated} miniaturas,{" "}
+                {lastMetadata.metadata_failed + lastMetadata.thumbnail_failed} fallidos.
+              </p>
+            ) : null}
             <div className="media-table">
               {mediaItems.length === 0 ? (
                 <article className="empty-state">
@@ -338,7 +390,18 @@ export function EventDetailPage() {
               ) : null}
               {mediaItems.map((media) => (
                 <article className="media-row" key={media.id}>
-                  <div>
+                  <div className="media-thumb">
+                    {media.thumbnail_url ? (
+                      <img
+                        alt={`Miniatura de ${media.filename}`}
+                        loading="lazy"
+                        src={thumbnailSrc(media.thumbnail_url)}
+                      />
+                    ) : (
+                      <span>{media.media_type === "video" ? "VIDEO" : "IMG"}</span>
+                    )}
+                  </div>
+                  <div className="media-main-cell">
                     <p className="metric-label">{media.media_type}</p>
                     <h2>{media.filename}</h2>
                     <code>{media.relative_path ?? media.original_path}</code>
@@ -348,8 +411,14 @@ export function EventDetailPage() {
                     <strong>{formatBytes(media.file_size_bytes)}</strong>
                   </div>
                   <div>
-                    <p className="metric-label">Fecha base</p>
-                    <strong>{media.date_source ?? "Pendiente"}</strong>
+                    <p className="metric-label">Fecha captura</p>
+                    <strong>{formatDateTime(media.capture_datetime)}</strong>
+                    <span>{formatDateSource(media.date_source)}</span>
+                  </div>
+                  <div>
+                    <p className="metric-label">Datos tecnicos</p>
+                    <strong>{formatDimensions(media.width, media.height)}</strong>
+                    <span>{formatDuration(media.duration_seconds)}</span>
                   </div>
                 </article>
               ))}
@@ -407,4 +476,47 @@ function formatBytes(value: number | null) {
     return `${(value / 1024).toFixed(1)} KB`;
   }
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function thumbnailSrc(value: string) {
+  if (value.startsWith("http")) {
+    return value;
+  }
+  return `${API_BASE_URL}${value}`;
+}
+
+function formatDateTime(value: string | null) {
+  if (!value) {
+    return "Pendiente";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleString();
+}
+
+function formatDateSource(value: string | null) {
+  if (!value) {
+    return "Fuente pendiente";
+  }
+  const labels: Record<string, string> = {
+    event_date: "Fecha del evento",
+    file_modified_time: "Fecha de archivo"
+  };
+  return labels[value] ?? value;
+}
+
+function formatDimensions(width: number | null, height: number | null) {
+  if (!width || !height) {
+    return "Sin resolucion";
+  }
+  return `${width} x ${height}`;
+}
+
+function formatDuration(value: number | null) {
+  if (value === null) {
+    return "Sin duracion";
+  }
+  return `${value.toFixed(1)} s`;
 }

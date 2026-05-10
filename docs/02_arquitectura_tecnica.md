@@ -50,3 +50,12 @@ PRAGMA synchronous = NORMAL;
 ## Dependencias externas
 
 Google Drive no es dependencia del flujo principal. Google Photos no tiene integracion directa en esta etapa.
+
+## Implementacion local de Fase 6
+
+- ExifTool se resuelve desde configuracion local o `PATH`.
+- La ausencia de ExifTool no bloquea el procesamiento; se usa fecha de archivo y metadatos locales.
+- Pillow genera miniaturas de fotos y miniaturas locales de respaldo para videos.
+- FFmpeg se usa solo si esta disponible para extraer frames de video.
+- Las miniaturas viven dentro de la carpeta del evento en `metadata/thumbnails`.
+- El frontend consume miniaturas mediante FastAPI, no mediante rutas locales directas.

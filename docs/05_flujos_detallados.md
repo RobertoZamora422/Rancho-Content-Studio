@@ -44,18 +44,33 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 8. El backend registra un job `import_media` y logs por archivo.
 9. Repetir la importacion omite archivos ya importados por checksum.
 
+## Flujo de metadatos y miniaturas implementado en Fase 6
+
+1. El usuario importa material en un evento.
+2. Desde el detalle del evento ejecuta `Procesar metadatos y miniaturas`.
+3. El backend crea un job `write_metadata`.
+4. Para cada archivo importado:
+   - intenta leer metadatos con ExifTool si esta disponible,
+   - usa fecha de archivo como fallback local,
+   - usa fecha del evento si no puede obtener una fecha de archivo,
+   - guarda `capture_datetime`, `date_source`, dimensiones, duracion cuando exista y `metadata_json`.
+5. El backend crea un job `generate_thumbnails`.
+6. Para fotos, genera una miniatura JPEG local con Pillow.
+7. Para videos, intenta extraer un frame con FFmpeg; si no puede, genera una miniatura local de respaldo.
+8. Guarda `thumbnail_path` relativo a la carpeta del evento.
+9. Los errores por archivo se registran en `processing_job_log` y no detienen el procesamiento completo.
+10. La UI muestra miniaturas, fecha de captura, fuente y datos tecnicos basicos.
+
 ## Flujo de procesamiento futuro
 
-1. Generar miniaturas.
-2. Leer metadatos.
-3. Analizar calidad visual.
-4. Detectar duplicados y similares.
-5. Crear curacion sugerida.
-6. Permitir revision manual.
-7. Crear versiones mejoradas.
-8. Sugerir piezas.
-9. Generar o editar copy.
-10. Exportar.
+1. Analizar calidad visual.
+2. Detectar duplicados y similares.
+3. Crear curacion sugerida.
+4. Permitir revision manual.
+5. Crear versiones mejoradas.
+6. Sugerir piezas.
+7. Generar o editar copy.
+8. Exportar.
 
 ## Jobs
 
