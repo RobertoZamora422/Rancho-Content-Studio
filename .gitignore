@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Backend runtime data
+backend/data/*.sqlite
+backend/data/*.sqlite3
+backend/data/*.sqlite3-shm
+backend/data/*.sqlite3-wal
+
+# Node / Vite
+node_modules/
+desktop/dist/
+desktop/.vite/
+
+# Tauri / Rust
+desktop/src-tauri/target/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
