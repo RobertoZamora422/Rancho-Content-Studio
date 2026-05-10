@@ -31,9 +31,9 @@ export_package
 export_package_item
 ```
 
-## Modelo inicial implementado
+## Modelo Fase 1 implementado
 
-La base inicial solo crea `local_app_config` para soportar configuracion local y validar la conexion SQLite. El resto del modelo se implementara por fases.
+La Fase 1 crea las tablas principales con SQLAlchemy para dejar lista la persistencia local. Aun no implementa endpoints CRUD ni reglas de negocio avanzadas sobre todo el modelo.
 
 ## Principios
 

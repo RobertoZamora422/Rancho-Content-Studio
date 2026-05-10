@@ -42,7 +42,7 @@ SessionLocal = sessionmaker(
 
 
 def init_database() -> None:
-    from app.models import local_app_config  # noqa: F401
+    from app import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
 

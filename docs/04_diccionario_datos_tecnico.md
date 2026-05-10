@@ -11,14 +11,18 @@
 | created_at | datetime | Fecha de creacion. |
 | updated_at | datetime | Fecha de ultima actualizacion. |
 
-## Seeds objetivo
+## Seeds implementados
 
-Para Fase 1 ampliada se deben crear datos iniciales:
+La Fase 1 crea datos iniciales idempotentes:
 
 - Usuario admin: Roberto Zamora.
 - Marca: Rancho Flor Maria.
 - Perfil editorial base: calido, natural, cercano, profesional, emojis sutiles.
 - Presets visuales: `natural_premium`, `calido_elegante`, `color_vivo_fiesta`, `suave_bodas`, `brillante_xv`, `sobrio_corporativo`.
+
+## Tablas base Fase 1
+
+La implementacion actual crea las tablas principales definidas en el modelo logico. Los campos se mantienen practicos para las primeras fases: identificadores enteros, claves foraneas, rutas locales, estados como texto, timestamps y campos JSON serializados como texto cuando aun no hay contrato final de detalle.
 
 ## Convenciones futuras
 
