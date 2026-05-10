@@ -3,6 +3,7 @@ import { Navigate, Route, createHashRouter, createRoutesFromElements } from "rea
 import { AppShell } from "../components/AppShell";
 import { ModulePage } from "../components/ModulePage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
+import { SettingsPage } from "../features/settings/SettingsPage";
 
 export const router = createHashRouter(
   createRoutesFromElements(
@@ -76,14 +77,7 @@ export const router = createHashRouter(
       />
       <Route
         path="settings"
-        element={
-          <ModulePage
-            label="Configuracion"
-            title="Configuracion"
-            description="Seccion preparada para carpeta raiz local, FFmpeg, ExifTool y validacion de herramientas."
-            nextPhase="Fase 3"
-          />
-        }
+        element={<SettingsPage />}
       />
       <Route path="*" element={<Navigate replace to="/" />} />
     </Route>

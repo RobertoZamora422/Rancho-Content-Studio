@@ -20,7 +20,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1 y Fase 2:
+Esta base cubre Fase 0, Fase 1, Fase 2 y Fase 3:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -29,6 +29,7 @@ Esta base cubre Fase 0, Fase 1 y Fase 2:
 - Modelos SQLAlchemy base para las tablas principales del sistema.
 - Seed inicial idempotente de configuracion local, usuario admin, marca, perfil editorial y presets visuales.
 - Frontend React con shell base, navegacion por rutas hash y healthcheck compartido.
+- Configuracion local editable para carpeta raiz, FFmpeg y ExifTool.
 - Scaffold Tauri preparado.
 
 No incluye todavia importacion, analisis visual, curacion, mejoras, piezas ni exportacion final.
@@ -95,6 +96,28 @@ La Fase 2 deja lista la base de escritorio y frontend para construir los modulos
 
 La Fase 2 no arranca automaticamente el backend desde Tauri todavia. Por ahora el backend se ejecuta manualmente con `python run_backend.py`.
 
+## Fase 3 implementada
+
+La Fase 3 agrega configuracion local persistida en SQLite:
+
+- `GET /api/config`: lee carpeta raiz local, ruta FFmpeg y ruta ExifTool.
+- `PUT /api/config`: guarda rutas locales candidatas.
+- `POST /api/config/validate-tools`: valida carpeta raiz y disponibilidad de FFmpeg/ExifTool.
+- Pantalla `#/settings` funcional en React:
+  - Campo para carpeta raiz local.
+  - Campo opcional para FFmpeg.
+  - Campo opcional para ExifTool.
+  - Guardado en SQLite.
+  - Validacion de herramientas desde backend.
+
+La validacion de FFmpeg y ExifTool funciona asi:
+
+- Si se configura una ruta, el backend verifica que exista como archivo ejecutable y ejecuta el comando de version.
+- Si no se configura ruta, el backend busca `ffmpeg` y `exiftool` en `PATH`.
+- La ausencia de estas herramientas no rompe la app; se reporta como `No disponible` para fases posteriores.
+
+La carpeta raiz local debe existir antes de validarla. En fases posteriores, los eventos se crearan dentro de esa raiz usando nombres seguros para Windows.
+
 ## Backend
 
 ```powershell
@@ -109,6 +132,13 @@ Healthcheck:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8000/api/health
+```
+
+Configuracion:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/config
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/config/validate-tools
 ```
 
 Pruebas:
@@ -193,6 +223,14 @@ http://127.0.0.1:5173/#/
 ```
 
 La barra superior debe mostrar `Conectado` y version `0.1.0`.
+
+Para validar Fase 3, abrir:
+
+```text
+http://127.0.0.1:5173/#/settings
+```
+
+Guardar rutas locales y ejecutar `Validar herramientas`.
 
 ## Reglas centrales
 

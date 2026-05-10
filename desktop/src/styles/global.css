@@ -120,7 +120,8 @@ button {
 }
 
 .dashboard-view,
-.placeholder-view {
+.placeholder-view,
+.settings-view {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -221,6 +222,15 @@ h2 {
   padding: 12px 14px;
 }
 
+.inline-success {
+  background: #f2fbf5;
+  border: 1px solid #b9dec5;
+  border-radius: 8px;
+  color: #23623f;
+  margin: 0;
+  padding: 12px 14px;
+}
+
 .workflow-grid {
   display: grid;
   gap: 14px;
@@ -230,11 +240,104 @@ h2 {
 .workflow-step,
 .foundation-panel,
 .placeholder-view,
-.module-state {
+.module-state,
+.settings-panel,
+.validation-card {
   background: #ffffff;
   border: 1px solid #ded8cc;
   border-radius: 8px;
   padding: 20px;
+}
+
+.settings-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.field-group {
+  display: grid;
+  gap: 8px;
+}
+
+.field-group span {
+  color: #303a33;
+  font-weight: 700;
+}
+
+.field-group input {
+  background: #fbfaf7;
+  border: 1px solid #cfc8bb;
+  border-radius: 8px;
+  color: #202722;
+  font: inherit;
+  min-height: 44px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.field-group input:disabled {
+  color: #777;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.secondary-action:disabled,
+.outline-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.outline-action {
+  background: #ffffff;
+  border: 1px solid #bfb7aa;
+  border-radius: 8px;
+  color: #202722;
+  cursor: pointer;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.outline-action:hover {
+  border-color: #202722;
+}
+
+.validation-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.validation-card {
+  display: grid;
+  gap: 8px;
+}
+
+.validation-card p {
+  color: #555e57;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.validation-card code {
+  color: #303a33;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.available {
+  color: #1f7a4f;
+}
+
+.missing {
+  color: #b13d35;
+}
+
+.pending {
+  color: #9a6a14;
 }
 
 .workflow-step span {
@@ -269,7 +372,8 @@ h2 {
 
   .status-strip,
   .top-bar,
-  .workflow-grid {
+  .workflow-grid,
+  .validation-grid {
     grid-template-columns: 1fr;
   }
 

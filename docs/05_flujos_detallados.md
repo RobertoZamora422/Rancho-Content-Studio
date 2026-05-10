@@ -6,6 +6,15 @@
 Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exportar
 ```
 
+## Flujo de configuracion local
+
+1. El usuario abre Configuracion.
+2. Define una carpeta raiz local existente.
+3. Opcionalmente define rutas a FFmpeg y ExifTool.
+4. La app guarda la configuracion en SQLite.
+5. El backend valida si la carpeta existe y si las herramientas estan disponibles.
+6. La ausencia de herramientas externas queda registrada como estado de configuracion, sin bloquear el resto de la app.
+
 ## Flujo de evento
 
 1. El usuario crea un evento con fecha, nombre y tipo.
