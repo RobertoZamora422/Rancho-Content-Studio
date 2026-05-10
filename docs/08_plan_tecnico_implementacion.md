@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-Esta primera base cubre Fase 0 completa, Fase 1 minima y Fase 2 minima.
+La base actual cubre Fase 0, Fase 1 y Fase 2. El backend local ya tiene modelos base y seed inicial. El frontend desktop ya tiene shell, rutas de navegacion y healthcheck visible contra FastAPI.
 
 ## Criterios por bloque
 

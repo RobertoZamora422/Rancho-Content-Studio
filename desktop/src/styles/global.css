@@ -76,7 +76,9 @@ button {
   border-radius: 8px;
   color: #e6dfd3;
   cursor: pointer;
+  display: block;
   padding: 11px 12px;
+  text-decoration: none;
   text-align: left;
 }
 
@@ -91,6 +93,30 @@ button {
   background: #f5f3ee;
   min-width: 0;
   padding: 34px;
+}
+
+.top-bar {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #ded8cc;
+  border-radius: 8px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 160px 120px minmax(0, 1fr) auto;
+  margin-bottom: 26px;
+  padding: 14px 16px;
+}
+
+.api-endpoint {
+  min-width: 0;
+}
+
+.api-endpoint code {
+  color: #303a33;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dashboard-view,
@@ -203,7 +229,8 @@ h2 {
 
 .workflow-step,
 .foundation-panel,
-.placeholder-view {
+.placeholder-view,
+.module-state {
   background: #ffffff;
   border: 1px solid #ded8cc;
   border-radius: 8px;
@@ -241,6 +268,7 @@ h2 {
   }
 
   .status-strip,
+  .top-bar,
   .workflow-grid {
     grid-template-columns: 1fr;
   }

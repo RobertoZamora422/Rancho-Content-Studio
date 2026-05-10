@@ -20,7 +20,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1 y la base minima de Fase 2:
+Esta base cubre Fase 0, Fase 1 y Fase 2:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -28,7 +28,7 @@ Esta base cubre Fase 0, Fase 1 y la base minima de Fase 2:
 - SQLite local con PRAGMAs obligatorios.
 - Modelos SQLAlchemy base para las tablas principales del sistema.
 - Seed inicial idempotente de configuracion local, usuario admin, marca, perfil editorial y presets visuales.
-- Frontend React minimo con layout base y healthcheck.
+- Frontend React con shell base, navegacion por rutas hash y healthcheck compartido.
 - Scaffold Tauri preparado.
 
 No incluye todavia importacion, analisis visual, curacion, mejoras, piezas ni exportacion final.
@@ -72,6 +72,28 @@ La Fase 1 deja listo el backend local como base de datos y contrato tecnico inte
   - Presets visuales: `natural_premium`, `calido_elegante`, `color_vivo_fiesta`, `suave_bodas`, `brillante_xv`, `sobrio_corporativo`.
 
 La Fase 1 no implementa todavia endpoints CRUD sobre estas tablas. Solo deja persistencia, relaciones y datos base listos para fases posteriores.
+
+## Fase 2 implementada
+
+La Fase 2 deja lista la base de escritorio y frontend para construir los modulos reales por fases:
+
+- React + Vite + TypeScript compila correctamente.
+- Navegacion principal con rutas hash, compatible con el contenedor desktop de Tauri:
+  - `#/`
+  - `#/events`
+  - `#/library`
+  - `#/pieces`
+  - `#/calendar`
+  - `#/editorial-profile`
+  - `#/visual-styles`
+  - `#/settings`
+- Shell de aplicacion con menu lateral persistente.
+- Barra superior con estado del backend local, version de API y endpoint configurado.
+- Pantalla Inicio conectada a `GET /api/health`.
+- Paginas base preparadas para eventos, biblioteca, piezas, calendario, perfil editorial, estilos visuales y configuracion.
+- Scaffold Tauri v2 en `desktop/src-tauri/`.
+
+La Fase 2 no arranca automaticamente el backend desde Tauri todavia. Por ahora el backend se ejecuta manualmente con `python run_backend.py`.
 
 ## Backend
 
@@ -147,6 +169,30 @@ Frontend:
 ```text
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
+
+## Validacion de Fase 2
+
+Con backend levantado en `127.0.0.1:8000`:
+
+```powershell
+cd backend
+python run_backend.py
+```
+
+En otra terminal:
+
+```powershell
+cd desktop
+npm run dev
+```
+
+Abrir:
+
+```text
+http://127.0.0.1:5173/#/
+```
+
+La barra superior debe mostrar `Conectado` y version `0.1.0`.
 
 ## Reglas centrales
 

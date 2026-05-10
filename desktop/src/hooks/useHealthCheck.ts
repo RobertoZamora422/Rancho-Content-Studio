@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { getHealth } from "../services/healthService";
-import type { HealthResponse, HealthStatus } from "../types/health";
+import type { HealthCheckResult, HealthResponse, HealthStatus } from "../types/health";
 
-export function useHealthCheck() {
+export function useHealthCheck(): HealthCheckResult {
   const [status, setStatus] = useState<HealthStatus>("checking");
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);

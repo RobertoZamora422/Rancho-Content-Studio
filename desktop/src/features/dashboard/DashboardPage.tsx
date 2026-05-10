@@ -1,4 +1,6 @@
-import { useHealthCheck } from "../../hooks/useHealthCheck";
+import { useOutletContext } from "react-router-dom";
+
+import type { HealthCheckResult } from "../../types/health";
 
 const workflowSteps = [
   "Crear evento",
@@ -9,8 +11,13 @@ const workflowSteps = [
   "Exportar"
 ];
 
+type DashboardContext = {
+  healthCheck: HealthCheckResult;
+};
+
 export function DashboardPage() {
-  const { health, status, error, refresh } = useHealthCheck();
+  const { healthCheck } = useOutletContext<DashboardContext>();
+  const { health, status, error, refresh } = healthCheck;
 
   return (
     <section className="dashboard-view">
@@ -60,9 +67,10 @@ export function DashboardPage() {
         <p className="section-label">Fase actual</p>
         <h2>Base tecnica inicial</h2>
         <p>
-          El proyecto queda preparado con FastAPI, SQLite, React, Vite y Tauri.
-          Las fases de importacion, analisis visual, curacion, mejora y
-          exportacion se implementaran encima de esta base.
+          El proyecto queda preparado con FastAPI, SQLite, React, Vite, Tauri,
+          rutas de navegacion y conexion visible con el backend local. Las fases
+          de importacion, analisis visual, curacion, mejora y exportacion se
+          implementaran encima de esta base.
         </p>
       </section>
     </section>

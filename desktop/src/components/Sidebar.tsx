@@ -1,12 +1,12 @@
-import type { NavigationItem, NavigationKey } from "../app/navigation";
+import { NavLink } from "react-router-dom";
+
+import type { NavigationItem } from "../app/navigation";
 
 type SidebarProps = {
-  activeView: NavigationKey;
   items: NavigationItem[];
-  onChange: (view: NavigationKey) => void;
 };
 
-export function Sidebar({ activeView, items, onChange }: SidebarProps) {
+export function Sidebar({ items }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="brand-block">
@@ -19,14 +19,14 @@ export function Sidebar({ activeView, items, onChange }: SidebarProps) {
 
       <nav className="sidebar-nav" aria-label="Navegacion principal">
         {items.map((item) => (
-          <button
-            className={item.key === activeView ? "nav-item active" : "nav-item"}
+          <NavLink
+            className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}
+            end={item.path === "/"}
             key={item.key}
-            onClick={() => onChange(item.key)}
-            type="button"
+            to={item.path}
           >
             {item.label}
-          </button>
+          </NavLink>
         ))}
       </nav>
     </aside>
