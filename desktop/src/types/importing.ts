@@ -47,6 +47,27 @@ export type MetadataProcessResponse = {
   thumbnail_failed: number;
 };
 
+export type VisualAnalysisProcessResponse = {
+  job_id: number;
+  total_photos: number;
+  analyzed_photos: number;
+  failed_photos: number;
+  skipped_non_images: number;
+};
+
+export type MediaAnalysis = {
+  sharpness_score: number | null;
+  brightness_score: number | null;
+  contrast_score: number | null;
+  noise_score: number | null;
+  exposure_score: number | null;
+  overall_quality_score: number | null;
+  perceptual_hash: string | null;
+  analysis_version: string;
+  raw_metrics_json: string | null;
+  analyzed_at: string;
+};
+
 export type OriginalMedia = {
   id: number;
   event_id: number;
@@ -67,6 +88,7 @@ export type OriginalMedia = {
   thumbnail_path: string | null;
   thumbnail_url: string | null;
   metadata_json: string | null;
+  analysis: MediaAnalysis | null;
   status: string;
   original_exists: boolean;
   imported_at: string;

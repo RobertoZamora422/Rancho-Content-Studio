@@ -491,7 +491,7 @@ h2 {
   align-items: center;
   display: grid;
   gap: 16px;
-  grid-template-columns: 96px minmax(220px, 1fr) 110px 170px 150px;
+  grid-template-columns: 96px minmax(220px, 1fr) 110px 170px 150px 120px 170px;
 }
 
 .media-row h2 {
@@ -527,6 +527,15 @@ h2 {
 
 .media-main-cell {
   min-width: 0;
+}
+
+.analysis-metrics {
+  display: grid;
+  gap: 3px;
+}
+
+.analysis-metrics span {
+  margin-top: 0;
 }
 
 .job-row {

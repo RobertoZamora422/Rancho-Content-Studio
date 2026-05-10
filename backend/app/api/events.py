@@ -12,6 +12,7 @@ from app.schemas.importing import (
     ScanResponse,
     SourceCreate,
     SourceResponse,
+    VisualAnalysisProcessResponse,
 )
 from app.services.event_service import (
     archive_event,
@@ -29,6 +30,7 @@ from app.services.import_service import (
     scan_event_sources,
 )
 from app.services.metadata_service import process_event_metadata_and_thumbnails
+from app.services.visual_analysis_service import analyze_event_photos
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -100,6 +102,14 @@ def process_metadata(
     db: Session = Depends(get_db),
 ) -> MetadataProcessResponse:
     return process_event_metadata_and_thumbnails(db, event_id)
+
+
+@router.post("/{event_id}/analyze-photos", response_model=VisualAnalysisProcessResponse)
+def analyze_photos(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> VisualAnalysisProcessResponse:
+    return analyze_event_photos(db, event_id)
 
 
 @router.get("/{event_id}/media/original", response_model=OriginalMediaListResponse)

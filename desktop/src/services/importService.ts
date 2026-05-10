@@ -4,7 +4,8 @@ import type {
   MediaSource,
   MetadataProcessResponse,
   OriginalMediaListResponse,
-  ScanResponse
+  ScanResponse,
+  VisualAnalysisProcessResponse
 } from "../types/importing";
 import type { JobListResponse } from "../types/jobs";
 
@@ -62,6 +63,13 @@ export async function processMetadataAndThumbnails(
     method: "POST"
   });
   return parseResponse<MetadataProcessResponse>(response);
+}
+
+export async function analyzePhotos(eventId: number): Promise<VisualAnalysisProcessResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/analyze-photos`, {
+    method: "POST"
+  });
+  return parseResponse<VisualAnalysisProcessResponse>(response);
 }
 
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {

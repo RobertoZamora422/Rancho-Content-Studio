@@ -55,3 +55,13 @@ La pantalla de detalle de evento incluye una seccion `Material original` que:
 - muestra fecha de captura, fuente de fecha, tamano, resolucion y duracion cuando existe;
 - mantiene estado vacio cuando no hay material importado;
 - conserva control humano visible sin modificar originales.
+
+## Fase 7 implementada en UI
+
+La seccion `Material original` tambien:
+
+- ejecuta `Analizar fotos`;
+- muestra calidad global por foto;
+- muestra nitidez, brillo, contraste y exposicion;
+- marca videos como `No aplica en Fase 7`;
+- mantiene el analisis como soporte tecnico para revision humana, no como decision automatica final.

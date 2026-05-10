@@ -6,6 +6,7 @@ import { archiveEvent, deleteEvent, getEvent } from "../../services/eventService
 import { API_BASE_URL } from "../../services/healthService";
 import {
   addSource,
+  analyzePhotos,
   importMedia,
   listEventJobs,
   listOriginalMedia,
@@ -19,7 +20,8 @@ import type {
   MediaSource,
   MetadataProcessResponse,
   OriginalMedia,
-  ScanResponse
+  ScanResponse,
+  VisualAnalysisProcessResponse
 } from "../../types/importing";
 import type { ProcessingJob } from "../../types/jobs";
 
@@ -35,6 +37,7 @@ export function EventDetailPage() {
   const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
   const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
   const [lastMetadata, setLastMetadata] = useState<MetadataProcessResponse | null>(null);
+  const [lastAnalysis, setLastAnalysis] = useState<VisualAnalysisProcessResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -182,6 +185,33 @@ export function EventDetailPage() {
         currentError instanceof Error
           ? currentError.message
           : "No se pudieron procesar metadatos y miniaturas."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleAnalyzePhotos() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const result = await analyzePhotos(event.id);
+      setLastAnalysis(result);
+      setMessage(
+        `Analisis visual completado: ${result.analyzed_photos} fotos analizadas, ${result.failed_photos} fallidas.`
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudo ejecutar el analisis visual."
       );
     } finally {
       setActionLoading(false);
@@ -372,6 +402,14 @@ export function EventDetailPage() {
               >
                 Procesar metadatos y miniaturas
               </button>
+              <button
+                className="outline-action"
+                disabled={actionLoading || mediaItems.every((media) => media.media_type !== "image")}
+                onClick={handleAnalyzePhotos}
+                type="button"
+              >
+                Analizar fotos
+              </button>
             </div>
             {lastMetadata ? (
               <p className="import-summary">
@@ -379,6 +417,13 @@ export function EventDetailPage() {
                 {lastMetadata.thumbnail_job_id}: {lastMetadata.metadata_updated} metadatos,{" "}
                 {lastMetadata.thumbnails_generated} miniaturas,{" "}
                 {lastMetadata.metadata_failed + lastMetadata.thumbnail_failed} fallidos.
+              </p>
+            ) : null}
+            {lastAnalysis ? (
+              <p className="import-summary">
+                Analisis job #{lastAnalysis.job_id}: {lastAnalysis.analyzed_photos} fotos,{" "}
+                {lastAnalysis.failed_photos} fallidas, {lastAnalysis.skipped_non_images} videos u
+                otros medios omitidos.
               </p>
             ) : null}
             <div className="media-table">
@@ -419,6 +464,18 @@ export function EventDetailPage() {
                     <p className="metric-label">Datos tecnicos</p>
                     <strong>{formatDimensions(media.width, media.height)}</strong>
                     <span>{formatDuration(media.duration_seconds)}</span>
+                  </div>
+                  <div>
+                    <p className="metric-label">Calidad</p>
+                    <strong>{formatScore(media.analysis?.overall_quality_score)}</strong>
+                    <span>{qualityLabel(media.analysis?.overall_quality_score, media.media_type)}</span>
+                  </div>
+                  <div className="analysis-metrics">
+                    <p className="metric-label">Analisis visual</p>
+                    <span>Nitidez {formatScore(media.analysis?.sharpness_score)}</span>
+                    <span>Brillo {formatScore(media.analysis?.brightness_score)}</span>
+                    <span>Contraste {formatScore(media.analysis?.contrast_score)}</span>
+                    <span>Exposicion {formatScore(media.analysis?.exposure_score)}</span>
                   </div>
                 </article>
               ))}
@@ -519,4 +576,27 @@ function formatDuration(value: number | null) {
     return "Sin duracion";
   }
   return `${value.toFixed(1)} s`;
+}
+
+function formatScore(value: number | null | undefined) {
+  if (value === null || value === undefined) {
+    return "--";
+  }
+  return `${Math.round(value)}/100`;
+}
+
+function qualityLabel(value: number | null | undefined, mediaType: string) {
+  if (mediaType !== "image") {
+    return "No aplica en Fase 7";
+  }
+  if (value === null || value === undefined) {
+    return "Pendiente";
+  }
+  if (value >= 75) {
+    return "Alta";
+  }
+  if (value >= 50) {
+    return "Media";
+  }
+  return "Baja";
 }

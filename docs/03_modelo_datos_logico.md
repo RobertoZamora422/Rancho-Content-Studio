@@ -35,6 +35,10 @@ export_package_item
 
 La Fase 1 crea las tablas principales con SQLAlchemy para dejar lista la persistencia local. Aun no implementa endpoints CRUD ni reglas de negocio avanzadas sobre todo el modelo.
 
+## Uso actual de analisis
+
+En Fase 7, `media_analysis` ya se usa para guardar el analisis visual local de fotos. Cada registro apunta a un `original_media` y contiene puntajes normalizados, hash perceptual, version del algoritmo y mediciones crudas.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

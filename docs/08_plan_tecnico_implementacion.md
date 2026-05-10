@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y Fase 6. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial y procesamiento de metadatos/miniaturas. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local y vista de material original con miniaturas.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6 y Fase 7. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas y analisis visual local de fotos. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local y vista de material original con miniaturas y metricas de calidad.
 
 ## Fase 6 implementada
 
@@ -33,6 +33,16 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y Fase 6. El
 - ExifTool se usa si esta disponible; si no, se registra advertencia y se usa fallback local.
 - Para videos se intenta extraer frame con FFmpeg; si falla o no esta disponible, se crea miniatura local de respaldo.
 - La UI de `Material original` muestra miniatura, fecha, fuente y datos tecnicos basicos.
+
+## Fase 7 implementada
+
+- Endpoint `POST /api/events/{id}/analyze-photos`.
+- Job `analyze_media` para procesar solo fotos y omitir videos.
+- Servicio local con Pillow para nitidez, brillo, contraste, exposicion, ruido estimado y hash perceptual.
+- Persistencia en `media_analysis` con version `local-pillow-basic-v1`.
+- Reanalizar una foto actualiza el registro existente en vez de duplicarlo.
+- La UI de `Material original` muestra calidad global y metricas basicas por foto.
+- Videos y categorias semanticas quedan fuera de Fase 7.
 
 ## Criterios por bloque
 

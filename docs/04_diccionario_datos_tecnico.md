@@ -40,6 +40,24 @@ La implementacion actual crea las tablas principales definidas en el modelo logi
 
 La columna `metadata_json` se agrega de forma incremental en bases SQLite existentes hasta introducir migraciones Alembic.
 
+## Campos usados en Fase 7
+
+`media_analysis` guarda los resultados del analisis visual local de fotos:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| original_media_id | integer | Foto analizada. Es unico para evitar duplicados por reanalisis. |
+| sharpness_score | float nullable | Nitidez normalizada de 0 a 100. |
+| brightness_score | float nullable | Brillo promedio normalizado de 0 a 100. |
+| contrast_score | float nullable | Contraste normalizado de 0 a 100. |
+| noise_score | float nullable | Estimacion local de limpieza/ruido de 0 a 100. |
+| exposure_score | float nullable | Exposicion estimada de 0 a 100. |
+| overall_quality_score | float nullable | Puntaje global ponderado de 0 a 100. |
+| perceptual_hash | string nullable | Hash perceptual local para fases de duplicados. |
+| analysis_version | string | Version del algoritmo usado. |
+| raw_metrics_json | text nullable | Mediciones crudas y metodo serializados como JSON. |
+| analyzed_at | datetime | Fecha del analisis mas reciente. |
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

@@ -61,16 +61,31 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 9. Los errores por archivo se registran en `processing_job_log` y no detienen el procesamiento completo.
 10. La UI muestra miniaturas, fecha de captura, fuente y datos tecnicos basicos.
 
+## Flujo de analisis visual de fotos implementado en Fase 7
+
+1. El usuario importa fotos en un evento.
+2. Desde el detalle del evento ejecuta `Analizar fotos`.
+3. El backend crea un job `analyze_media`.
+4. El backend filtra `original_media.media_type = image` y omite videos.
+5. Para cada foto:
+   - abre la imagen con Pillow,
+   - corrige orientacion EXIF si aplica,
+   - calcula nitidez, brillo, contraste, ruido estimado y exposicion,
+   - genera `perceptual_hash`,
+   - calcula `overall_quality_score`,
+   - guarda o actualiza `media_analysis`.
+6. Los errores por archivo se registran en `processing_job_log`.
+7. La UI muestra calidad global y metricas basicas.
+
 ## Flujo de procesamiento futuro
 
-1. Analizar calidad visual.
-2. Detectar duplicados y similares.
-3. Crear curacion sugerida.
-4. Permitir revision manual.
-5. Crear versiones mejoradas.
-6. Sugerir piezas.
-7. Generar o editar copy.
-8. Exportar.
+1. Detectar duplicados y similares.
+2. Crear curacion sugerida.
+3. Permitir revision manual.
+4. Crear versiones mejoradas.
+5. Sugerir piezas.
+6. Generar o editar copy.
+7. Exportar.
 
 ## Jobs
 

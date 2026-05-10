@@ -5,12 +5,13 @@ from pathlib import Path
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.events import ContentEvent, LocalMediaSource
 from app.models.media import OriginalMedia
 from app.schemas.importing import (
     ImportResponse,
+    MediaAnalysisResponse,
     OriginalMediaResponse,
     ScanResponse,
     ScanSourceSummary,
@@ -253,6 +254,7 @@ def list_original_media(db: Session, event_id: int) -> list[OriginalMediaRespons
     media_items = db.scalars(
         select(OriginalMedia)
         .where(OriginalMedia.event_id == event_id)
+        .options(selectinload(OriginalMedia.analysis))
         .order_by(OriginalMedia.imported_at.desc(), OriginalMedia.id.desc())
     ).all()
     return [to_original_media_response(media) for media in media_items]
@@ -330,7 +332,23 @@ def to_original_media_response(media: OriginalMedia) -> OriginalMediaResponse:
         thumbnail_path=media.thumbnail_path,
         thumbnail_url=f"/api/media/original/{media.id}/thumbnail" if media.thumbnail_path else None,
         metadata_json=media.metadata_json,
+        analysis=to_media_analysis_response(media.analysis) if media.analysis else None,
         status=media.status,
         original_exists=media.original_exists,
         imported_at=media.imported_at,
+    )
+
+
+def to_media_analysis_response(analysis) -> MediaAnalysisResponse:
+    return MediaAnalysisResponse(
+        sharpness_score=analysis.sharpness_score,
+        brightness_score=analysis.brightness_score,
+        contrast_score=analysis.contrast_score,
+        noise_score=analysis.noise_score,
+        exposure_score=analysis.exposure_score,
+        overall_quality_score=analysis.overall_quality_score,
+        perceptual_hash=analysis.perceptual_hash,
+        analysis_version=analysis.analysis_version,
+        raw_metrics_json=analysis.raw_metrics_json,
+        analyzed_at=analysis.analyzed_at,
     )

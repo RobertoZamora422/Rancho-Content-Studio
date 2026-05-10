@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y Fase 6:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6 y Fase 7:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -38,9 +38,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5 y Fase 6:
 - Procesamiento de metadatos y miniaturas sobre material importado.
 - Lectura opcional con ExifTool y fallback local por fecha de archivo.
 - Miniaturas locales para fotos y videos en `metadata/thumbnails`.
+- Analisis visual local de fotos con puntajes de calidad y hash perceptual.
 - Scaffold Tauri preparado.
 
-No incluye todavia analisis visual, curacion, mejoras, piezas ni exportacion final.
+No incluye todavia deteccion de duplicados, curacion, mejoras, piezas ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -203,6 +204,25 @@ Reglas aplicadas:
 - La ruta guardada en `thumbnail_path` es relativa a la carpeta del evento.
 - La UI de `Material original` usa el endpoint de miniaturas, muestra fecha de captura, fuente de fecha y datos tecnicos basicos.
 
+## Fase 7 implementada
+
+La Fase 7 agrega analisis visual local de fotos:
+
+- `POST /api/events/{id}/analyze-photos`: analiza fotos importadas del evento.
+- Job `analyze_media`: registra progreso, conteos y errores por archivo.
+- Guarda o actualiza `media_analysis` por cada foto valida.
+- Calcula puntajes normalizados de nitidez, brillo, contraste, ruido estimado, exposicion y calidad global.
+- Genera `perceptual_hash` local tipo average hash para fases posteriores de duplicados.
+- Guarda mediciones base en `raw_metrics_json` y version `local-pillow-basic-v1`.
+- Omite videos en Fase 7 y los deja para el analisis de video posterior.
+- La UI de `Material original` permite ejecutar `Analizar fotos` y muestra calidad, nitidez, brillo, contraste y exposicion.
+
+Reglas aplicadas:
+
+- Los originales importados no se modifican.
+- El analisis es local y usa Pillow; no introduce dependencias cloud.
+- Una imagen corrupta registra error por archivo y no detiene todo el job.
+
 ## Backend
 
 ```powershell
@@ -239,6 +259,7 @@ Invoke-RestMethod http://127.0.0.1:8000/api/events/1/sources
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/scan
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/import
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/process-metadata
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/analyze-photos
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 ```
 
@@ -285,7 +306,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - Hay un ajuste incremental minimo para agregar `original_media.metadata_json` en bases existentes hasta introducir Alembic.
 - Los endpoints de curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
-- No existe analisis visual avanzado aun.
+- El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
+- El analisis de videos queda pendiente para una fase posterior.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
 - La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
@@ -360,6 +382,14 @@ Para validar Fase 6:
 3. Confirmar que `Material original` muestra miniaturas, fecha de captura, fuente de fecha y datos tecnicos.
 4. Revisar que `metadata/thumbnails` exista dentro de la carpeta del evento.
 5. Consultar los jobs `write_metadata` y `generate_thumbnails` en `GET /api/events/{id}/jobs`.
+
+Para validar Fase 7:
+
+1. Importar fotos en un evento.
+2. En `#/events/{id}`, ejecutar `Analizar fotos`.
+3. Confirmar que las fotos muestran `Calidad` y metricas de nitidez, brillo, contraste y exposicion.
+4. Confirmar que los videos quedan como `No aplica en Fase 7`.
+5. Consultar `GET /api/events/{id}/jobs` y verificar el job `analyze_media`.
 
 ## Reglas centrales
 

@@ -58,6 +58,27 @@ class MetadataProcessResponse(BaseModel):
     thumbnail_failed: int
 
 
+class VisualAnalysisProcessResponse(BaseModel):
+    job_id: int
+    total_photos: int
+    analyzed_photos: int
+    failed_photos: int
+    skipped_non_images: int
+
+
+class MediaAnalysisResponse(BaseModel):
+    sharpness_score: float | None
+    brightness_score: float | None
+    contrast_score: float | None
+    noise_score: float | None
+    exposure_score: float | None
+    overall_quality_score: float | None
+    perceptual_hash: str | None
+    analysis_version: str
+    raw_metrics_json: str | None
+    analyzed_at: datetime
+
+
 class OriginalMediaResponse(BaseModel):
     id: int
     event_id: int
@@ -78,6 +99,7 @@ class OriginalMediaResponse(BaseModel):
     thumbnail_path: str | None
     thumbnail_url: str | None
     metadata_json: str | None
+    analysis: MediaAnalysisResponse | None
     status: str
     original_exists: bool
     imported_at: datetime

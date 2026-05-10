@@ -59,3 +59,11 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - FFmpeg se usa solo si esta disponible para extraer frames de video.
 - Las miniaturas viven dentro de la carpeta del evento en `metadata/thumbnails`.
 - El frontend consume miniaturas mediante FastAPI, no mediante rutas locales directas.
+
+## Implementacion local de Fase 7
+
+- El analisis visual de fotos vive en `services/visual_analysis_service.py`.
+- Usa Pillow para abrir imagenes, corregir orientacion EXIF y calcular metricas basicas.
+- Guarda resultados en `media_analysis` sin modificar archivos originales.
+- Genera un hash perceptual local tipo average hash para la futura Fase 8.
+- Los videos se omiten en Fase 7 y se analizaran en una fase posterior.
