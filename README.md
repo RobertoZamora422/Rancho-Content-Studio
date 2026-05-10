@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6 y Fase 7:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7 y Fase 8:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -39,9 +39,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6 y Fase 7:
 - Lectura opcional con ExifTool y fallback local por fecha de archivo.
 - Miniaturas locales para fotos y videos en `metadata/thumbnails`.
 - Analisis visual local de fotos con puntajes de calidad y hash perceptual.
+- Deteccion local de duplicados exactos y fotos visualmente similares.
 - Scaffold Tauri preparado.
 
-No incluye todavia deteccion de duplicados, curacion, mejoras, piezas ni exportacion final.
+No incluye todavia curacion, mejoras, piezas ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -223,6 +224,25 @@ Reglas aplicadas:
 - El analisis es local y usa Pillow; no introduce dependencias cloud.
 - Una imagen corrupta registra error por archivo y no detiene todo el job.
 
+## Fase 8 implementada
+
+La Fase 8 agrega deteccion local de duplicados y similares:
+
+- `POST /api/events/{id}/detect-similarity`: recalcula grupos generados de similitud.
+- `GET /api/events/{id}/similarity-groups`: lista grupos detectados y sus alternativas.
+- Job `detect_similarity`: registra conteos y logs del proceso.
+- Agrupa duplicados exactos por `checksum_sha256`.
+- Agrupa fotos visualmente similares comparando `media_analysis.perceptual_hash`.
+- Crea `similarity_group` y `similarity_group_item`.
+- Define representante sugerido por mejor `overall_quality_score`.
+- La UI de detalle muestra grupos, representante sugerido, alternativas, confianza y distancia.
+
+Reglas aplicadas:
+
+- No se borran ni modifican archivos originales.
+- La deteccion recalcula solo grupos generados `checksum_duplicate` y `perceptual_hash`.
+- Si faltan hashes perceptuales, se registra advertencia y se omiten esas fotos hasta ejecutar `Analizar fotos`.
+
 ## Backend
 
 ```powershell
@@ -260,7 +280,9 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/scan
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/import
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/process-metadata
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/analyze-photos
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/detect-similarity
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
 ```
 
 Pruebas:
@@ -308,6 +330,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
 - El analisis de videos queda pendiente para una fase posterior.
+- La similitud visual de Fase 8 usa average hash y un umbral fijo; casos dudosos deben revisarse manualmente.
+- La importacion actual omite duplicados exactos por checksum, asi que los grupos exactos apareceran sobre datos existentes o registros creados antes de esa regla.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
 - La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
@@ -390,6 +414,15 @@ Para validar Fase 7:
 3. Confirmar que las fotos muestran `Calidad` y metricas de nitidez, brillo, contraste y exposicion.
 4. Confirmar que los videos quedan como `No aplica en Fase 7`.
 5. Consultar `GET /api/events/{id}/jobs` y verificar el job `analyze_media`.
+
+Para validar Fase 8:
+
+1. Importar fotos en un evento.
+2. Ejecutar `Analizar fotos`.
+3. Ejecutar `Detectar duplicados y similares`.
+4. Confirmar que aparece la seccion `Duplicados y similares`.
+5. Consultar `GET /api/events/{id}/similarity-groups` y verificar representantes y alternativas.
+6. Consultar `GET /api/events/{id}/jobs` y verificar el job `detect_similarity`.
 
 ## Reglas centrales
 

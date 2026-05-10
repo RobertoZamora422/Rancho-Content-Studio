@@ -7,9 +7,11 @@ import { API_BASE_URL } from "../../services/healthService";
 import {
   addSource,
   analyzePhotos,
+  detectSimilarity,
   importMedia,
   listEventJobs,
   listOriginalMedia,
+  listSimilarityGroups,
   listSources,
   processMetadataAndThumbnails,
   scanSources
@@ -21,6 +23,8 @@ import type {
   MetadataProcessResponse,
   OriginalMedia,
   ScanResponse,
+  SimilarityDetectionResponse,
+  SimilarityGroup,
   VisualAnalysisProcessResponse
 } from "../../types/importing";
 import type { ProcessingJob } from "../../types/jobs";
@@ -32,12 +36,14 @@ export function EventDetailPage() {
   const [event, setEvent] = useState<ContentEvent | null>(null);
   const [sources, setSources] = useState<MediaSource[]>([]);
   const [mediaItems, setMediaItems] = useState<OriginalMedia[]>([]);
+  const [similarityGroups, setSimilarityGroups] = useState<SimilarityGroup[]>([]);
   const [jobs, setJobs] = useState<ProcessingJob[]>([]);
   const [sourcePath, setSourcePath] = useState("");
   const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
   const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
   const [lastMetadata, setLastMetadata] = useState<MetadataProcessResponse | null>(null);
   const [lastAnalysis, setLastAnalysis] = useState<VisualAnalysisProcessResponse | null>(null);
+  const [lastSimilarity, setLastSimilarity] = useState<SimilarityDetectionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,13 +71,15 @@ export function EventDetailPage() {
 
   async function loadImportState(currentEventId: number) {
     try {
-      const [sourceResponse, mediaResponse, jobResponse] = await Promise.all([
+      const [sourceResponse, mediaResponse, similarityResponse, jobResponse] = await Promise.all([
         listSources(currentEventId),
         listOriginalMedia(currentEventId),
+        listSimilarityGroups(currentEventId),
         listEventJobs(currentEventId)
       ]);
       setSources(sourceResponse);
       setMediaItems(mediaResponse.items);
+      setSimilarityGroups(similarityResponse.items);
       setJobs(jobResponse.items);
     } catch (currentError) {
       setError(
@@ -212,6 +220,33 @@ export function EventDetailPage() {
         currentError instanceof Error
           ? currentError.message
           : "No se pudo ejecutar el analisis visual."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleDetectSimilarity() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const result = await detectSimilarity(event.id);
+      setLastSimilarity(result);
+      setMessage(
+        `Deteccion completada: ${result.exact_groups} grupos exactos y ${result.similar_groups} grupos similares.`
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudo detectar duplicados y similares."
       );
     } finally {
       setActionLoading(false);
@@ -410,6 +445,14 @@ export function EventDetailPage() {
               >
                 Analizar fotos
               </button>
+              <button
+                className="outline-action"
+                disabled={actionLoading || mediaItems.length < 2}
+                onClick={handleDetectSimilarity}
+                type="button"
+              >
+                Detectar duplicados y similares
+              </button>
             </div>
             {lastMetadata ? (
               <p className="import-summary">
@@ -424,6 +467,13 @@ export function EventDetailPage() {
                 Analisis job #{lastAnalysis.job_id}: {lastAnalysis.analyzed_photos} fotos,{" "}
                 {lastAnalysis.failed_photos} fallidas, {lastAnalysis.skipped_non_images} videos u
                 otros medios omitidos.
+              </p>
+            ) : null}
+            {lastSimilarity ? (
+              <p className="import-summary">
+                Similitud job #{lastSimilarity.job_id}: {lastSimilarity.exact_groups} exactos,{" "}
+                {lastSimilarity.similar_groups} similares, {lastSimilarity.grouped_items} medios
+                agrupados.
               </p>
             ) : null}
             <div className="media-table">
@@ -476,6 +526,61 @@ export function EventDetailPage() {
                     <span>Brillo {formatScore(media.analysis?.brightness_score)}</span>
                     <span>Contraste {formatScore(media.analysis?.contrast_score)}</span>
                     <span>Exposicion {formatScore(media.analysis?.exposure_score)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="similarity-panel">
+            <div className="section-heading-row">
+              <div>
+                <p className="section-label">Duplicados y similares</p>
+                <h2>{similarityGroups.length} grupos detectados</h2>
+              </div>
+            </div>
+            {similarityGroups.length === 0 ? (
+              <article className="empty-state">
+                <h2>Sin grupos detectados</h2>
+                <p>
+                  Ejecuta Analizar fotos y luego Detectar duplicados y similares para revisar
+                  alternativas.
+                </p>
+              </article>
+            ) : null}
+            <div className="similarity-list">
+              {similarityGroups.map((group) => (
+                <article className="similarity-group" key={group.id}>
+                  <div className="similarity-summary">
+                    <div>
+                      <p className="metric-label">{formatGroupType(group.group_type)}</p>
+                      <h2>Grupo #{group.id}</h2>
+                      <span>{group.reason ?? "Sin motivo registrado"}</span>
+                    </div>
+                    <strong>{formatConfidence(group.confidence_score)}</strong>
+                  </div>
+                  <div className="similarity-strip">
+                    {group.items.map((item) => (
+                      <div className="similarity-item" key={item.id}>
+                        <div className="media-thumb">
+                          {item.media.thumbnail_url ? (
+                            <img
+                              alt={`Miniatura de ${item.media.filename}`}
+                              loading="lazy"
+                              src={thumbnailSrc(item.media.thumbnail_url)}
+                            />
+                          ) : (
+                            <span>{item.media.media_type === "video" ? "VIDEO" : "IMG"}</span>
+                          )}
+                        </div>
+                        <div>
+                          <strong>{item.media.filename}</strong>
+                          <span>{formatSimilarityRole(item.role)}</span>
+                          <span>Calidad {formatScore(item.media.analysis?.overall_quality_score)}</span>
+                          <span>Distancia {formatDistance(item.distance_score)}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </article>
               ))}
@@ -599,4 +704,35 @@ function qualityLabel(value: number | null | undefined, mediaType: string) {
     return "Media";
   }
   return "Baja";
+}
+
+function formatGroupType(value: string) {
+  const labels: Record<string, string> = {
+    checksum_duplicate: "Duplicado exacto",
+    perceptual_hash: "Similar visual"
+  };
+  return labels[value] ?? value;
+}
+
+function formatConfidence(value: number | null) {
+  if (value === null) {
+    return "Confianza pendiente";
+  }
+  return `${Math.round(value)}% confianza`;
+}
+
+function formatSimilarityRole(value: string) {
+  const labels: Record<string, string> = {
+    alternative: "Alternativa",
+    duplicate: "Duplicado",
+    representative: "Representante sugerido"
+  };
+  return labels[value] ?? value;
+}
+
+function formatDistance(value: number | null) {
+  if (value === null) {
+    return "--";
+  }
+  return value.toFixed(0);
 }

@@ -58,6 +58,28 @@ La columna `metadata_json` se agrega de forma incremental en bases SQLite existe
 | raw_metrics_json | text nullable | Mediciones crudas y metodo serializados como JSON. |
 | analyzed_at | datetime | Fecha del analisis mas reciente. |
 
+## Campos usados en Fase 8
+
+`similarity_group` guarda grupos recalculados de duplicados o similitud:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| event_id | integer | Evento al que pertenece el grupo. |
+| group_type | string | `checksum_duplicate` o `perceptual_hash`. |
+| representative_media_id | integer nullable | Medio sugerido como representante. |
+| confidence_score | float nullable | Confianza estimada de 0 a 100. |
+| reason | text nullable | Explicacion del agrupamiento. |
+
+`similarity_group_item` guarda los medios dentro del grupo:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| group_id | integer | Grupo de similitud. |
+| original_media_id | integer | Medio agrupado. |
+| distance_score | float nullable | Distancia frente al representante, 0 si es duplicado exacto. |
+| role | string | `representative`, `duplicate` o `alternative`. |
+| reason | text nullable | Motivo de inclusion. |
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

@@ -39,6 +39,10 @@ La Fase 1 crea las tablas principales con SQLAlchemy para dejar lista la persist
 
 En Fase 7, `media_analysis` ya se usa para guardar el analisis visual local de fotos. Cada registro apunta a un `original_media` y contiene puntajes normalizados, hash perceptual, version del algoritmo y mediciones crudas.
 
+## Uso actual de similitud
+
+En Fase 8, `similarity_group` y `similarity_group_item` se usan para agrupar duplicados exactos por checksum y fotos similares por hash perceptual. El grupo guarda un representante sugerido y cada item mantiene su rol dentro del grupo.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

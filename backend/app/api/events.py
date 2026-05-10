@@ -10,6 +10,8 @@ from app.schemas.importing import (
     MetadataProcessResponse,
     OriginalMediaListResponse,
     ScanResponse,
+    SimilarityDetectionResponse,
+    SimilarityGroupListResponse,
     SourceCreate,
     SourceResponse,
     VisualAnalysisProcessResponse,
@@ -30,6 +32,7 @@ from app.services.import_service import (
     scan_event_sources,
 )
 from app.services.metadata_service import process_event_metadata_and_thumbnails
+from app.services.similarity_service import detect_event_similarities, list_similarity_groups
 from app.services.visual_analysis_service import analyze_event_photos
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -110,6 +113,22 @@ def analyze_photos(
     db: Session = Depends(get_db),
 ) -> VisualAnalysisProcessResponse:
     return analyze_event_photos(db, event_id)
+
+
+@router.post("/{event_id}/detect-similarity", response_model=SimilarityDetectionResponse)
+def detect_similarity(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> SimilarityDetectionResponse:
+    return detect_event_similarities(db, event_id)
+
+
+@router.get("/{event_id}/similarity-groups", response_model=SimilarityGroupListResponse)
+def read_similarity_groups(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> SimilarityGroupListResponse:
+    return list_similarity_groups(db, event_id)
 
 
 @router.get("/{event_id}/media/original", response_model=OriginalMediaListResponse)

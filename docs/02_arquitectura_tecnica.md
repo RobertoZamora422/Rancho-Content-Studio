@@ -67,3 +67,11 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Guarda resultados en `media_analysis` sin modificar archivos originales.
 - Genera un hash perceptual local tipo average hash para la futura Fase 8.
 - Los videos se omiten en Fase 7 y se analizaran en una fase posterior.
+
+## Implementacion local de Fase 8
+
+- La deteccion vive en `services/similarity_service.py`.
+- Los duplicados exactos se agrupan por `checksum_sha256`.
+- Las fotos similares se agrupan por distancia Hamming entre `perceptual_hash`.
+- El representante sugerido se elige por `overall_quality_score`.
+- Los grupos se recalculan en SQLite y no modifican archivos locales.

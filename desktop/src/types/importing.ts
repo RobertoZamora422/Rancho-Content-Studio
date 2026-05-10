@@ -55,6 +55,15 @@ export type VisualAnalysisProcessResponse = {
   skipped_non_images: number;
 };
 
+export type SimilarityDetectionResponse = {
+  job_id: number;
+  total_media: number;
+  exact_groups: number;
+  similar_groups: number;
+  grouped_items: number;
+  skipped_without_hash: number;
+};
+
 export type MediaAnalysis = {
   sharpness_score: number | null;
   brightness_score: number | null;
@@ -96,4 +105,29 @@ export type OriginalMedia = {
 
 export type OriginalMediaListResponse = {
   items: OriginalMedia[];
+};
+
+export type SimilarityGroupItem = {
+  id: number;
+  group_id: number;
+  original_media_id: number;
+  distance_score: number | null;
+  role: string;
+  reason: string | null;
+  media: OriginalMedia;
+};
+
+export type SimilarityGroup = {
+  id: number;
+  event_id: number;
+  group_type: string;
+  representative_media_id: number | null;
+  confidence_score: number | null;
+  reason: string | null;
+  created_at: string;
+  items: SimilarityGroupItem[];
+};
+
+export type SimilarityGroupListResponse = {
+  items: SimilarityGroup[];
 };

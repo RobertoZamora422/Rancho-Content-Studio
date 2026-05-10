@@ -66,6 +66,15 @@ class VisualAnalysisProcessResponse(BaseModel):
     skipped_non_images: int
 
 
+class SimilarityDetectionResponse(BaseModel):
+    job_id: int
+    total_media: int
+    exact_groups: int
+    similar_groups: int
+    grouped_items: int
+    skipped_without_hash: int
+
+
 class MediaAnalysisResponse(BaseModel):
     sharpness_score: float | None
     brightness_score: float | None
@@ -107,3 +116,28 @@ class OriginalMediaResponse(BaseModel):
 
 class OriginalMediaListResponse(BaseModel):
     items: list[OriginalMediaResponse]
+
+
+class SimilarityGroupItemResponse(BaseModel):
+    id: int
+    group_id: int
+    original_media_id: int
+    distance_score: float | None
+    role: str
+    reason: str | None
+    media: OriginalMediaResponse
+
+
+class SimilarityGroupResponse(BaseModel):
+    id: int
+    event_id: int
+    group_type: str
+    representative_media_id: int | None
+    confidence_score: float | None
+    reason: str | None
+    created_at: datetime
+    items: list[SimilarityGroupItemResponse]
+
+
+class SimilarityGroupListResponse(BaseModel):
+    items: list[SimilarityGroupResponse]

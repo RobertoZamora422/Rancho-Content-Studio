@@ -65,3 +65,13 @@ La seccion `Material original` tambien:
 - muestra nitidez, brillo, contraste y exposicion;
 - marca videos como `No aplica en Fase 7`;
 - mantiene el analisis como soporte tecnico para revision humana, no como decision automatica final.
+
+## Fase 8 implementada en UI
+
+El detalle de evento incluye una seccion `Duplicados y similares` que:
+
+- ejecuta `Detectar duplicados y similares`;
+- muestra cantidad de grupos detectados;
+- separa duplicados exactos y similares visuales;
+- muestra representante sugerido, alternativas, calidad, distancia y confianza;
+- permite revisar alternativas sin borrar ni descartar automaticamente.

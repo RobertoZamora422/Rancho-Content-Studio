@@ -269,6 +269,7 @@ h2 {
 .list-toolbar,
 .import-panel,
 .media-panel,
+.similarity-panel,
 .jobs-panel,
 .source-card,
 .media-row,
@@ -439,6 +440,7 @@ h2 {
 
 .import-panel,
 .media-panel,
+.similarity-panel,
 .jobs-panel {
   display: grid;
   gap: 16px;
@@ -538,6 +540,54 @@ h2 {
   margin-top: 0;
 }
 
+.similarity-list {
+  display: grid;
+  gap: 14px;
+}
+
+.similarity-group {
+  border-top: 1px solid #ded8cc;
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.similarity-summary {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.similarity-summary span,
+.similarity-item span {
+  color: #555e57;
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.similarity-strip {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.similarity-item {
+  align-items: center;
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 76px minmax(0, 1fr);
+  padding: 10px;
+}
+
+.similarity-item .media-thumb {
+  width: 76px;
+}
+
 .job-row {
   align-items: center;
   display: grid;
@@ -614,12 +664,17 @@ h2 {
   .folder-grid,
   .source-form,
   .media-row,
+  .similarity-item,
   .job-row {
     grid-template-columns: 1fr;
   }
 
   .section-heading-row {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .similarity-summary {
     flex-direction: column;
   }
 

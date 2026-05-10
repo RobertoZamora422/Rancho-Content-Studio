@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6 y Fase 7. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas y analisis visual local de fotos. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local y vista de material original con miniaturas y metricas de calidad.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7 y Fase 8. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos y deteccion de duplicados/similares. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas de calidad y grupos similares revisables.
 
 ## Fase 6 implementada
 
@@ -43,6 +43,17 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6 y Fa
 - Reanalizar una foto actualiza el registro existente en vez de duplicarlo.
 - La UI de `Material original` muestra calidad global y metricas basicas por foto.
 - Videos y categorias semanticas quedan fuera de Fase 7.
+
+## Fase 8 implementada
+
+- Endpoint `POST /api/events/{id}/detect-similarity`.
+- Endpoint `GET /api/events/{id}/similarity-groups`.
+- Job `detect_similarity` para recalcular grupos generados.
+- Deteccion exacta por `checksum_sha256`.
+- Deteccion visual por distancia Hamming entre `perceptual_hash`.
+- Persistencia en `similarity_group` y `similarity_group_item`.
+- Representante sugerido por mejor puntaje global de calidad.
+- UI de grupos con representante, alternativas, distancia y confianza.
 
 ## Criterios por bloque
 

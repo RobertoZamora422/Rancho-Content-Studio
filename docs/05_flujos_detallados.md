@@ -77,15 +77,27 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 6. Los errores por archivo se registran en `processing_job_log`.
 7. La UI muestra calidad global y metricas basicas.
 
+## Flujo de duplicados y similares implementado en Fase 8
+
+1. El usuario importa medios y ejecuta analisis visual de fotos.
+2. Desde el detalle del evento ejecuta `Detectar duplicados y similares`.
+3. El backend crea un job `detect_similarity`.
+4. El backend elimina grupos generados previos de tipo `checksum_duplicate` y `perceptual_hash` para recalcular sin duplicarlos.
+5. Agrupa duplicados exactos por `checksum_sha256`.
+6. Agrupa fotos similares comparando `perceptual_hash` con distancia Hamming.
+7. Define representante sugerido por mayor `overall_quality_score`.
+8. Crea `similarity_group` y `similarity_group_item`.
+9. Registra advertencias si hay fotos sin hash perceptual.
+10. La UI muestra representante sugerido, alternativas, distancia y confianza.
+
 ## Flujo de procesamiento futuro
 
-1. Detectar duplicados y similares.
-2. Crear curacion sugerida.
-3. Permitir revision manual.
-4. Crear versiones mejoradas.
-5. Sugerir piezas.
-6. Generar o editar copy.
-7. Exportar.
+1. Crear curacion sugerida.
+2. Permitir revision manual.
+3. Crear versiones mejoradas.
+4. Sugerir piezas.
+5. Generar o editar copy.
+6. Exportar.
 
 ## Jobs
 

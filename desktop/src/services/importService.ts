@@ -5,6 +5,8 @@ import type {
   MetadataProcessResponse,
   OriginalMediaListResponse,
   ScanResponse,
+  SimilarityDetectionResponse,
+  SimilarityGroupListResponse,
   VisualAnalysisProcessResponse
 } from "../types/importing";
 import type { JobListResponse } from "../types/jobs";
@@ -72,9 +74,21 @@ export async function analyzePhotos(eventId: number): Promise<VisualAnalysisProc
   return parseResponse<VisualAnalysisProcessResponse>(response);
 }
 
+export async function detectSimilarity(eventId: number): Promise<SimilarityDetectionResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/detect-similarity`, {
+    method: "POST"
+  });
+  return parseResponse<SimilarityDetectionResponse>(response);
+}
+
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/media/original`);
   return parseResponse<OriginalMediaListResponse>(response);
+}
+
+export async function listSimilarityGroups(eventId: number): Promise<SimilarityGroupListResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/similarity-groups`);
+  return parseResponse<SimilarityGroupListResponse>(response);
 }
 
 export async function listEventJobs(eventId: number): Promise<JobListResponse> {
