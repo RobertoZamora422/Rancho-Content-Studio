@@ -121,7 +121,9 @@ button {
 
 .dashboard-view,
 .placeholder-view,
-.settings-view {
+.settings-view,
+.events-view,
+.event-detail-view {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -213,6 +215,21 @@ h2 {
   background: #314037;
 }
 
+.danger-action {
+  background: #fff4f1;
+  border: 1px solid #d99b91;
+  border-radius: 8px;
+  color: #8d3129;
+  cursor: pointer;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.danger-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .inline-error {
   background: #fff4f1;
   border: 1px solid #ecc4bd;
@@ -242,16 +259,32 @@ h2 {
 .placeholder-view,
 .module-state,
 .settings-panel,
-.validation-card {
+.validation-card,
+.event-form,
+.event-row,
+.empty-state,
+.detail-grid article,
+.path-panel,
+.folder-tile,
+.list-toolbar {
   background: #ffffff;
   border: 1px solid #ded8cc;
   border-radius: 8px;
   padding: 20px;
 }
 
-.settings-panel {
+.settings-panel,
+.event-form {
   display: grid;
   gap: 18px;
+}
+
+.event-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.span-3 {
+  grid-column: 1 / -1;
 }
 
 .field-group {
@@ -309,6 +342,93 @@ h2 {
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.list-toolbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.toggle-row {
+  align-items: center;
+  color: #303a33;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.event-list {
+  display: grid;
+  gap: 12px;
+}
+
+.event-row {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(220px, 1.4fr) 120px minmax(160px, 1fr) auto;
+}
+
+.event-row h2,
+.event-row p {
+  margin-bottom: 4px;
+}
+
+.event-path-cell {
+  min-width: 0;
+}
+
+.event-path-cell code,
+.path-panel code {
+  color: #303a33;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.link-action,
+.back-link {
+  color: #202722;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.link-action {
+  background: #f5f3ee;
+  border: 1px solid #cfc8bb;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.back-link {
+  width: max-content;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.detail-grid strong {
+  display: block;
+  margin-top: 6px;
+}
+
+.folder-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.folder-tile {
+  display: grid;
+  gap: 8px;
+}
+
+.folder-tile span {
+  color: #b17736;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .validation-card {
@@ -373,7 +493,11 @@ h2 {
   .status-strip,
   .top-bar,
   .workflow-grid,
-  .validation-grid {
+  .validation-grid,
+  .event-form,
+  .event-row,
+  .detail-grid,
+  .folder-grid {
     grid-template-columns: 1fr;
   }
 

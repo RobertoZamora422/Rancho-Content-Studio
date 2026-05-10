@@ -22,6 +22,16 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 3. El usuario agrega una fuente local.
 4. La app escanea, importa y registra archivos sin modificar originales.
 
+## Flujo de eventos implementado en Fase 4
+
+1. El usuario configura una carpeta raiz local.
+2. El usuario crea un evento desde la pantalla Eventos.
+3. El backend genera un nombre seguro para Windows con fecha y nombre del evento.
+4. El backend crea la carpeta del evento y subcarpetas operativas.
+5. El evento queda registrado en SQLite con estado `active`.
+6. El usuario puede abrir el detalle, ver la ruta local, archivar o dar de baja logicamente.
+7. Archivar o dar de baja no borra carpetas ni archivos.
+
 ## Flujo de procesamiento futuro
 
 1. Generar miniaturas.

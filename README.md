@@ -20,7 +20,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2 y Fase 3:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3 y Fase 4:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -30,6 +30,8 @@ Esta base cubre Fase 0, Fase 1, Fase 2 y Fase 3:
 - Seed inicial idempotente de configuracion local, usuario admin, marca, perfil editorial y presets visuales.
 - Frontend React con shell base, navegacion por rutas hash y healthcheck compartido.
 - Configuracion local editable para carpeta raiz, FFmpeg y ExifTool.
+- Eventos locales: crear, listar, abrir, archivar y dar de baja logicamente.
+- Generacion de estructura local de carpetas por evento.
 - Scaffold Tauri preparado.
 
 No incluye todavia importacion, analisis visual, curacion, mejoras, piezas ni exportacion final.
@@ -118,6 +120,37 @@ La validacion de FFmpeg y ExifTool funciona asi:
 
 La carpeta raiz local debe existir antes de validarla. En fases posteriores, los eventos se crearan dentro de esa raiz usando nombres seguros para Windows.
 
+## Fase 4 implementada
+
+La Fase 4 agrega gestion inicial de eventos:
+
+- `GET /api/events`: lista eventos activos.
+- `GET /api/events?include_archived=true`: incluye eventos archivados.
+- `POST /api/events`: crea evento y genera carpetas locales.
+- `GET /api/events/{id}`: abre detalle de evento.
+- `PUT /api/events/{id}`: actualiza datos basicos sin renombrar carpetas existentes.
+- `POST /api/events/{id}/archive`: archiva el evento.
+- `DELETE /api/events/{id}`: baja logica en SQLite; no borra carpetas ni archivos.
+
+Al crear un evento, el backend exige que `workspace.root` exista y genera una carpeta segura para Windows:
+
+```text
+2026-05-10_Boda_Ana_y_Luis/
+  01_Originales/
+  02_Seleccionados/
+  03_Descartados_Logicos/
+  04_Mejorados/
+  05_Reels/
+  06_Carruseles/
+  07_Historias/
+  08_Copies/
+  09_Listo_Para_Publicar/
+  10_Publicado/
+  metadata/
+```
+
+La pantalla `#/events` permite crear y listar eventos. La ruta `#/events/{id}` muestra detalle, ruta local, carpetas creadas y acciones de archivo/baja logica.
+
 ## Backend
 
 ```powershell
@@ -139,6 +172,12 @@ Configuracion:
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8000/api/config
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/config/validate-tools
+```
+
+Eventos:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/events
 ```
 
 Pruebas:
@@ -181,9 +220,10 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 ## Limitaciones pendientes
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
-- Los endpoints REST completos de configuracion, eventos, importacion, jobs, curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
+- Los endpoints de importacion, jobs, curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - No existe procesamiento multimedia aun.
+- La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
 - No se ha validado `npm run tauri dev` porque requiere Rust/Cargo y dependencias Tauri del sistema.
 
 ## Variables utiles
@@ -231,6 +271,13 @@ http://127.0.0.1:5173/#/settings
 ```
 
 Guardar rutas locales y ejecutar `Validar herramientas`.
+
+Para validar Fase 4:
+
+1. Configurar una carpeta raiz existente en `#/settings`.
+2. Abrir `http://127.0.0.1:5173/#/events`.
+3. Crear un evento.
+4. Abrir el detalle y confirmar la ruta local generada.
 
 ## Reglas centrales
 

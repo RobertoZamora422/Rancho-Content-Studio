@@ -3,23 +3,16 @@ import { Navigate, Route, createHashRouter, createRoutesFromElements } from "rea
 import { AppShell } from "../components/AppShell";
 import { ModulePage } from "../components/ModulePage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
+import { EventDetailPage } from "../features/events/EventDetailPage";
+import { EventsPage } from "../features/events/EventsPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 
 export const router = createHashRouter(
   createRoutesFromElements(
     <Route element={<AppShell />}>
       <Route index element={<DashboardPage />} />
-      <Route
-        path="events"
-        element={
-          <ModulePage
-            label="Eventos"
-            title="Eventos"
-            description="Base preparada para listar, crear y abrir eventos locales en la Fase 4."
-            nextPhase="Fase 4"
-          />
-        }
-      />
+      <Route path="events" element={<EventsPage />} />
+      <Route path="events/:eventId" element={<EventDetailPage />} />
       <Route
         path="library"
         element={

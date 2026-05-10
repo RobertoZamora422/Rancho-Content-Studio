@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2 y Fase 3. El backend local ya tiene modelos base, seed inicial y endpoints de configuracion. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible y pantalla de configuracion local.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3 y Fase 4. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion y endpoints de eventos. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local y gestion inicial de eventos.
 
 ## Criterios por bloque
 
