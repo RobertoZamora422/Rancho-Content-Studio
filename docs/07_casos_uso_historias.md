@@ -19,6 +19,9 @@
 - Cambiar manualmente decisiones de seleccion, revision o rechazo logico.
 - Generar versiones mejoradas en `04_Mejorados` desde fotos seleccionadas.
 - Aprobar o rechazar versiones mejoradas sin modificar ni borrar originales.
+- Generar versiones basicas de videos seleccionados con FFmpeg cuando este disponible.
+- Crear segmentos simples en `05_Reels` sin forzar formato vertical.
+- Registrar error controlado si FFmpeg no esta configurado.
 
 ## Casos fuera de alcance inicial
 

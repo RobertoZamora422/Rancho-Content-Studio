@@ -125,12 +125,34 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 7. El usuario aprueba o rechaza cada version; la decision se guarda en `decision_log`.
 8. Reprocesar genera una nueva version y no sobrescribe versiones anteriores.
 
+## Flujo de video basico implementado en Fase 11
+
+1. El usuario deja videos en `selected` o `user_selected` desde la curacion manual.
+2. Desde `Mejoras visuales` elige preset y modo de video: `auto`, `full` o `segment`.
+3. El backend crea un job `enhance_videos`.
+4. El backend valida FFmpeg desde configuracion local o `PATH`.
+5. Si FFmpeg no esta disponible:
+   - registra error en el job,
+   - marca los videos como fallidos del job,
+   - no modifica originales ni crea versiones falsas.
+6. Si FFmpeg esta disponible, para cada video seleccionado:
+   - valida que el archivo original exista,
+   - lee metadata basica con FFmpeg,
+   - decide video completo o segmento simple segun modo/duracion,
+   - aplica ajuste basico de luz, contraste, saturacion y nitidez,
+   - conserva contenedor original para `.mp4`, `.mov` y `.m4v`,
+   - guarda video completo en `04_Mejorados` o segmento en `05_Reels`,
+   - genera una miniatura de respaldo del video mejorado,
+   - ajusta fecha de archivo y usa ExifTool si esta disponible,
+   - registra `enhanced_media`.
+7. Los errores por archivo se registran en `processing_job_log` y el job continua.
+8. La UI permite reproducir el resultado, aprobarlo o rechazarlo.
+
 ## Flujo de procesamiento futuro
 
-1. Procesar video basico.
-2. Sugerir piezas.
-3. Generar o editar copy.
-4. Exportar.
+1. Sugerir piezas.
+2. Generar o editar copy.
+3. Exportar.
 
 ## Jobs
 

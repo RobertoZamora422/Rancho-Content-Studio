@@ -107,26 +107,34 @@ Estados usados:
 - `user_selected`
 - `user_rejected`
 
-## Campos usados en Fase 10
+## Campos usados en Fase 10 y Fase 11
 
-`enhanced_media` guarda versiones mejoradas de fotos seleccionadas:
+`enhanced_media` guarda versiones mejoradas de fotos seleccionadas y videos seleccionados:
 
 | Campo | Tipo | Descripcion |
 | --- | --- | --- |
 | event_id | integer | Evento al que pertenece la version. |
-| original_media_id | integer | Foto original importada usada como fuente. |
+| original_media_id | integer | Foto o video original importado usado como fuente. |
 | curated_media_id | integer nullable | Decision de curacion que origino la mejora. |
-| output_path | string | Ruta relativa del JPEG generado dentro de `04_Mejorados`. |
-| enhancement_type | string | Tipo de mejora local, por ahora `photo_basic`. |
+| output_path | string | Ruta relativa del archivo generado dentro de `04_Mejorados` o `05_Reels`. |
+| enhancement_type | string | Tipo de mejora local: `photo_basic`, `video_basic` o `video_clip_basic`. |
 | preset_slug | string nullable | Preset visual aplicado. |
 | status | string | Estado de la version: `completed`, `approved` o `rejected`. |
 | width | integer nullable | Ancho de la version generada. |
 | height | integer nullable | Alto de la version generada. |
+| duration_seconds | float nullable | Duracion de video o segmento generado cuando aplica. |
 | notes | text nullable | Detalles serializados como JSON, incluyendo estado de metadatos. |
 | approved_at | datetime nullable | Fecha de aprobacion manual. |
 | rejected_at | datetime nullable | Fecha de rechazo manual. |
 
 Decisiones de aprobacion/rechazo de versiones mejoradas se registran en `decision_log` con `entity_type = enhanced_media`.
+
+Notas de Fase 11:
+
+- Los videos completos se guardan normalmente en `04_Mejorados`.
+- Los segmentos simples sugeridos se guardan en `05_Reels`.
+- `notes` incluye modo de procesamiento, plan, estado de formato, estado de metadata y miniatura generada cuando existe.
+- El estado de error por archivo vive en `processing_job_log`; no se crea `enhanced_media` falso cuando FFmpeg falta o falla.
 
 ## Convenciones futuras
 

@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9 y Fase 10. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable y mejora local de fotos seleccionadas. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual y comparador original vs mejorado.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10 y Fase 11. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas y mejora basica de videos con FFmpeg opcional. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual y comparador original vs mejorado para fotos/videos.
 
 ## Fase 6 implementada
 
@@ -78,6 +78,20 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - Reprocesar genera un archivo versionado nuevo; no sobrescribe salidas anteriores.
 - La fecha de archivo de la version generada se ajusta a la fecha de captura conocida; ExifTool se usa si esta disponible para escribir fechas EXIF.
 - UI de `Mejoras visuales` con selector de preset, procesamiento/reprocesamiento y acciones manuales de aprobar o rechazar.
+
+## Fase 11 implementada
+
+- Endpoint `POST /api/events/{id}/enhance-videos`.
+- Reusa `GET /api/events/{id}/enhanced-media` para listar videos mejorados.
+- Reusa `PATCH /api/events/{id}/enhanced-media/{enhanced_id}` para aprobar/rechazar.
+- Reusa `GET /api/media/enhanced/{enhanced_id}/file` con tipo MIME detectado.
+- Job `enhance_videos` para procesar videos seleccionados.
+- Servicio local con FFmpeg para ajustes basicos de luz, contraste, saturacion y nitidez.
+- Modo `auto`, `full` y `segment`; el modo automatico crea segmento simple en videos largos.
+- Salida versionada en `04_Mejorados` para video completo y `05_Reels` para segmentos simples.
+- No se redimensiona ni se fuerza 9:16.
+- Si FFmpeg no esta disponible, el job queda en `completed_with_errors` con logs por archivo y sin modificar originales.
+- La UI permite elegir preset/modo, ejecutar mejora de videos y reproducir la version generada.
 
 ## Criterios por bloque
 

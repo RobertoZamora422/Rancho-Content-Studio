@@ -93,3 +93,15 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - El archivo original importado queda intacto; reprocesar genera un nuevo nombre versionado.
 - ExifTool es opcional para escribir fechas EXIF en la version generada; si falta, se conserva EXIF posible y se ajusta la fecha de archivo.
 - El frontend consume las versiones mediante FastAPI, no mediante rutas locales directas.
+
+## Implementacion local de Fase 11
+
+- La mejora basica de video se integra en `services/enhancement_service.py`.
+- Usa videos en `curated_media` con estado `selected` o `user_selected`.
+- Requiere FFmpeg local configurado o disponible en `PATH` para generar versiones.
+- Si FFmpeg falta, se registra job/log controlado y no se generan archivos falsos.
+- Aplica filtros simples de luz, contraste, saturacion y nitidez moderada.
+- No redimensiona ni fuerza salida vertical 9:16.
+- Conserva contenedor original para `.mp4`, `.mov` y `.m4v`; otros contenedores se normalizan a `.mp4`.
+- Video completo se guarda en `04_Mejorados`; segmentos simples se guardan en `05_Reels`.
+- Las versiones se registran en `enhanced_media` y se sirven por FastAPI con MIME detectado.

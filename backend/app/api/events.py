@@ -23,11 +23,14 @@ from app.schemas.importing import (
     SimilarityGroupListResponse,
     SourceCreate,
     SourceResponse,
+    VideoEnhancementRequest,
+    VideoEnhancementResponse,
     VisualAnalysisProcessResponse,
 )
 from app.services.curation_service import curate_event_media, list_curated_media, update_curated_media
 from app.services.enhancement_service import (
     enhance_event_photos,
+    enhance_event_videos,
     list_enhanced_media,
     update_enhanced_media_status,
 )
@@ -174,6 +177,15 @@ def enhance_photos(
     db: Session = Depends(get_db),
 ) -> PhotoEnhancementResponse:
     return enhance_event_photos(db, event_id, payload)
+
+
+@router.post("/{event_id}/enhance-videos", response_model=VideoEnhancementResponse)
+def enhance_videos(
+    event_id: int,
+    payload: VideoEnhancementRequest,
+    db: Session = Depends(get_db),
+) -> VideoEnhancementResponse:
+    return enhance_event_videos(db, event_id, payload)
 
 
 @router.get("/{event_id}/enhanced-media", response_model=EnhancedMediaListResponse)

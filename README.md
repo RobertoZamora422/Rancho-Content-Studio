@@ -16,12 +16,12 @@ El flujo principal es local:
 - Frontend: React + Vite + TypeScript.
 - Backend local: Python + FastAPI.
 - Base de datos: SQLite.
-- Procesamiento local inicial: Pillow para miniaturas; futuro OpenCV, ImageHash, scikit-image y FFmpeg avanzado.
+- Procesamiento local inicial: Pillow para miniaturas/mejoras de fotos y FFmpeg opcional para video basico; futuro OpenCV, ImageHash y scikit-image.
 - Metadatos: ExifTool cuando esta disponible, con fallback local.
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9 y Fase 10:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10 y Fase 11:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -42,9 +42,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Deteccion local de duplicados exactos y fotos visualmente similares.
 - Curacion inteligente inicial con estados revisables y cambios manuales.
 - Mejora local de fotos seleccionadas con presets basicos y versiones en `04_Mejorados`.
+- Mejora local basica de videos seleccionados con FFmpeg cuando esta disponible, sin forzar verticalidad.
 - Scaffold Tauri preparado.
 
-No incluye todavia mejora de videos, piezas ni exportacion final.
+No incluye todavia generacion de piezas ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -295,9 +296,36 @@ La Fase 10 agrega mejora local de fotos seleccionadas:
 Reglas aplicadas:
 
 - Los originales importados no se modifican.
-- La mejora solo procesa fotos seleccionadas; videos quedan para una fase posterior.
+- La mejora de Fase 10 solo procesa fotos seleccionadas; los videos se atienden en Fase 11.
 - Reprocesar genera una nueva version en lugar de sobrescribir la anterior.
 - La aprobacion o rechazo es manual y queda registrada en `decision_log`.
+
+## Fase 11 implementada
+
+La Fase 11 agrega analisis/mejora basica de videos seleccionados:
+
+- `POST /api/events/{id}/enhance-videos`: procesa videos con estado `selected` o `user_selected`.
+- Reusa `GET /api/events/{id}/enhanced-media` para listar versiones de fotos y videos.
+- Reusa `PATCH /api/events/{id}/enhanced-media/{enhanced_id}` para aprobar o rechazar resultados.
+- Reusa `GET /api/media/enhanced/{enhanced_id}/file` y sirve el tipo MIME real del archivo generado.
+- Job `enhance_videos`: registra disponibilidad de FFmpeg, progreso, conteos y errores por archivo.
+- Valida FFmpeg desde la configuracion local o `PATH`; si no esta disponible, crea job con error controlado y no modifica archivos.
+- Aplica ajustes basicos con FFmpeg: luz, contraste, saturacion y nitidez moderada.
+- Mantiene el contenedor original por defecto para `.mp4`, `.mov` y `.m4v`; otros contenedores se normalizan a `.mp4`.
+- No redimensiona ni convierte obligatoriamente a vertical.
+- Modo `auto`: procesa video completo si es corto y crea un segmento simple en `05_Reels` si supera el limite configurado.
+- Modo `full`: procesa el video completo en `04_Mejorados`.
+- Modo `segment`: crea un clip simple centrado en `05_Reels`.
+- Intenta generar miniatura del video mejorado en `metadata/thumbnails`.
+- Ajusta fecha de archivo y usa ExifTool si esta disponible para escribir fechas en la version generada.
+- La UI permite elegir preset, modo de video, ejecutar mejora y comparar/reproducir el resultado.
+
+Reglas aplicadas:
+
+- Los videos originales no se modifican.
+- Los errores de video se registran por archivo y no rompen el evento.
+- Reprocesar genera una nueva version y no sobrescribe versiones anteriores.
+- El usuario aprueba o rechaza cada resultado manualmente.
 
 ## Backend
 
@@ -339,6 +367,7 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/analyze-photos
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/detect-similarity
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/curate-media
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-photos -ContentType "application/json" -Body '{"preset_slug":"natural_premium"}'
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-videos -ContentType "application/json" -Body '{"preset_slug":"natural_premium","processing_mode":"auto","max_full_duration_seconds":90,"clip_duration_seconds":30}'
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
@@ -389,11 +418,13 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - Los endpoints de piezas, copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
-- El analisis de videos queda pendiente para una fase posterior.
+- El analisis semantico avanzado de videos queda pendiente; Fase 11 solo aplica mejora local basica y segmento simple.
 - La similitud visual de Fase 8 usa average hash y un umbral fijo; casos dudosos deben revisarse manualmente.
 - La importacion actual omite duplicados exactos por checksum, asi que los grupos exactos apareceran sobre datos existentes o registros creados antes de esa regla.
 - La curacion de Fase 9 usa reglas iniciales de calidad/similitud; todavia no clasifica diversidad semantica como protagonistas, comida o baile.
 - La mejora de Fase 10 aplica ajustes basicos con Pillow; no hay retoque avanzado, mascaras, restauracion de rostros ni reduccion de ruido profesional.
+- La mejora de video de Fase 11 requiere FFmpeg real para generar archivos; en esta maquina FFmpeg no esta disponible en `PATH`, por lo que se probo el manejo controlado de ausencia de herramienta, no la codificacion real.
+- La estabilizacion avanzada queda pendiente; Fase 11 no usa filtros `vidstab`.
 - La escritura EXIF completa en versiones mejoradas depende de ExifTool. Sin ExifTool, se conserva EXIF existente si Pillow puede hacerlo y se ajusta la fecha de archivo.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
@@ -495,6 +526,25 @@ Para validar Fase 9:
 4. Cambiar un medio con `Seleccionar`, `Revisar` o `Rechazar`.
 5. Ejecutar de nuevo la curacion y confirmar que la decision manual se conserva.
 6. Consultar `GET /api/events/{id}/jobs` y verificar el job `curate_media`.
+
+Para validar Fase 10:
+
+1. Ejecutar curacion sobre un evento con fotos.
+2. Marcar una o mas fotos como `Seleccionar`.
+3. En `Mejoras visuales`, elegir preset de fotos y ejecutar `Mejorar fotos`.
+4. Confirmar que se crean archivos versionados en `04_Mejorados`.
+5. Aprobar o rechazar una version y verificar el estado en `GET /api/events/{id}/enhanced-media`.
+6. Consultar `GET /api/events/{id}/jobs` y verificar el job `enhance_photos`.
+
+Para validar Fase 11:
+
+1. Configurar FFmpeg en `#/settings` o dejarlo sin configurar para validar el error controlado.
+2. Ejecutar curacion sobre un evento con videos.
+3. Marcar un video como `Seleccionar`.
+4. En `Mejoras visuales`, elegir preset y modo de video.
+5. Ejecutar `Mejorar videos`.
+6. Si FFmpeg esta disponible, confirmar archivo nuevo en `04_Mejorados` o `05_Reels`.
+7. Si FFmpeg no esta disponible, confirmar que aparece un job `enhance_videos` con error por archivo y que no se modifico el original.
 
 ## Reglas centrales
 

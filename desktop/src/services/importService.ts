@@ -15,6 +15,8 @@ import type {
   ScanResponse,
   SimilarityDetectionResponse,
   SimilarityGroupListResponse,
+  VideoEnhancementRequest,
+  VideoEnhancementResponse,
   VisualAnalysisProcessResponse
 } from "../types/importing";
 import type { JobListResponse } from "../types/jobs";
@@ -108,6 +110,20 @@ export async function enhancePhotos(
     method: "POST"
   });
   return parseResponse<PhotoEnhancementResponse>(response);
+}
+
+export async function enhanceVideos(
+  eventId: number,
+  payload: VideoEnhancementRequest
+): Promise<VideoEnhancementResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/enhance-videos`, {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+  return parseResponse<VideoEnhancementResponse>(response);
 }
 
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {

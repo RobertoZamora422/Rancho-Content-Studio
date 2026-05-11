@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import mimetypes
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -26,4 +28,5 @@ def read_enhanced_media_file(
     db: Session = Depends(get_db),
 ) -> FileResponse:
     output_path = get_enhanced_media_file_path(db, enhanced_id)
-    return FileResponse(output_path, media_type="image/jpeg")
+    media_type, _ = mimetypes.guess_type(output_path.name)
+    return FileResponse(output_path, media_type=media_type or "application/octet-stream")

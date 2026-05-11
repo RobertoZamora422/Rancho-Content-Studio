@@ -87,6 +87,23 @@ export type PhotoEnhancementResponse = {
   preset_slug: string;
 };
 
+export type VideoEnhancementRequest = {
+  preset_slug: string;
+  processing_mode: string;
+  max_full_duration_seconds: number;
+  clip_duration_seconds: number;
+};
+
+export type VideoEnhancementResponse = {
+  job_id: number;
+  total_selected: number;
+  enhanced: number;
+  skipped: number;
+  failed: number;
+  preset_slug: string;
+  ffmpeg_available: boolean;
+};
+
 export type MediaAnalysis = {
   sharpness_score: number | null;
   brightness_score: number | null;

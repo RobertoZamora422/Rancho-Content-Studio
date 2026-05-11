@@ -98,6 +98,23 @@ class PhotoEnhancementResponse(BaseModel):
     preset_slug: str
 
 
+class VideoEnhancementRequest(BaseModel):
+    preset_slug: str = Field(default="natural_premium", min_length=1, max_length=120)
+    processing_mode: str = Field(default="auto", min_length=1, max_length=40)
+    max_full_duration_seconds: int = Field(default=90, ge=10, le=900)
+    clip_duration_seconds: int = Field(default=30, ge=5, le=180)
+
+
+class VideoEnhancementResponse(BaseModel):
+    job_id: int
+    total_selected: int
+    enhanced: int
+    skipped: int
+    failed: int
+    preset_slug: str
+    ffmpeg_available: bool
+
+
 class CuratedMediaUpdate(BaseModel):
     selection_status: str = Field(min_length=1, max_length=40)
     reason: str | None = Field(default=None, max_length=1000)

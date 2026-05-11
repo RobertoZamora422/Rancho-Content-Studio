@@ -91,9 +91,21 @@ El detalle de evento incluye una seccion `Curacion inteligente` que:
 El detalle de evento incluye una seccion `Mejoras visuales` que:
 
 - muestra cuantas versiones mejoradas existen;
-- permite elegir un preset visual local;
+- permite elegir un preset visual local para fotos;
 - ejecuta procesamiento o reprocesamiento de fotos seleccionadas;
 - compara miniatura original contra JPEG mejorado servido por backend local;
 - muestra preset, estado, dimensiones, ruta relativa y estado de metadatos;
 - permite aprobar o rechazar cada version sin borrar archivos;
 - mantiene estados vacios cuando no hay fotos seleccionadas o versiones generadas.
+
+## Fase 11 implementada en UI
+
+La seccion `Mejoras visuales` tambien:
+
+- permite elegir preset visual para videos;
+- permite elegir modo `Automatico`, `Video completo` o `Segmento simple`;
+- ejecuta mejora de videos seleccionados;
+- muestra aviso cuando FFmpeg no esta disponible;
+- reproduce versiones de video generadas con controles nativos;
+- muestra duracion, formato/plan en notas, ruta relativa y estado;
+- reutiliza aprobar/rechazar sin borrar archivos.

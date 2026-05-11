@@ -10,6 +10,7 @@ import {
   curateMedia,
   detectSimilarity,
   enhancePhotos,
+  enhanceVideos,
   importMedia,
   listCuratedMedia,
   listEnhancedMedia,
@@ -35,6 +36,7 @@ import type {
   ScanResponse,
   SimilarityDetectionResponse,
   SimilarityGroup,
+  VideoEnhancementResponse,
   VisualAnalysisProcessResponse
 } from "../../types/importing";
 import type { ProcessingJob } from "../../types/jobs";
@@ -46,6 +48,12 @@ const enhancementPresets = [
   { label: "Suave bodas", value: "suave_bodas" },
   { label: "Brillante XV", value: "brillante_xv" },
   { label: "Sobrio corporativo", value: "sobrio_corporativo" }
+];
+
+const videoProcessingModes = [
+  { label: "Automatico", value: "auto" },
+  { label: "Video completo", value: "full" },
+  { label: "Segmento simple", value: "segment" }
 ];
 
 export function EventDetailPage() {
@@ -61,6 +69,8 @@ export function EventDetailPage() {
   const [jobs, setJobs] = useState<ProcessingJob[]>([]);
   const [sourcePath, setSourcePath] = useState("");
   const [enhancementPreset, setEnhancementPreset] = useState("natural_premium");
+  const [videoEnhancementPreset, setVideoEnhancementPreset] = useState("natural_premium");
+  const [videoProcessingMode, setVideoProcessingMode] = useState("auto");
   const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
   const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
   const [lastMetadata, setLastMetadata] = useState<MetadataProcessResponse | null>(null);
@@ -68,6 +78,8 @@ export function EventDetailPage() {
   const [lastSimilarity, setLastSimilarity] = useState<SimilarityDetectionResponse | null>(null);
   const [lastCuration, setLastCuration] = useState<CurationProcessResponse | null>(null);
   const [lastEnhancement, setLastEnhancement] = useState<PhotoEnhancementResponse | null>(null);
+  const [lastVideoEnhancement, setLastVideoEnhancement] =
+    useState<VideoEnhancementResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -342,6 +354,40 @@ export function EventDetailPage() {
     }
   }
 
+  async function handleEnhanceVideos() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const result = await enhanceVideos(event.id, {
+        clip_duration_seconds: 30,
+        max_full_duration_seconds: 90,
+        preset_slug: videoEnhancementPreset,
+        processing_mode: videoProcessingMode
+      });
+      setLastVideoEnhancement(result);
+      setMessage(
+        result.ffmpeg_available
+          ? `Video basico completado: ${result.enhanced} versiones nuevas, ${result.skipped} omitidos, ${result.failed} fallidos.`
+          : "FFmpeg no esta disponible; se registro el job y no se modifico ningun video."
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudieron generar las versiones de video."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   async function handleManualCuration(
     curatedId: number,
     selectionStatus: string,
@@ -445,6 +491,11 @@ export function EventDetailPage() {
     (item) =>
       ["selected", "user_selected"].includes(item.selection_status) &&
       item.media.media_type === "image"
+  ).length;
+  const selectedVideoCount = curatedItems.filter(
+    (item) =>
+      ["selected", "user_selected"].includes(item.selection_status) &&
+      item.media.media_type === "video"
   ).length;
 
   return (
@@ -857,7 +908,7 @@ export function EventDetailPage() {
               </div>
               <div className="enhancement-controls">
                 <label className="field-group compact-field">
-                  <span>Preset</span>
+                  <span>Preset fotos</span>
                   <select
                     disabled={actionLoading}
                     onChange={(formEvent) => setEnhancementPreset(formEvent.target.value)}
@@ -876,7 +927,43 @@ export function EventDetailPage() {
                   onClick={handleEnhancePhotos}
                   type="button"
                 >
-                  Procesar / reprocesar seleccionados
+                  Mejorar fotos
+                </button>
+                <label className="field-group compact-field">
+                  <span>Preset videos</span>
+                  <select
+                    disabled={actionLoading}
+                    onChange={(formEvent) => setVideoEnhancementPreset(formEvent.target.value)}
+                    value={videoEnhancementPreset}
+                  >
+                    {enhancementPresets.map((preset) => (
+                      <option key={preset.value} value={preset.value}>
+                        {preset.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field-group compact-field">
+                  <span>Modo video</span>
+                  <select
+                    disabled={actionLoading}
+                    onChange={(formEvent) => setVideoProcessingMode(formEvent.target.value)}
+                    value={videoProcessingMode}
+                  >
+                    {videoProcessingModes.map((mode) => (
+                      <option key={mode.value} value={mode.value}>
+                        {mode.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="secondary-action"
+                  disabled={actionLoading || selectedVideoCount === 0}
+                  onClick={handleEnhanceVideos}
+                  type="button"
+                >
+                  Mejorar videos
                 </button>
               </div>
             </div>
@@ -887,16 +974,24 @@ export function EventDetailPage() {
                 {formatPreset(lastEnhancement.preset_slug)}.
               </p>
             ) : null}
-            {selectedPhotoCount === 0 ? (
+            {lastVideoEnhancement ? (
+              <p className="import-summary">
+                Video job #{lastVideoEnhancement.job_id}: {lastVideoEnhancement.enhanced} versiones,{" "}
+                {lastVideoEnhancement.skipped} omitidos, {lastVideoEnhancement.failed} fallidos
+                con preset {formatPreset(lastVideoEnhancement.preset_slug)}. FFmpeg{" "}
+                {lastVideoEnhancement.ffmpeg_available ? "disponible" : "no disponible"}.
+              </p>
+            ) : null}
+            {selectedPhotoCount === 0 && selectedVideoCount === 0 ? (
               <article className="empty-state">
-                <h2>Sin fotos seleccionadas para mejorar</h2>
-                <p>Marca fotos como seleccionadas en la curacion antes de generar versiones.</p>
+                <h2>Sin medios seleccionados para mejorar</h2>
+                <p>Marca fotos o videos como seleccionados en la curacion antes de generar versiones.</p>
               </article>
             ) : null}
-            {enhancedItems.length === 0 && selectedPhotoCount > 0 ? (
+            {enhancedItems.length === 0 && (selectedPhotoCount > 0 || selectedVideoCount > 0) ? (
               <article className="empty-state">
                 <h2>Sin versiones mejoradas</h2>
-                <p>Procesa las fotos seleccionadas para crear archivos nuevos en 04_Mejorados.</p>
+                <p>Procesa medios seleccionados para crear versiones locales nuevas.</p>
               </article>
             ) : null}
             <div className="enhancement-list">
@@ -920,11 +1015,15 @@ export function EventDetailPage() {
                     <div>
                       <p className="metric-label">Mejorado</p>
                       <div className="comparison-image">
-                        <img
-                          alt={`Version mejorada de ${item.media.filename}`}
-                          loading="lazy"
-                          src={thumbnailSrc(item.output_url)}
-                        />
+                        {isVideoEnhanced(item) ? (
+                          <video controls preload="metadata" src={thumbnailSrc(item.output_url)} />
+                        ) : (
+                          <img
+                            alt={`Version mejorada de ${item.media.filename}`}
+                            loading="lazy"
+                            src={thumbnailSrc(item.output_url)}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -934,6 +1033,7 @@ export function EventDetailPage() {
                       <span>{formatPreset(item.preset_slug)}</span>
                       <span>{formatEnhancedStatus(item.status)}</span>
                       <span>{formatDimensions(item.width, item.height)}</span>
+                      <span>{formatDuration(item.duration_seconds)}</span>
                     </div>
                     <p>{formatEnhancementNotes(item.notes)}</p>
                     <code>{item.output_path}</code>
@@ -1175,14 +1275,32 @@ function formatEnhancedStatus(value: string) {
   return labels[value] ?? value;
 }
 
+function isVideoEnhanced(item: EnhancedMedia) {
+  return item.media.media_type === "video" || item.enhancement_type.startsWith("video_");
+}
+
 function formatEnhancementNotes(value: string | null) {
   if (!value) {
     return "Sin notas de procesamiento.";
   }
   try {
-    const payload = JSON.parse(value) as { metadata_status?: string };
+    const payload = JSON.parse(value) as {
+      format_status?: string;
+      metadata_status?: string;
+      plan?: string;
+    };
+    const details = [];
     if (payload.metadata_status) {
-      return `Metadatos: ${formatMetadataStatus(payload.metadata_status)}.`;
+      details.push(`Metadatos: ${formatMetadataStatus(payload.metadata_status)}`);
+    }
+    if (payload.plan) {
+      details.push(`Plan: ${formatVideoPlan(payload.plan)}`);
+    }
+    if (payload.format_status) {
+      details.push(`Formato: ${formatVideoFormatStatus(payload.format_status)}`);
+    }
+    if (details.length > 0) {
+      return `${details.join(". ")}.`;
     }
   } catch {
     return value;
@@ -1202,6 +1320,24 @@ function formatMetadataStatus(value: string) {
   }
   if (value === "file_mtime_written_exiftool_timeout") {
     return "fecha de archivo ajustada; ExifTool excedio el tiempo";
+  }
+  return value;
+}
+
+function formatVideoPlan(value: string) {
+  const labels: Record<string, string> = {
+    full_video: "video completo",
+    suggested_clip: "segmento sugerido"
+  };
+  return labels[value] ?? value;
+}
+
+function formatVideoFormatStatus(value: string) {
+  if (value === "original_container_preserved") {
+    return "contenedor original conservado";
+  }
+  if (value.startsWith("normalized_to")) {
+    return `normalizado a ${value.replace("normalized_to", "")}`;
   }
   return value;
 }
