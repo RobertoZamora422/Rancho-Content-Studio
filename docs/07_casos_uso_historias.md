@@ -10,7 +10,7 @@
 - Como editor, quiero exportar una carpeta final lista para publicar.
 - Como editor, quiero conservar o escribir la fecha real del evento para que Google Photos ordene correctamente tras una subida manual.
 
-## Historias cubiertas hasta Fase 12
+## Historias cubiertas hasta Fase 13
 
 - Crear evento local con carpetas operativas.
 - Registrar una fuente local externa e importar copias a `01_Originales`.
@@ -25,6 +25,10 @@
 - Generar piezas sugeridas desde medios mejorados y disponibles.
 - Editar titulo, proposito, plataforma, formato sugerido y orden de medios de una pieza.
 - Aprobar o rechazar piezas antes de generar copy o exportar.
+- Editar el perfil editorial usado para copywriting.
+- Generar variantes de copy locales para una pieza aprobada.
+- Editar, aprobar o rechazar copy.
+- Guardar copy aprobado en SQLite y archivo `.md`.
 
 ## Casos fuera de alcance inicial
 
@@ -33,3 +37,4 @@
 - IA obligatoria.
 - Procesamiento avanzado de vision.
 - Publicacion automatica en redes.
+- Exportacion final completa.

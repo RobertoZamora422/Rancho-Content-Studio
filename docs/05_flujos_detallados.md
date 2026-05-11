@@ -170,10 +170,31 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 9. La UI permite cambiar titulo, proposito, plataforma, formato y orden.
 10. El usuario puede aprobar o rechazar la pieza.
 
+## Flujo de copywriting implementado en Fase 13
+
+1. El usuario edita o confirma el perfil editorial en `Perfil editorial`.
+2. El usuario aprueba una pieza de contenido.
+3. Desde `Piezas de contenido`, ejecuta `Generar copy` o un feedback rapido.
+4. El backend crea un job `generate_copy`.
+5. Obtiene evento, pieza, medios asociados y perfil editorial.
+6. Construye contexto local con tipo de evento, proposito, plataforma, tono, hashtags, palabras a evitar y reglas.
+7. Genera variantes locales:
+   - caption principal,
+   - copy breve,
+   - texto de portada,
+   - texto para historia,
+   - hashtags.
+8. Guarda cada variante en `generated_copy`.
+9. Escribe cada variante como `.md` en `08_Copies`.
+10. El usuario puede editar, aprobar o rechazar una variante.
+11. No se permite aprobar copy vacio ni copy con palabras/frases a evitar.
+12. Aprobar o rechazar copy alimenta ejemplos del perfil editorial.
+
 ## Flujo de procesamiento futuro
 
-1. Generar o editar copy.
-2. Exportar.
+1. Exportar paquete final.
+2. Planificar en calendario.
+3. Consultar biblioteca historica.
 
 ## Jobs
 

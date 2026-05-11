@@ -77,6 +77,9 @@ def seed_reference_data(db: Session) -> None:
         db.add(profile)
 
     profile.tone = "calido, natural, cercano, profesional"
+    profile.emotional_level = "moderado"
+    profile.formality_level = "semi_formal"
+    profile.emoji_style = "sutil"
     profile.description = (
         "Comunicacion cercana y cuidada para eventos sociales, con enfoque humano "
         "y promocional sin sentirse generica."
@@ -85,6 +88,9 @@ def seed_reference_data(db: Session) -> None:
     profile.hashtags_base = brand.base_hashtags
     profile.preferred_phrases = brand.preferred_phrases
     profile.words_to_avoid = brand.avoided_words
+    profile.approved_examples = "Gracias por confiar en Rancho Flor Maria para celebrar momentos memorables."
+    profile.rejected_examples = "Hazlo viral obligatorio; el evento mas exagerado de todos."
+    profile.copy_rules = "Evitar promesas irreales. Mantener un tono humano, claro y calido."
     profile.is_default = True
 
     for slug, name, description in VISUAL_STYLE_PRESETS:

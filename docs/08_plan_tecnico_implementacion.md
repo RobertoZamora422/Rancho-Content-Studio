@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11 y Fase 12. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional y generacion de piezas sugeridas. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos y pantalla de piezas de contenido.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12 y Fase 13. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas y copywriting local. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy y pantalla de perfil editorial.
 
 ## Fase 6 implementada
 
@@ -105,6 +105,22 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - Asociacion ordenada de medios mejorados completados o aprobados.
 - Deteccion de firmas para no duplicar piezas con el mismo tipo y medios.
 - UI `#/pieces` con selector de evento, generacion de piezas, cards, editor basico, reordenamiento y aprobar/rechazar.
+
+## Fase 13 implementada
+
+- Endpoint `GET /api/editorial-profile/default`.
+- Endpoint `PUT /api/editorial-profile/default`.
+- Endpoint `POST /api/events/{id}/content-pieces/{piece_id}/generate-copy`.
+- Endpoint `GET /api/events/{id}/content-pieces/{piece_id}/copies`.
+- Endpoint `PATCH /api/events/{id}/content-pieces/{piece_id}/copies/{copy_id}`.
+- Job `generate_copy`.
+- Servicio local `services/copywriting_service.py`.
+- Servicio `services/editorial_profile_service.py`.
+- Persistencia en `editorial_profile` y `generated_copy`.
+- Escritura de archivos `.md` en `08_Copies`.
+- Generador local deterministico sin dependencia cloud ni IA obligatoria.
+- UI `#/editorial-profile` para editar tono y reglas.
+- UI `#/pieces` para generar, regenerar con feedback, editar, aprobar o rechazar copy.
 
 ## Criterios por bloque
 

@@ -164,6 +164,43 @@ Notas de Fase 11:
 | role | string nullable | `cover` para portada sugerida o `sequence` para secuencia. |
 | notes | text nullable | Motivo o nota de asociacion. |
 
+## Campos usados en Fase 13
+
+`editorial_profile` se usa como contrato de estilo para copywriting:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| tone | string | Tono general de la marca. |
+| emotional_level | string | Nivel emocional: `bajo`, `moderado` o `alto`. |
+| formality_level | string | Formalidad: `casual`, `semi_formal` o `formal`. |
+| emoji_style | string | Estilo de emojis: `sin_emojis`, `sutil`, `moderado` o `expresivo`. |
+| hashtags_base | text nullable | Hashtags base usados por el generador local. |
+| preferred_phrases | text nullable | Frases o palabras preferidas. |
+| words_to_avoid | text nullable | Palabras o frases que impiden aprobar un copy si aparecen. |
+| approved_examples | text nullable | Ejemplos aprobados, alimentados por aprobaciones manuales. |
+| rejected_examples | text nullable | Ejemplos rechazados, alimentados por rechazos manuales. |
+| copy_rules | text nullable | Reglas editoriales adicionales. |
+
+`generated_copy` guarda variantes de texto:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| piece_id | integer | Pieza asociada. |
+| editorial_profile_id | integer nullable | Perfil usado para generar o editar. |
+| copy_type | string | `caption`, `reel_short_copy`, `cover_text`, `story_text`, `hashtags` o `cta`. |
+| variant_label | string nullable | Etiqueta visible de la variante. |
+| body | text | Texto del copy. |
+| hashtags_json | text nullable | Hashtags sugeridos serializados como JSON. |
+| cta | text nullable | Llamado a la accion sugerido. |
+| style_notes | text nullable | Notas de estilo del perfil. |
+| status | string | `generated`, `edited`, `approved`, `rejected`, `regenerated` o `archived`. |
+| generation_mode | string | `local_template` en Fase 13. |
+| prompt_context | text nullable | Contexto local usado para la plantilla. |
+| user_feedback | string nullable | Feedback rapido aplicado. |
+| output_path | string nullable | Ruta relativa del `.md` en `08_Copies`. |
+
+Las columnas nuevas de `editorial_profile` y `generated_copy` se agregan de forma incremental en bases SQLite existentes hasta introducir migraciones Alembic.
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

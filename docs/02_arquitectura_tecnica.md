@@ -115,3 +115,14 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Evita duplicar piezas con la misma combinacion de tipo y medios.
 - La UI `#/pieces` permite generar, revisar, reordenar y aprobar/rechazar piezas.
 - Las piezas quedan listas para Fase 13 de copywriting.
+
+## Implementacion local de Fase 13
+
+- El perfil editorial vive en `editorial_profile` y se edita desde `#/editorial-profile`.
+- La generacion de copy vive en `services/copywriting_service.py`.
+- La API expone `GET/PUT /api/editorial-profile/default`.
+- La API expone generacion/listado/edicion de copies bajo cada `content_piece`.
+- El motor de Fase 13 es local y deterministico; no usa IA externa obligatoria.
+- Solo genera copy para piezas aprobadas.
+- Cada variante se guarda en `generated_copy` y como archivo `.md` dentro de `08_Copies`.
+- Las decisiones de generacion, edicion, aprobacion o rechazo se registran en jobs y `decision_log`.

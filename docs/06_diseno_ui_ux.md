@@ -121,3 +121,22 @@ La pantalla `Piezas de contenido` deja de ser placeholder e incluye:
 - lista ordenada de medios con portada sugerida;
 - acciones `Subir` y `Bajar` para reordenar medios;
 - acciones para guardar revision, aprobar o rechazar pieza.
+
+## Fase 13 implementada en UI
+
+La pantalla `Perfil editorial` deja de ser placeholder e incluye:
+
+- edicion de nombre, tono, nivel emocional, formalidad y estilo de emojis;
+- campos para descripcion, hashtags base, frases preferidas y palabras a evitar;
+- campos para ejemplos aprobados, ejemplos rechazados y reglas adicionales;
+- guardado en SQLite mediante backend local.
+
+La pantalla `Piezas de contenido` agrega un editor de copy:
+
+- generacion de copy solo para piezas aprobadas;
+- feedback rapido para regenerar variantes;
+- lista de variantes por tipo de copy;
+- textarea para editar manualmente;
+- advertencias visuales;
+- acciones para guardar edicion, aprobar o rechazar copy;
+- muestra la ruta `.md` generada en `08_Copies`.

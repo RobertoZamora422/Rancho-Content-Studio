@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11 y Fase 12:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12 y Fase 13:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -44,9 +44,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Mejora local de fotos seleccionadas con presets basicos y versiones en `04_Mejorados`.
 - Mejora local basica de videos seleccionados con FFmpeg cuando esta disponible, sin forzar verticalidad.
 - Generacion de piezas sugeridas desde medios mejorados: reels, carruseles, historias y posts.
+- Perfil editorial editable y generacion local de copies por pieza.
 - Scaffold Tauri preparado.
 
-No incluye todavia copywriting ni exportacion final.
+No incluye todavia exportacion final, biblioteca ni calendario operativo.
 
 ## Fase 1 implementada
 
@@ -83,7 +84,7 @@ La Fase 1 deja listo el backend local como base de datos y contrato tecnico inte
 - Seed inicial:
   - Usuario admin: Roberto Zamora.
   - Marca: Rancho Flor Maria.
-  - Perfil editorial base: calido, natural, cercano, profesional, emojis sutiles.
+  - Perfil editorial base: calido, natural, cercano, profesional, emojis sutiles, frases y reglas iniciales.
   - Presets visuales: `natural_premium`, `calido_elegante`, `color_vivo_fiesta`, `suave_bodas`, `brillante_xv`, `sobrio_corporativo`.
 
 La Fase 1 no implementa todavia endpoints CRUD sobre estas tablas. Solo deja persistencia, relaciones y datos base listos para fases posteriores.
@@ -353,6 +354,35 @@ Reglas aplicadas:
 - No se fuerzan formatos verticales; el formato queda como recomendacion editable.
 - No se modifica ni borra ningun medio original o mejorado.
 
+## Fase 13 implementada
+
+La Fase 13 agrega perfil editorial editable y copywriting local:
+
+- `GET /api/editorial-profile/default`: lee el perfil editorial principal.
+- `PUT /api/editorial-profile/default`: actualiza tono, nivel emocional, formalidad, emojis, hashtags, frases preferidas, palabras a evitar, ejemplos y reglas.
+- `POST /api/events/{id}/content-pieces/{piece_id}/generate-copy`: genera variantes de copy para una pieza aprobada.
+- `GET /api/events/{id}/content-pieces/{piece_id}/copies`: lista copies de una pieza.
+- `PATCH /api/events/{id}/content-pieces/{piece_id}/copies/{copy_id}`: edita, aprueba o rechaza un copy.
+- Job `generate_copy`: registra variantes generadas y archivos escritos.
+- Usa `generated_copy` y el perfil editorial default.
+- Genera variantes locales:
+  - `caption`
+  - `reel_short_copy`
+  - `cover_text`
+  - `story_text`
+  - `hashtags`
+- Guarda cada copy en SQLite y escribe un archivo `.md` en `08_Copies`.
+- La UI `#/editorial-profile` permite editar el perfil editorial.
+- La UI `#/pieces` permite generar/regenerar copy, usar feedback rapido, editar texto y aprobar/rechazar.
+
+Reglas aplicadas:
+
+- No se introduce dependencia cloud ni IA obligatoria.
+- El generador de esta fase es local y deterministico.
+- Solo se puede generar copy para piezas aprobadas.
+- No se puede aprobar un copy vacio o con palabras/frases a evitar.
+- Aprobar o rechazar copy actualiza ejemplos del perfil editorial.
+
 ## Backend
 
 ```powershell
@@ -395,11 +425,14 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/curate-media
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-photos -ContentType "application/json" -Body '{"preset_slug":"natural_premium"}'
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-videos -ContentType "application/json" -Body '{"preset_slug":"natural_premium","processing_mode":"auto","max_full_duration_seconds":90,"clip_duration_seconds":30}'
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/generate-pieces
+Invoke-RestMethod http://127.0.0.1:8000/api/editorial-profile/default
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/content-pieces/1/generate-copy -ContentType "application/json" -Body '{"feedback":"mas_calido"}'
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/enhanced-media
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/content-pieces
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/content-pieces/1/copies
 ```
 
 Pruebas:
@@ -442,8 +475,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 ## Limitaciones pendientes
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
-- Hay un ajuste incremental minimo para agregar `original_media.metadata_json` en bases existentes hasta introducir Alembic.
-- Los endpoints de copy, biblioteca y calendario quedan para fases posteriores.
+- Hay ajustes incrementales minimos para agregar columnas de `original_media`, `editorial_profile` y `generated_copy` en bases existentes hasta introducir Alembic.
+- Los endpoints de biblioteca, calendario y exportacion final quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
 - El analisis semantico avanzado de videos queda pendiente; Fase 11 solo aplica mejora local basica y segmento simple.
@@ -455,6 +488,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - La estabilizacion avanzada queda pendiente; Fase 11 no usa filtros `vidstab`.
 - La generacion de piezas de Fase 12 usa reglas deterministicas simples; todavia no clasifica escenas semanticas como baile, comida o protagonistas.
 - El editor de piezas permite editar metadatos y orden, pero aun no agrega/quita medios manualmente desde la UI.
+- La generacion de copy de Fase 13 usa plantillas locales; no usa IA externa, no interpreta escenas visuales avanzadas y puede requerir edicion humana.
+- Los archivos `.md` de Fase 13 se escriben en `08_Copies`, pero el paquete final `09_Listo_Para_Publicar` queda para Fase 14.
 - La escritura EXIF completa en versiones mejoradas depende de ExifTool. Sin ExifTool, se conserva EXIF existente si Pillow puede hacerlo y se ajusta la fecha de archivo.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
@@ -587,6 +622,18 @@ Para validar Fase 12:
 7. Aprobar o rechazar la pieza.
 8. Consultar `GET /api/events/{id}/content-pieces` y verificar estado y orden.
 9. Consultar `GET /api/events/{id}/jobs` y verificar el job `generate_pieces`.
+
+Para validar Fase 13:
+
+1. Abrir `http://127.0.0.1:5173/#/editorial-profile`.
+2. Editar tono, hashtags, frases preferidas o palabras a evitar y guardar.
+3. Abrir `http://127.0.0.1:5173/#/pieces`.
+4. Elegir una pieza aprobada.
+5. Ejecutar `Generar copy` o un feedback rapido como `Mas calido`.
+6. Revisar variantes, editar una, aprobarla o rechazarla.
+7. Confirmar que aparece un archivo `.md` en `08_Copies`.
+8. Consultar `GET /api/events/{id}/content-pieces/{piece_id}/copies`.
+9. Consultar `GET /api/events/{id}/jobs` y verificar el job `generate_copy`.
 
 ## Reglas centrales
 

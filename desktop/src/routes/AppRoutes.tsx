@@ -3,6 +3,7 @@ import { Navigate, Route, createHashRouter, createRoutesFromElements } from "rea
 import { AppShell } from "../components/AppShell";
 import { ModulePage } from "../components/ModulePage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
+import { EditorialProfilePage } from "../features/editorial/EditorialProfilePage";
 import { EventDetailPage } from "../features/events/EventDetailPage";
 import { EventsPage } from "../features/events/EventsPage";
 import { PiecesPage } from "../features/pieces/PiecesPage";
@@ -39,14 +40,7 @@ export const router = createHashRouter(
       />
       <Route
         path="editorial-profile"
-        element={
-          <ModulePage
-            label="Perfil editorial"
-            title="Perfil editorial"
-            description="Seccion futura para tono, frases preferidas, palabras a evitar y hashtags base."
-            nextPhase="Fase 13"
-          />
-        }
+        element={<EditorialProfilePage />}
       />
       <Route
         path="visual-styles"

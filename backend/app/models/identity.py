@@ -71,11 +71,17 @@ class EditorialProfile(Base):
     brand_id: Mapped[int] = mapped_column(ForeignKey("brand.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     tone: Mapped[str] = mapped_column(String(255), nullable=False)
+    emotional_level: Mapped[str] = mapped_column(String(40), nullable=False, default="moderado")
+    formality_level: Mapped[str] = mapped_column(String(40), nullable=False, default="semi_formal")
+    emoji_style: Mapped[str] = mapped_column(String(40), nullable=False, default="sutil")
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     emoji_policy: Mapped[str | None] = mapped_column(String(255), nullable=True)
     hashtags_base: Mapped[str | None] = mapped_column(Text, nullable=True)
     preferred_phrases: Mapped[str | None] = mapped_column(Text, nullable=True)
     words_to_avoid: Mapped[str | None] = mapped_column(Text, nullable=True)
+    approved_examples: Mapped[str | None] = mapped_column(Text, nullable=True)
+    rejected_examples: Mapped[str | None] = mapped_column(Text, nullable=True)
+    copy_rules: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

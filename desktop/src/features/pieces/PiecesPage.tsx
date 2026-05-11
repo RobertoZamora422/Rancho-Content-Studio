@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { generateCopy, listCopies, updateCopy } from "../../services/copywritingService";
 import { listEvents } from "../../services/eventService";
 import { API_BASE_URL } from "../../services/healthService";
 import {
@@ -8,8 +9,17 @@ import {
   listContentPieces,
   updateContentPiece
 } from "../../services/pieceService";
+import type { GeneratedCopy } from "../../types/copywriting";
 import type { ContentEvent } from "../../types/events";
 import type { ContentPiece, ContentPieceMedia, PieceGenerationResponse } from "../../types/pieces";
+
+const feedbackOptions = [
+  { label: "Mas humano", value: "mas_humano" },
+  { label: "Mas corto", value: "mas_corto" },
+  { label: "Menos cursi", value: "menos_cursi" },
+  { label: "Mas calido", value: "mas_calido" },
+  { label: "Mas comercial", value: "mas_comercial" }
+];
 
 export function PiecesPage() {
   const [events, setEvents] = useState<ContentEvent[]>([]);
@@ -21,6 +31,10 @@ export function PiecesPage() {
   const [draftPurpose, setDraftPurpose] = useState("");
   const [draftPlatform, setDraftPlatform] = useState("");
   const [draftAspectRatio, setDraftAspectRatio] = useState("");
+  const [copies, setCopies] = useState<GeneratedCopy[]>([]);
+  const [selectedCopyId, setSelectedCopyId] = useState<number | null>(null);
+  const [copyDraft, setCopyDraft] = useState("");
+  const [copyLoading, setCopyLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +43,11 @@ export function PiecesPage() {
   const selectedPiece = useMemo(
     () => pieces.find((piece) => piece.id === selectedPieceId) ?? pieces[0] ?? null,
     [pieces, selectedPieceId]
+  );
+
+  const selectedCopy = useMemo(
+    () => copies.find((copy) => copy.id === selectedCopyId) ?? copies[0] ?? null,
+    [copies, selectedCopyId]
   );
 
   async function loadEvents() {
@@ -63,6 +82,25 @@ export function PiecesPage() {
     }
   }
 
+  async function loadPieceCopies(eventId: number, pieceId: number) {
+    setError(null);
+    setCopyLoading(true);
+    try {
+      const response = await listCopies(eventId, pieceId);
+      setCopies(response.items);
+      setSelectedCopyId((current) => {
+        if (current && response.items.some((copy) => copy.id === current)) {
+          return current;
+        }
+        return response.items[0]?.id ?? null;
+      });
+    } catch (currentError) {
+      setError(currentError instanceof Error ? currentError.message : "No se pudieron cargar copies.");
+    } finally {
+      setCopyLoading(false);
+    }
+  }
+
   useEffect(() => {
     void loadEvents();
   }, []);
@@ -72,6 +110,15 @@ export function PiecesPage() {
       void loadPieces(selectedEventId);
     }
   }, [selectedEventId]);
+
+  useEffect(() => {
+    if (selectedEventId !== null && selectedPiece) {
+      void loadPieceCopies(selectedEventId, selectedPiece.id);
+    } else {
+      setCopies([]);
+      setSelectedCopyId(null);
+    }
+  }, [selectedEventId, selectedPiece?.id]);
 
   useEffect(() => {
     if (selectedPiece) {
@@ -86,6 +133,10 @@ export function PiecesPage() {
       setDraftAspectRatio("");
     }
   }, [selectedPiece?.id]);
+
+  useEffect(() => {
+    setCopyDraft(selectedCopy?.body ?? "");
+  }, [selectedCopy?.id]);
 
   async function handleGeneratePieces() {
     if (selectedEventId === null) {
@@ -158,6 +209,50 @@ export function PiecesPage() {
       await loadPieces(selectedEventId);
     } catch (currentError) {
       setError(currentError instanceof Error ? currentError.message : "No se pudo reordenar la pieza.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleGenerateCopy(feedback?: string) {
+    if (!selectedPiece || selectedEventId === null) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const result = await generateCopy(selectedEventId, selectedPiece.id, { feedback });
+      setMessage(
+        `Copy generado: ${result.copies_created} variantes en job #${result.job_id}.`
+      );
+      await loadPieceCopies(selectedEventId, selectedPiece.id);
+    } catch (currentError) {
+      setError(currentError instanceof Error ? currentError.message : "No se pudo generar copy.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function saveSelectedCopy(status?: string) {
+    if (!selectedPiece || !selectedCopy || selectedEventId === null) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const updated = await updateCopy(selectedEventId, selectedPiece.id, selectedCopy.id, {
+        body: copyDraft,
+        status
+      });
+      setMessage("Copy actualizado.");
+      await loadPieceCopies(selectedEventId, selectedPiece.id);
+      setSelectedCopyId(updated.id);
+    } catch (currentError) {
+      setError(currentError instanceof Error ? currentError.message : "No se pudo actualizar el copy.");
     } finally {
       setActionLoading(false);
     }
@@ -334,6 +429,116 @@ export function PiecesPage() {
                 Rechazar pieza
               </button>
             </div>
+
+            <section className="copywriting-panel">
+              <div className="section-heading-row">
+                <div>
+                  <p className="section-label">Fase 13</p>
+                  <h2>Copywriting</h2>
+                </div>
+                <strong>{copies.length} variantes</strong>
+              </div>
+
+              {selectedPiece.status !== "approved" ? (
+                <p className="inline-error">
+                  Aprueba la pieza antes de generar copy para mantener el control humano del flujo.
+                </p>
+              ) : null}
+
+              <div className="settings-actions">
+                <button
+                  className="secondary-action"
+                  disabled={actionLoading || copyLoading || selectedPiece.status !== "approved"}
+                  onClick={() => handleGenerateCopy()}
+                  type="button"
+                >
+                  Generar copy
+                </button>
+                {feedbackOptions.map((option) => (
+                  <button
+                    className="outline-action"
+                    disabled={actionLoading || copyLoading || selectedPiece.status !== "approved"}
+                    key={option.value}
+                    onClick={() => handleGenerateCopy(option.value)}
+                    type="button"
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
+              {copies.length === 0 ? (
+                <article className="empty-state">
+                  <h2>Sin copies generados</h2>
+                  <p>Genera variantes cuando la pieza este aprobada.</p>
+                </article>
+              ) : null}
+
+              {copies.length > 0 ? (
+                <div className="copy-editor-grid">
+                  <div className="copy-list">
+                    {copies.map((copy) => (
+                      <button
+                        className={`copy-card ${selectedCopy?.id === copy.id ? "active" : ""}`}
+                        key={copy.id}
+                        onClick={() => setSelectedCopyId(copy.id)}
+                        type="button"
+                      >
+                        <span>{formatCopyType(copy.copy_type)}</span>
+                        <strong>{copy.variant_label ?? `Copy #${copy.id}`}</strong>
+                        <small>{formatCopyStatus(copy.status)}</small>
+                      </button>
+                    ))}
+                  </div>
+
+                  {selectedCopy ? (
+                    <div className="copy-editor">
+                      <label className="field-group">
+                        <span>Texto</span>
+                        <textarea
+                          onChange={(event) => setCopyDraft(event.target.value)}
+                          value={copyDraft}
+                        />
+                      </label>
+                      {selectedCopy.warnings.length > 0 ? (
+                        <p className="inline-error">
+                          Advertencias: {selectedCopy.warnings.map(formatCopyWarning).join(", ")}
+                        </p>
+                      ) : null}
+                      {selectedCopy.output_path ? (
+                        <p className="import-summary">Archivo: {selectedCopy.output_path}</p>
+                      ) : null}
+                      <div className="settings-actions">
+                        <button
+                          className="outline-action"
+                          disabled={actionLoading || copyDraft.trim().length === 0}
+                          onClick={() => saveSelectedCopy()}
+                          type="button"
+                        >
+                          Guardar edicion
+                        </button>
+                        <button
+                          className="secondary-action"
+                          disabled={actionLoading || copyDraft.trim().length === 0}
+                          onClick={() => saveSelectedCopy("approved")}
+                          type="button"
+                        >
+                          Aprobar copy
+                        </button>
+                        <button
+                          className="danger-action"
+                          disabled={actionLoading}
+                          onClick={() => saveSelectedCopy("rejected")}
+                          type="button"
+                        >
+                          Rechazar copy
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </section>
           </article>
         ) : null}
       </section>
@@ -390,4 +595,38 @@ function formatMediaRole(value: string | null) {
     return "Secuencia";
   }
   return value ?? "Medio";
+}
+
+function formatCopyType(value: string) {
+  const labels: Record<string, string> = {
+    caption: "Caption",
+    cover_text: "Texto de portada",
+    cta: "CTA",
+    hashtags: "Hashtags",
+    reel_short_copy: "Copy breve",
+    story_text: "Historia"
+  };
+  return labels[value] ?? value;
+}
+
+function formatCopyStatus(value: string) {
+  const labels: Record<string, string> = {
+    approved: "Aprobado",
+    archived: "Archivado",
+    edited: "Editado",
+    generated: "Generado",
+    regenerated: "Regenerado",
+    rejected: "Rechazado"
+  };
+  return labels[value] ?? value;
+}
+
+function formatCopyWarning(value: string) {
+  const labels: Record<string, string> = {
+    contiene_palabras_a_evitar: "contiene palabras a evitar",
+    copy_largo: "copy largo",
+    copy_vacio: "copy vacio",
+    sin_hashtags: "sin hashtags"
+  };
+  return labels[value] ?? value;
 }

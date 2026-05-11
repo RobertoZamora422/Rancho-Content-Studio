@@ -55,6 +55,10 @@ En Fase 10, `enhanced_media` se usa para registrar versiones JPEG generadas desd
 
 En Fase 12, `content_piece` se usa para registrar propuestas de reels, carruseles, historias, posts individuales y piezas promocionales. `content_piece_media` mantiene los medios mejorados asociados y su orden dentro de cada pieza. Aprobar o rechazar una pieza cambia su estado sin exportar archivos finales ni modificar medios.
 
+## Uso actual de perfil editorial y copy
+
+En Fase 13, `editorial_profile` guarda tono, nivel emocional, formalidad, reglas de emojis, hashtags, frases preferidas, palabras a evitar, ejemplos aprobados/rechazados y reglas editoriales. `generated_copy` guarda variantes generadas o editadas para una pieza aprobada. Cada copy puede aprobarse o rechazarse, se escribe como `.md` en `08_Copies` y queda disponible para la exportacion final futura.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

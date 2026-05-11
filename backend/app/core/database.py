@@ -57,6 +57,42 @@ def ensure_incremental_schema() -> None:
         if "metadata_json" not in media_columns:
             connection.execute(text("ALTER TABLE original_media ADD COLUMN metadata_json TEXT"))
 
+        editorial_columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(editorial_profile)")).all()
+        }
+        editorial_additions = {
+            "emotional_level": "TEXT NOT NULL DEFAULT 'moderado'",
+            "formality_level": "TEXT NOT NULL DEFAULT 'semi_formal'",
+            "emoji_style": "TEXT NOT NULL DEFAULT 'sutil'",
+            "approved_examples": "TEXT",
+            "rejected_examples": "TEXT",
+            "copy_rules": "TEXT",
+        }
+        for column, definition in editorial_additions.items():
+            if column not in editorial_columns:
+                connection.execute(
+                    text(f"ALTER TABLE editorial_profile ADD COLUMN {column} {definition}")
+                )
+
+        copy_columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(generated_copy)")).all()
+        }
+        copy_additions = {
+            "copy_type": "TEXT NOT NULL DEFAULT 'caption'",
+            "hashtags_json": "TEXT",
+            "cta": "TEXT",
+            "style_notes": "TEXT",
+            "user_feedback": "TEXT",
+            "output_path": "TEXT",
+        }
+        for column, definition in copy_additions.items():
+            if column not in copy_columns:
+                connection.execute(
+                    text(f"ALTER TABLE generated_copy ADD COLUMN {column} {definition}")
+                )
+
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()

@@ -5,6 +5,13 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.events import EventCreate, EventListResponse, EventResponse, EventUpdate
+from app.schemas.copywriting import (
+    CopyGenerationRequest,
+    CopyGenerationResponse,
+    GeneratedCopyListResponse,
+    GeneratedCopyResponse,
+    GeneratedCopyUpdate,
+)
 from app.schemas.importing import (
     CuratedMediaListResponse,
     CuratedMediaResponse,
@@ -37,6 +44,11 @@ from app.services.content_piece_service import (
     generate_event_pieces,
     list_event_content_pieces,
     update_content_piece,
+)
+from app.services.copywriting_service import (
+    generate_piece_copy,
+    list_piece_copies,
+    update_piece_copy,
 )
 from app.services.curation_service import curate_event_media, list_curated_media, update_curated_media
 from app.services.enhancement_service import (
@@ -247,6 +259,45 @@ def update_piece(
     db: Session = Depends(get_db),
 ) -> ContentPieceResponse:
     return update_content_piece(db, event_id, piece_id, payload)
+
+
+@router.post(
+    "/{event_id}/content-pieces/{piece_id}/generate-copy",
+    response_model=CopyGenerationResponse,
+)
+def generate_copy_for_piece(
+    event_id: int,
+    piece_id: int,
+    payload: CopyGenerationRequest | None = None,
+    db: Session = Depends(get_db),
+) -> CopyGenerationResponse:
+    return generate_piece_copy(db, event_id, piece_id, payload or CopyGenerationRequest())
+
+
+@router.get(
+    "/{event_id}/content-pieces/{piece_id}/copies",
+    response_model=GeneratedCopyListResponse,
+)
+def read_piece_copies(
+    event_id: int,
+    piece_id: int,
+    db: Session = Depends(get_db),
+) -> GeneratedCopyListResponse:
+    return list_piece_copies(db, event_id, piece_id)
+
+
+@router.patch(
+    "/{event_id}/content-pieces/{piece_id}/copies/{copy_id}",
+    response_model=GeneratedCopyResponse,
+)
+def update_copy_for_piece(
+    event_id: int,
+    piece_id: int,
+    copy_id: int,
+    payload: GeneratedCopyUpdate,
+    db: Session = Depends(get_db),
+) -> GeneratedCopyResponse:
+    return update_piece_copy(db, event_id, piece_id, copy_id, payload)
 
 
 @router.get("/{event_id}/similarity-groups", response_model=SimilarityGroupListResponse)

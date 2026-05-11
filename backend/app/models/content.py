@@ -86,11 +86,17 @@ class GeneratedCopy(Base):
         index=True,
     )
     variant_label: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    copy_type: Mapped[str] = mapped_column(String(60), nullable=False, default="caption")
     body: Mapped[str] = mapped_column(Text, nullable=False)
+    hashtags_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cta: Mapped[str | None] = mapped_column(Text, nullable=True)
+    style_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="draft")
     generation_mode: Mapped[str] = mapped_column(String(40), nullable=False, default="manual")
     ai_provider: Mapped[str | None] = mapped_column(String(80), nullable=True)
     prompt_context: Mapped[str | None] = mapped_column(Text, nullable=True)
+    user_feedback: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    output_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

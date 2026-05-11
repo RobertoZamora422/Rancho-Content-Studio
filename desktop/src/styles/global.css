@@ -278,6 +278,7 @@ h2 {
 .media-row,
 .pieces-toolbar,
 .piece-editor-panel,
+.copywriting-panel,
 .job-row {
   background: #ffffff;
   border: 1px solid #ded8cc;
@@ -289,6 +290,10 @@ h2 {
 .event-form {
   display: grid;
   gap: 18px;
+}
+
+.editorial-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .event-form {
@@ -310,19 +315,32 @@ h2 {
 }
 
 .field-group input,
-.field-group select {
+.field-group select,
+.field-group textarea {
   background: #fbfaf7;
   border: 1px solid #cfc8bb;
   border-radius: 8px;
   color: #202722;
   font: inherit;
-  min-height: 44px;
-  padding: 0 12px;
   width: 100%;
 }
 
+.field-group input,
+.field-group select {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.field-group textarea {
+  line-height: 1.5;
+  min-height: 120px;
+  padding: 12px;
+  resize: vertical;
+}
+
 .field-group input:disabled,
-.field-group select:disabled {
+.field-group select:disabled,
+.field-group textarea:disabled {
   color: #777;
 }
 
@@ -818,6 +836,49 @@ h2 {
   gap: 8px;
 }
 
+.copywriting-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.copy-editor-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 250px minmax(0, 1fr);
+}
+
+.copy-list {
+  display: grid;
+  gap: 8px;
+}
+
+.copy-card {
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  color: #202722;
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  text-align: left;
+}
+
+.copy-card.active,
+.copy-card:hover {
+  border-color: #202722;
+}
+
+.copy-card span,
+.copy-card small {
+  color: #555e57;
+}
+
+.copy-editor {
+  display: grid;
+  gap: 12px;
+}
+
 .job-row {
   align-items: center;
   display: grid;
@@ -902,6 +963,8 @@ h2 {
   .pieces-layout,
   .piece-editor-fields,
   .piece-media-row,
+  .copy-editor-grid,
+  .editorial-form,
   .job-row {
     grid-template-columns: 1fr;
   }
