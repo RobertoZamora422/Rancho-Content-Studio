@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7 y Fase 8:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8 y Fase 9:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -40,9 +40,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7 y
 - Miniaturas locales para fotos y videos en `metadata/thumbnails`.
 - Analisis visual local de fotos con puntajes de calidad y hash perceptual.
 - Deteccion local de duplicados exactos y fotos visualmente similares.
+- Curacion inteligente inicial con estados revisables y cambios manuales.
 - Scaffold Tauri preparado.
 
-No incluye todavia curacion, mejoras, piezas ni exportacion final.
+No incluye todavia mejoras, piezas ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -243,6 +244,38 @@ Reglas aplicadas:
 - La deteccion recalcula solo grupos generados `checksum_duplicate` y `perceptual_hash`.
 - Si faltan hashes perceptuales, se registra advertencia y se omiten esas fotos hasta ejecutar `Analizar fotos`.
 
+## Fase 9 implementada
+
+La Fase 9 agrega curacion inteligente y revision manual:
+
+- `POST /api/events/{id}/curate-media`: crea o actualiza estados de curacion.
+- `GET /api/events/{id}/curated-media`: lista medios curados con miniatura, analisis y motivo.
+- `PATCH /api/events/{id}/curated-media/{curated_id}`: permite cambiar una decision manual.
+- Job `curate_media`: registra progreso y motivos por archivo.
+- Usa `media_analysis` y `similarity_group` para proponer seleccionados, alternativos, descartes logicos y revision manual.
+- Conserva overrides manuales en ejecuciones posteriores.
+- Registra decisiones automaticas y manuales en `decision_log`.
+- La UI muestra columnas de seleccionados, alternativos, descartes logicos y revision manual.
+
+Estados usados:
+
+- `selected`
+- `alternative`
+- `rejected_duplicate`
+- `rejected_similar`
+- `rejected_low_quality`
+- `rejected_blurry`
+- `rejected_dark`
+- `manual_review`
+- `user_selected`
+- `user_rejected`
+
+Reglas aplicadas:
+
+- Todo descarte es logico y reversible.
+- La curacion no borra ni modifica archivos originales.
+- Los videos quedan en revision manual hasta implementar analisis avanzado de video.
+
 ## Backend
 
 ```powershell
@@ -281,8 +314,10 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/import
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/process-metadata
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/analyze-photos
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/detect-similarity
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/curate-media
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
 ```
 
 Pruebas:
@@ -332,6 +367,7 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - El analisis de videos queda pendiente para una fase posterior.
 - La similitud visual de Fase 8 usa average hash y un umbral fijo; casos dudosos deben revisarse manualmente.
 - La importacion actual omite duplicados exactos por checksum, asi que los grupos exactos apareceran sobre datos existentes o registros creados antes de esa regla.
+- La curacion de Fase 9 usa reglas iniciales de calidad/similitud; todavia no clasifica diversidad semantica como protagonistas, comida o baile.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
 - La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
@@ -423,6 +459,15 @@ Para validar Fase 8:
 4. Confirmar que aparece la seccion `Duplicados y similares`.
 5. Consultar `GET /api/events/{id}/similarity-groups` y verificar representantes y alternativas.
 6. Consultar `GET /api/events/{id}/jobs` y verificar el job `detect_similarity`.
+
+Para validar Fase 9:
+
+1. Ejecutar Fase 7 y Fase 8 sobre un evento con fotos.
+2. Ejecutar `Ejecutar curacion inteligente`.
+3. Confirmar que aparece la seccion `Curacion inteligente`.
+4. Cambiar un medio con `Seleccionar`, `Revisar` o `Rechazar`.
+5. Ejecutar de nuevo la curacion y confirmar que la decision manual se conserva.
+6. Consultar `GET /api/events/{id}/jobs` y verificar el job `curate_media`.
 
 ## Reglas centrales
 

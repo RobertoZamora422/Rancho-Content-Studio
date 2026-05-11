@@ -43,6 +43,10 @@ En Fase 7, `media_analysis` ya se usa para guardar el analisis visual local de f
 
 En Fase 8, `similarity_group` y `similarity_group_item` se usan para agrupar duplicados exactos por checksum y fotos similares por hash perceptual. El grupo guarda un representante sugerido y cada item mantiene su rol dentro del grupo.
 
+## Uso actual de curacion
+
+En Fase 9, `curated_media` se usa para guardar seleccionados, alternativas, descartes logicos y medios en revision manual. Las decisiones manuales se marcan con `is_manual_override` para que una nueva curacion automatica no las reemplace.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

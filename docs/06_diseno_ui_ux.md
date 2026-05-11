@@ -75,3 +75,13 @@ El detalle de evento incluye una seccion `Duplicados y similares` que:
 - separa duplicados exactos y similares visuales;
 - muestra representante sugerido, alternativas, calidad, distancia y confianza;
 - permite revisar alternativas sin borrar ni descartar automaticamente.
+
+## Fase 9 implementada en UI
+
+El detalle de evento incluye una seccion `Curacion inteligente` que:
+
+- ejecuta `Ejecutar curacion inteligente`;
+- muestra columnas de seleccionados, alternativos, descartes logicos y revision manual;
+- muestra miniatura, calidad y motivo de cada decision;
+- permite cambiar manualmente a seleccionar, revisar o rechazar;
+- conserva decisiones manuales para la siguiente ejecucion.

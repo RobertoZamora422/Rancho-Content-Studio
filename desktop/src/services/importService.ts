@@ -1,5 +1,9 @@
 import { API_BASE_URL } from "./healthService";
 import type {
+  CuratedMedia,
+  CuratedMediaListResponse,
+  CuratedMediaUpdate,
+  CurationProcessResponse,
   ImportResponse,
   MediaSource,
   MetadataProcessResponse,
@@ -81,6 +85,13 @@ export async function detectSimilarity(eventId: number): Promise<SimilarityDetec
   return parseResponse<SimilarityDetectionResponse>(response);
 }
 
+export async function curateMedia(eventId: number): Promise<CurationProcessResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/curate-media`, {
+    method: "POST"
+  });
+  return parseResponse<CurationProcessResponse>(response);
+}
+
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/media/original`);
   return parseResponse<OriginalMediaListResponse>(response);
@@ -89,6 +100,26 @@ export async function listOriginalMedia(eventId: number): Promise<OriginalMediaL
 export async function listSimilarityGroups(eventId: number): Promise<SimilarityGroupListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/similarity-groups`);
   return parseResponse<SimilarityGroupListResponse>(response);
+}
+
+export async function listCuratedMedia(eventId: number): Promise<CuratedMediaListResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/curated-media`);
+  return parseResponse<CuratedMediaListResponse>(response);
+}
+
+export async function updateCuratedMedia(
+  eventId: number,
+  curatedId: number,
+  payload: CuratedMediaUpdate
+): Promise<CuratedMedia> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/curated-media/${curatedId}`, {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "PATCH"
+  });
+  return parseResponse<CuratedMedia>(response);
 }
 
 export async function listEventJobs(eventId: number): Promise<JobListResponse> {

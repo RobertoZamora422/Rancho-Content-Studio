@@ -270,6 +270,7 @@ h2 {
 .import-panel,
 .media-panel,
 .similarity-panel,
+.curation-panel,
 .jobs-panel,
 .source-card,
 .media-row,
@@ -441,6 +442,7 @@ h2 {
 .import-panel,
 .media-panel,
 .similarity-panel,
+.curation-panel,
 .jobs-panel {
   display: grid;
   gap: 16px;
@@ -588,6 +590,62 @@ h2 {
   width: 76px;
 }
 
+.curation-columns {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.curation-column {
+  border-top: 1px solid #ded8cc;
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.curation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.curation-card {
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.curation-card .media-thumb {
+  width: 100%;
+}
+
+.curation-card-body {
+  display: grid;
+  gap: 6px;
+}
+
+.curation-card-body p,
+.curation-card-body span {
+  color: #555e57;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.curation-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.curation-actions .outline-action,
+.curation-actions .danger-action {
+  min-height: 36px;
+  padding: 0 8px;
+}
+
 .job-row {
   align-items: center;
   display: grid;
@@ -665,6 +723,8 @@ h2 {
   .source-form,
   .media-row,
   .similarity-item,
+  .curation-columns,
+  .curation-actions,
   .job-row {
     grid-template-columns: 1fr;
   }

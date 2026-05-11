@@ -6,6 +6,10 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.events import EventCreate, EventListResponse, EventResponse, EventUpdate
 from app.schemas.importing import (
+    CuratedMediaListResponse,
+    CuratedMediaResponse,
+    CuratedMediaUpdate,
+    CurationProcessResponse,
     ImportResponse,
     MetadataProcessResponse,
     OriginalMediaListResponse,
@@ -16,6 +20,7 @@ from app.schemas.importing import (
     SourceResponse,
     VisualAnalysisProcessResponse,
 )
+from app.services.curation_service import curate_event_media, list_curated_media, update_curated_media
 from app.services.event_service import (
     archive_event,
     create_event,
@@ -121,6 +126,35 @@ def detect_similarity(
     db: Session = Depends(get_db),
 ) -> SimilarityDetectionResponse:
     return detect_event_similarities(db, event_id)
+
+
+@router.post("/{event_id}/curate-media", response_model=CurationProcessResponse)
+def curate_media(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> CurationProcessResponse:
+    return curate_event_media(db, event_id)
+
+
+@router.get("/{event_id}/curated-media", response_model=CuratedMediaListResponse)
+def read_curated_media(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> CuratedMediaListResponse:
+    return list_curated_media(db, event_id)
+
+
+@router.patch(
+    "/{event_id}/curated-media/{curated_id}",
+    response_model=CuratedMediaResponse,
+)
+def update_curated_media_decision(
+    event_id: int,
+    curated_id: int,
+    payload: CuratedMediaUpdate,
+    db: Session = Depends(get_db),
+) -> CuratedMediaResponse:
+    return update_curated_media(db, event_id, curated_id, payload)
 
 
 @router.get("/{event_id}/similarity-groups", response_model=SimilarityGroupListResponse)

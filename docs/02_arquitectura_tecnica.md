@@ -75,3 +75,11 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Las fotos similares se agrupan por distancia Hamming entre `perceptual_hash`.
 - El representante sugerido se elige por `overall_quality_score`.
 - Los grupos se recalculan en SQLite y no modifican archivos locales.
+
+## Implementacion local de Fase 9
+
+- La curacion vive en `services/curation_service.py`.
+- Usa `media_analysis` y `similarity_group` como entradas.
+- Guarda estados reversibles en `curated_media`.
+- Mantiene overrides manuales y registra cambios en `decision_log`.
+- No modifica ni elimina archivos originales.

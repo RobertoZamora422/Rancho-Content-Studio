@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7 y Fase 8. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos y deteccion de duplicados/similares. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas de calidad y grupos similares revisables.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8 y Fase 9. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares y curacion inteligente revisable. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares y curacion manual.
 
 ## Fase 6 implementada
 
@@ -54,6 +54,17 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - Persistencia en `similarity_group` y `similarity_group_item`.
 - Representante sugerido por mejor puntaje global de calidad.
 - UI de grupos con representante, alternativas, distancia y confianza.
+
+## Fase 9 implementada
+
+- Endpoint `POST /api/events/{id}/curate-media`.
+- Endpoint `GET /api/events/{id}/curated-media`.
+- Endpoint `PATCH /api/events/{id}/curated-media/{curated_id}`.
+- Job `curate_media` para crear estados explicables.
+- Estados `selected`, `alternative`, `rejected_*`, `manual_review`, `user_selected` y `user_rejected`.
+- Preserva decisiones manuales en nuevas ejecuciones.
+- Registra decisiones automaticas y manuales en `decision_log`.
+- UI con columnas de seleccionados, alternativos, descartes logicos y revision manual.
 
 ## Criterios por bloque
 

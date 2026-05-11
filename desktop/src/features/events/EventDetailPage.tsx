@@ -7,17 +7,22 @@ import { API_BASE_URL } from "../../services/healthService";
 import {
   addSource,
   analyzePhotos,
+  curateMedia,
   detectSimilarity,
   importMedia,
+  listCuratedMedia,
   listEventJobs,
   listOriginalMedia,
   listSimilarityGroups,
   listSources,
   processMetadataAndThumbnails,
-  scanSources
+  scanSources,
+  updateCuratedMedia
 } from "../../services/importService";
 import type { ContentEvent } from "../../types/events";
 import type {
+  CuratedMedia,
+  CurationProcessResponse,
   ImportResponse,
   MediaSource,
   MetadataProcessResponse,
@@ -37,6 +42,7 @@ export function EventDetailPage() {
   const [sources, setSources] = useState<MediaSource[]>([]);
   const [mediaItems, setMediaItems] = useState<OriginalMedia[]>([]);
   const [similarityGroups, setSimilarityGroups] = useState<SimilarityGroup[]>([]);
+  const [curatedItems, setCuratedItems] = useState<CuratedMedia[]>([]);
   const [jobs, setJobs] = useState<ProcessingJob[]>([]);
   const [sourcePath, setSourcePath] = useState("");
   const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
@@ -44,6 +50,7 @@ export function EventDetailPage() {
   const [lastMetadata, setLastMetadata] = useState<MetadataProcessResponse | null>(null);
   const [lastAnalysis, setLastAnalysis] = useState<VisualAnalysisProcessResponse | null>(null);
   const [lastSimilarity, setLastSimilarity] = useState<SimilarityDetectionResponse | null>(null);
+  const [lastCuration, setLastCuration] = useState<CurationProcessResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,15 +78,23 @@ export function EventDetailPage() {
 
   async function loadImportState(currentEventId: number) {
     try {
-      const [sourceResponse, mediaResponse, similarityResponse, jobResponse] = await Promise.all([
+      const [
+        sourceResponse,
+        mediaResponse,
+        similarityResponse,
+        curatedResponse,
+        jobResponse
+      ] = await Promise.all([
         listSources(currentEventId),
         listOriginalMedia(currentEventId),
         listSimilarityGroups(currentEventId),
+        listCuratedMedia(currentEventId),
         listEventJobs(currentEventId)
       ]);
       setSources(sourceResponse);
       setMediaItems(mediaResponse.items);
       setSimilarityGroups(similarityResponse.items);
+      setCuratedItems(curatedResponse.items);
       setJobs(jobResponse.items);
     } catch (currentError) {
       setError(
@@ -253,6 +268,64 @@ export function EventDetailPage() {
     }
   }
 
+  async function handleCurateMedia() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const result = await curateMedia(event.id);
+      setLastCuration(result);
+      setMessage(
+        `Curacion completada: ${result.selected} seleccionados, ${result.alternative} alternativos, ${result.rejected} descartes logicos.`
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudo ejecutar la curacion inteligente."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleManualCuration(
+    curatedId: number,
+    selectionStatus: string,
+    reason: string
+  ) {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await updateCuratedMedia(event.id, curatedId, {
+        reason,
+        selection_status: selectionStatus
+      });
+      setMessage("Decision manual guardada.");
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudo actualizar la decision de curacion."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   async function handleArchive() {
     if (!event) {
       return;
@@ -292,6 +365,8 @@ export function EventDetailPage() {
       setActionLoading(false);
     }
   }
+
+  const curationGroups = groupCuratedItems(curatedItems);
 
   return (
     <section className="event-detail-view">
@@ -453,6 +528,14 @@ export function EventDetailPage() {
               >
                 Detectar duplicados y similares
               </button>
+              <button
+                className="secondary-action"
+                disabled={actionLoading || mediaItems.length === 0}
+                onClick={handleCurateMedia}
+                type="button"
+              >
+                Ejecutar curacion inteligente
+              </button>
             </div>
             {lastMetadata ? (
               <p className="import-summary">
@@ -474,6 +557,13 @@ export function EventDetailPage() {
                 Similitud job #{lastSimilarity.job_id}: {lastSimilarity.exact_groups} exactos,{" "}
                 {lastSimilarity.similar_groups} similares, {lastSimilarity.grouped_items} medios
                 agrupados.
+              </p>
+            ) : null}
+            {lastCuration ? (
+              <p className="import-summary">
+                Curacion job #{lastCuration.job_id}: {lastCuration.selected} seleccionados,{" "}
+                {lastCuration.alternative} alternativos, {lastCuration.rejected} descartes,{" "}
+                {lastCuration.manual_review} en revision.
               </p>
             ) : null}
             <div className="media-table">
@@ -585,6 +675,99 @@ export function EventDetailPage() {
                 </article>
               ))}
             </div>
+          </section>
+
+          <section className="curation-panel">
+            <div className="section-heading-row">
+              <div>
+                <p className="section-label">Curacion inteligente</p>
+                <h2>{curatedItems.length} medios con estado</h2>
+              </div>
+            </div>
+            {curatedItems.length === 0 ? (
+              <article className="empty-state">
+                <h2>Sin curacion ejecutada</h2>
+                <p>Ejecuta la curacion inteligente para crear estados revisables.</p>
+              </article>
+            ) : null}
+            {curatedItems.length > 0 ? (
+              <div className="curation-columns">
+                {curationGroups.map((group) => (
+                  <article className="curation-column" key={group.key}>
+                    <p className="section-label">{group.label}</p>
+                    <h2>{group.items.length}</h2>
+                    <div className="curation-list">
+                      {group.items.map((item) => (
+                        <div className="curation-card" key={item.id}>
+                          <div className="media-thumb">
+                            {item.media.thumbnail_url ? (
+                              <img
+                                alt={`Miniatura de ${item.media.filename}`}
+                                loading="lazy"
+                                src={thumbnailSrc(item.media.thumbnail_url)}
+                              />
+                            ) : (
+                              <span>{item.media.media_type === "video" ? "VIDEO" : "IMG"}</span>
+                            )}
+                          </div>
+                          <div className="curation-card-body">
+                            <strong>{item.media.filename}</strong>
+                            <span>{formatCurationStatus(item.selection_status)}</span>
+                            <span>Calidad {formatScore(item.score)}</span>
+                            <p>{item.reason ?? "Sin motivo"}</p>
+                            {item.is_manual_override ? <span>Decision manual</span> : null}
+                            <div className="curation-actions">
+                              <button
+                                className="outline-action"
+                                disabled={actionLoading}
+                                onClick={() =>
+                                  handleManualCuration(
+                                    item.id,
+                                    "user_selected",
+                                    "Seleccionado manualmente para la siguiente fase."
+                                  )
+                                }
+                                type="button"
+                              >
+                                Seleccionar
+                              </button>
+                              <button
+                                className="outline-action"
+                                disabled={actionLoading}
+                                onClick={() =>
+                                  handleManualCuration(
+                                    item.id,
+                                    "manual_review",
+                                    "Enviado a revision manual."
+                                  )
+                                }
+                                type="button"
+                              >
+                                Revisar
+                              </button>
+                              <button
+                                className="danger-action"
+                                disabled={actionLoading}
+                                onClick={() =>
+                                  handleManualCuration(
+                                    item.id,
+                                    "user_rejected",
+                                    "Rechazado manualmente sin borrar el archivo."
+                                  )
+                                }
+                                type="button"
+                              >
+                                Rechazar
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : null}
           </section>
 
           <section className="jobs-panel">
@@ -735,4 +918,38 @@ function formatDistance(value: number | null) {
     return "--";
   }
   return value.toFixed(0);
+}
+
+function groupCuratedItems(items: CuratedMedia[]) {
+  const selected = items.filter((item) =>
+    ["selected", "user_selected"].includes(item.selection_status)
+  );
+  const alternatives = items.filter((item) => item.selection_status === "alternative");
+  const manualReview = items.filter((item) => item.selection_status === "manual_review");
+  const rejected = items.filter((item) =>
+    item.selection_status.startsWith("rejected_") || item.selection_status === "user_rejected"
+  );
+
+  return [
+    { items: selected, key: "selected", label: "Seleccionados" },
+    { items: alternatives, key: "alternative", label: "Alternativos" },
+    { items: rejected, key: "rejected", label: "Descartes logicos" },
+    { items: manualReview, key: "manual_review", label: "Revision manual" }
+  ];
+}
+
+function formatCurationStatus(value: string) {
+  const labels: Record<string, string> = {
+    alternative: "Alternativo",
+    manual_review: "Revision manual",
+    rejected_blurry: "Descartado por borroso",
+    rejected_dark: "Descartado por oscuro",
+    rejected_duplicate: "Descartado por duplicado",
+    rejected_low_quality: "Descartado por baja calidad",
+    rejected_similar: "Descartado por similitud",
+    selected: "Seleccionado",
+    user_rejected: "Rechazado por usuario",
+    user_selected: "Seleccionado por usuario"
+  };
+  return labels[value] ?? value;
 }

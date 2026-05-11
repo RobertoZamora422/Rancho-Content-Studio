@@ -64,6 +64,16 @@ export type SimilarityDetectionResponse = {
   skipped_without_hash: number;
 };
 
+export type CurationProcessResponse = {
+  job_id: number;
+  total_media: number;
+  selected: number;
+  alternative: number;
+  rejected: number;
+  manual_review: number;
+  preserved_manual_overrides: number;
+};
+
 export type MediaAnalysis = {
   sharpness_score: number | null;
   brightness_score: number | null;
@@ -130,4 +140,27 @@ export type SimilarityGroup = {
 
 export type SimilarityGroupListResponse = {
   items: SimilarityGroup[];
+};
+
+export type CuratedMedia = {
+  id: number;
+  event_id: number;
+  original_media_id: number;
+  selection_status: string;
+  reason: string | null;
+  score: number | null;
+  selected_by: string;
+  is_manual_override: boolean;
+  created_at: string;
+  updated_at: string;
+  media: OriginalMedia;
+};
+
+export type CuratedMediaListResponse = {
+  items: CuratedMedia[];
+};
+
+export type CuratedMediaUpdate = {
+  selection_status: string;
+  reason?: string | null;
 };

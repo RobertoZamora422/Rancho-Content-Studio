@@ -80,6 +80,33 @@ La columna `metadata_json` se agrega de forma incremental en bases SQLite existe
 | role | string | `representative`, `duplicate` o `alternative`. |
 | reason | text nullable | Motivo de inclusion. |
 
+## Campos usados en Fase 9
+
+`curated_media` guarda el estado revisable de curacion:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| event_id | integer | Evento al que pertenece la decision. |
+| original_media_id | integer | Medio curado. |
+| selection_status | string | Estado de seleccion, alternativa, descarte logico o revision. |
+| reason | text nullable | Motivo de seleccion o descarte. |
+| score | float nullable | Puntaje usado para ordenar o justificar. |
+| selected_by | string | `system` o `user`. |
+| is_manual_override | boolean | Indica si el usuario cambio la decision automatica. |
+
+Estados usados:
+
+- `selected`
+- `alternative`
+- `rejected_duplicate`
+- `rejected_similar`
+- `rejected_low_quality`
+- `rejected_blurry`
+- `rejected_dark`
+- `manual_review`
+- `user_selected`
+- `user_rejected`
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

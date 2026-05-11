@@ -75,6 +75,21 @@ class SimilarityDetectionResponse(BaseModel):
     skipped_without_hash: int
 
 
+class CurationProcessResponse(BaseModel):
+    job_id: int
+    total_media: int
+    selected: int
+    alternative: int
+    rejected: int
+    manual_review: int
+    preserved_manual_overrides: int
+
+
+class CuratedMediaUpdate(BaseModel):
+    selection_status: str = Field(min_length=1, max_length=40)
+    reason: str | None = Field(default=None, max_length=1000)
+
+
 class MediaAnalysisResponse(BaseModel):
     sharpness_score: float | None
     brightness_score: float | None
@@ -141,3 +156,21 @@ class SimilarityGroupResponse(BaseModel):
 
 class SimilarityGroupListResponse(BaseModel):
     items: list[SimilarityGroupResponse]
+
+
+class CuratedMediaResponse(BaseModel):
+    id: int
+    event_id: int
+    original_media_id: int
+    selection_status: str
+    reason: str | None
+    score: float | None
+    selected_by: str
+    is_manual_override: bool
+    created_at: datetime
+    updated_at: datetime
+    media: OriginalMediaResponse
+
+
+class CuratedMediaListResponse(BaseModel):
+    items: list[CuratedMediaResponse]

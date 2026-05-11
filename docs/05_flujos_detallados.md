@@ -90,14 +90,28 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 9. Registra advertencias si hay fotos sin hash perceptual.
 10. La UI muestra representante sugerido, alternativas, distancia y confianza.
 
+## Flujo de curacion inteligente implementado en Fase 9
+
+1. El usuario ejecuta analisis visual y deteccion de similitud.
+2. Desde el detalle del evento ejecuta `Ejecutar curacion inteligente`.
+3. El backend crea un job `curate_media`.
+4. Para cada medio:
+   - conserva decisiones manuales previas,
+   - evalua calidad global, nitidez, brillo y exposicion,
+   - usa grupos similares para seleccionar representante y marcar alternativas,
+   - marca descartes logicos por duplicado, baja calidad, borroso u oscuro,
+   - envia videos y casos sin analisis a `manual_review`.
+5. Guarda o actualiza `curated_media`.
+6. Registra motivos en `curated_media.reason`.
+7. Registra decisiones automaticas y manuales en `decision_log`.
+8. La UI permite seleccionar, enviar a revision o rechazar manualmente.
+
 ## Flujo de procesamiento futuro
 
-1. Crear curacion sugerida.
-2. Permitir revision manual.
-3. Crear versiones mejoradas.
-4. Sugerir piezas.
-5. Generar o editar copy.
-6. Exportar.
+1. Crear versiones mejoradas.
+2. Sugerir piezas.
+3. Generar o editar copy.
+4. Exportar.
 
 ## Jobs
 
