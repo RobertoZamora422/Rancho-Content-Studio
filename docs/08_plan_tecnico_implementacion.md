@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8 y Fase 9. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares y curacion inteligente revisable. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares y curacion manual.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9 y Fase 10. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable y mejora local de fotos seleccionadas. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual y comparador original vs mejorado.
 
 ## Fase 6 implementada
 
@@ -65,6 +65,19 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - Preserva decisiones manuales en nuevas ejecuciones.
 - Registra decisiones automaticas y manuales en `decision_log`.
 - UI con columnas de seleccionados, alternativos, descartes logicos y revision manual.
+
+## Fase 10 implementada
+
+- Endpoint `POST /api/events/{id}/enhance-photos`.
+- Endpoint `GET /api/events/{id}/enhanced-media`.
+- Endpoint `PATCH /api/events/{id}/enhanced-media/{enhanced_id}`.
+- Endpoint `GET /api/media/enhanced/{enhanced_id}/file`.
+- Job `enhance_photos` para generar versiones de fotos seleccionadas.
+- Servicio local `services/enhancement_service.py` con ajustes basicos de brillo, contraste, color y nitidez usando Pillow.
+- Persistencia en `enhanced_media` con ruta relativa en `04_Mejorados`, preset, dimensiones, estado y notas JSON.
+- Reprocesar genera un archivo versionado nuevo; no sobrescribe salidas anteriores.
+- La fecha de archivo de la version generada se ajusta a la fecha de captura conocida; ExifTool se usa si esta disponible para escribir fechas EXIF.
+- UI de `Mejoras visuales` con selector de preset, procesamiento/reprocesamiento y acciones manuales de aprobar o rechazar.
 
 ## Criterios por bloque
 

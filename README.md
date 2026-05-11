@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8 y Fase 9:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9 y Fase 10:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -41,9 +41,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Analisis visual local de fotos con puntajes de calidad y hash perceptual.
 - Deteccion local de duplicados exactos y fotos visualmente similares.
 - Curacion inteligente inicial con estados revisables y cambios manuales.
+- Mejora local de fotos seleccionadas con presets basicos y versiones en `04_Mejorados`.
 - Scaffold Tauri preparado.
 
-No incluye todavia mejoras, piezas ni exportacion final.
+No incluye todavia mejora de videos, piezas ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -276,6 +277,28 @@ Reglas aplicadas:
 - La curacion no borra ni modifica archivos originales.
 - Los videos quedan en revision manual hasta implementar analisis avanzado de video.
 
+## Fase 10 implementada
+
+La Fase 10 agrega mejora local de fotos seleccionadas:
+
+- `POST /api/events/{id}/enhance-photos`: genera versiones mejoradas de fotos con estado `selected` o `user_selected`.
+- `GET /api/events/{id}/enhanced-media`: lista versiones mejoradas con foto original, preset, estado y ruta local.
+- `PATCH /api/events/{id}/enhanced-media/{enhanced_id}`: permite aprobar o rechazar una version sin borrar archivos.
+- `GET /api/media/enhanced/{enhanced_id}/file`: sirve la version mejorada al frontend.
+- Job `enhance_photos`: registra progreso, conteos y errores por archivo.
+- Las salidas se escriben como JPEG en `04_Mejorados` con nombres versionados para no sobrescribir versiones anteriores.
+- Usa presets locales: `natural_premium`, `calido_elegante`, `color_vivo_fiesta`, `suave_bodas`, `brillante_xv`, `sobrio_corporativo`.
+- Preserva EXIF existente cuando Pillow puede conservarlo y ajusta la fecha de archivo de la version generada.
+- Si ExifTool esta disponible, intenta escribir `DateTimeOriginal`, `CreateDate` y `ModifyDate` en la version generada.
+- La UI muestra el panel `Mejoras visuales`, comparador original vs mejorado, selector de preset y acciones de aprobar/rechazar.
+
+Reglas aplicadas:
+
+- Los originales importados no se modifican.
+- La mejora solo procesa fotos seleccionadas; videos quedan para una fase posterior.
+- Reprocesar genera una nueva version en lugar de sobrescribir la anterior.
+- La aprobacion o rechazo es manual y queda registrada en `decision_log`.
+
 ## Backend
 
 ```powershell
@@ -315,9 +338,11 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/process-metada
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/analyze-photos
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/detect-similarity
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/curate-media
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-photos -ContentType "application/json" -Body '{"preset_slug":"natural_premium"}'
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/enhanced-media
 ```
 
 Pruebas:
@@ -361,13 +386,15 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
 - Hay un ajuste incremental minimo para agregar `original_media.metadata_json` en bases existentes hasta introducir Alembic.
-- Los endpoints de curacion, mejoras, piezas, copy, biblioteca y calendario quedan para fases posteriores.
+- Los endpoints de piezas, copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
 - El analisis de videos queda pendiente para una fase posterior.
 - La similitud visual de Fase 8 usa average hash y un umbral fijo; casos dudosos deben revisarse manualmente.
 - La importacion actual omite duplicados exactos por checksum, asi que los grupos exactos apareceran sobre datos existentes o registros creados antes de esa regla.
 - La curacion de Fase 9 usa reglas iniciales de calidad/similitud; todavia no clasifica diversidad semantica como protagonistas, comida o baile.
+- La mejora de Fase 10 aplica ajustes basicos con Pillow; no hay retoque avanzado, mascaras, restauracion de rostros ni reduccion de ruido profesional.
+- La escritura EXIF completa en versiones mejoradas depende de ExifTool. Sin ExifTool, se conserva EXIF existente si Pillow puede hacerlo y se ajusta la fecha de archivo.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
 - La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.

@@ -107,6 +107,27 @@ Estados usados:
 - `user_selected`
 - `user_rejected`
 
+## Campos usados en Fase 10
+
+`enhanced_media` guarda versiones mejoradas de fotos seleccionadas:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| event_id | integer | Evento al que pertenece la version. |
+| original_media_id | integer | Foto original importada usada como fuente. |
+| curated_media_id | integer nullable | Decision de curacion que origino la mejora. |
+| output_path | string | Ruta relativa del JPEG generado dentro de `04_Mejorados`. |
+| enhancement_type | string | Tipo de mejora local, por ahora `photo_basic`. |
+| preset_slug | string nullable | Preset visual aplicado. |
+| status | string | Estado de la version: `completed`, `approved` o `rejected`. |
+| width | integer nullable | Ancho de la version generada. |
+| height | integer nullable | Alto de la version generada. |
+| notes | text nullable | Detalles serializados como JSON, incluyendo estado de metadatos. |
+| approved_at | datetime nullable | Fecha de aprobacion manual. |
+| rejected_at | datetime nullable | Fecha de rechazo manual. |
+
+Decisiones de aprobacion/rechazo de versiones mejoradas se registran en `decision_log` con `entity_type = enhanced_media`.
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

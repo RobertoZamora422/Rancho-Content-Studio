@@ -9,30 +9,44 @@ import {
   analyzePhotos,
   curateMedia,
   detectSimilarity,
+  enhancePhotos,
   importMedia,
   listCuratedMedia,
+  listEnhancedMedia,
   listEventJobs,
   listOriginalMedia,
   listSimilarityGroups,
   listSources,
   processMetadataAndThumbnails,
   scanSources,
-  updateCuratedMedia
+  updateCuratedMedia,
+  updateEnhancedMedia
 } from "../../services/importService";
 import type { ContentEvent } from "../../types/events";
 import type {
   CuratedMedia,
   CurationProcessResponse,
+  EnhancedMedia,
   ImportResponse,
   MediaSource,
   MetadataProcessResponse,
   OriginalMedia,
+  PhotoEnhancementResponse,
   ScanResponse,
   SimilarityDetectionResponse,
   SimilarityGroup,
   VisualAnalysisProcessResponse
 } from "../../types/importing";
 import type { ProcessingJob } from "../../types/jobs";
+
+const enhancementPresets = [
+  { label: "Natural premium", value: "natural_premium" },
+  { label: "Calido elegante", value: "calido_elegante" },
+  { label: "Color vivo fiesta", value: "color_vivo_fiesta" },
+  { label: "Suave bodas", value: "suave_bodas" },
+  { label: "Brillante XV", value: "brillante_xv" },
+  { label: "Sobrio corporativo", value: "sobrio_corporativo" }
+];
 
 export function EventDetailPage() {
   const navigate = useNavigate();
@@ -43,14 +57,17 @@ export function EventDetailPage() {
   const [mediaItems, setMediaItems] = useState<OriginalMedia[]>([]);
   const [similarityGroups, setSimilarityGroups] = useState<SimilarityGroup[]>([]);
   const [curatedItems, setCuratedItems] = useState<CuratedMedia[]>([]);
+  const [enhancedItems, setEnhancedItems] = useState<EnhancedMedia[]>([]);
   const [jobs, setJobs] = useState<ProcessingJob[]>([]);
   const [sourcePath, setSourcePath] = useState("");
+  const [enhancementPreset, setEnhancementPreset] = useState("natural_premium");
   const [lastScan, setLastScan] = useState<ScanResponse | null>(null);
   const [lastImport, setLastImport] = useState<ImportResponse | null>(null);
   const [lastMetadata, setLastMetadata] = useState<MetadataProcessResponse | null>(null);
   const [lastAnalysis, setLastAnalysis] = useState<VisualAnalysisProcessResponse | null>(null);
   const [lastSimilarity, setLastSimilarity] = useState<SimilarityDetectionResponse | null>(null);
   const [lastCuration, setLastCuration] = useState<CurationProcessResponse | null>(null);
+  const [lastEnhancement, setLastEnhancement] = useState<PhotoEnhancementResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,18 +100,21 @@ export function EventDetailPage() {
         mediaResponse,
         similarityResponse,
         curatedResponse,
+        enhancedResponse,
         jobResponse
       ] = await Promise.all([
         listSources(currentEventId),
         listOriginalMedia(currentEventId),
         listSimilarityGroups(currentEventId),
         listCuratedMedia(currentEventId),
+        listEnhancedMedia(currentEventId),
         listEventJobs(currentEventId)
       ]);
       setSources(sourceResponse);
       setMediaItems(mediaResponse.items);
       setSimilarityGroups(similarityResponse.items);
       setCuratedItems(curatedResponse.items);
+      setEnhancedItems(enhancedResponse.items);
       setJobs(jobResponse.items);
     } catch (currentError) {
       setError(
@@ -295,6 +315,33 @@ export function EventDetailPage() {
     }
   }
 
+  async function handleEnhancePhotos() {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const result = await enhancePhotos(event.id, enhancementPreset);
+      setLastEnhancement(result);
+      setMessage(
+        `Mejora completada: ${result.enhanced} versiones nuevas, ${result.skipped} omitidos, ${result.failed} fallidos.`
+      );
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudieron generar las versiones mejoradas."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   async function handleManualCuration(
     curatedId: number,
     selectionStatus: string,
@@ -320,6 +367,33 @@ export function EventDetailPage() {
         currentError instanceof Error
           ? currentError.message
           : "No se pudo actualizar la decision de curacion."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleEnhancedDecision(enhancedId: number, statusValue: string, reason: string) {
+    if (!event) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await updateEnhancedMedia(event.id, enhancedId, {
+        reason,
+        status: statusValue
+      });
+      setMessage("Decision sobre la version mejorada guardada.");
+      await loadImportState(event.id);
+    } catch (currentError) {
+      setError(
+        currentError instanceof Error
+          ? currentError.message
+          : "No se pudo actualizar la version mejorada."
       );
     } finally {
       setActionLoading(false);
@@ -367,6 +441,11 @@ export function EventDetailPage() {
   }
 
   const curationGroups = groupCuratedItems(curatedItems);
+  const selectedPhotoCount = curatedItems.filter(
+    (item) =>
+      ["selected", "user_selected"].includes(item.selection_status) &&
+      item.media.media_type === "image"
+  ).length;
 
   return (
     <section className="event-detail-view">
@@ -770,6 +849,130 @@ export function EventDetailPage() {
             ) : null}
           </section>
 
+          <section className="enhancement-panel">
+            <div className="section-heading-row">
+              <div>
+                <p className="section-label">Mejoras visuales</p>
+                <h2>{enhancedItems.length} versiones generadas</h2>
+              </div>
+              <div className="enhancement-controls">
+                <label className="field-group compact-field">
+                  <span>Preset</span>
+                  <select
+                    disabled={actionLoading}
+                    onChange={(formEvent) => setEnhancementPreset(formEvent.target.value)}
+                    value={enhancementPreset}
+                  >
+                    {enhancementPresets.map((preset) => (
+                      <option key={preset.value} value={preset.value}>
+                        {preset.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="secondary-action"
+                  disabled={actionLoading || selectedPhotoCount === 0}
+                  onClick={handleEnhancePhotos}
+                  type="button"
+                >
+                  Procesar / reprocesar seleccionados
+                </button>
+              </div>
+            </div>
+            {lastEnhancement ? (
+              <p className="import-summary">
+                Mejora job #{lastEnhancement.job_id}: {lastEnhancement.enhanced} versiones,{" "}
+                {lastEnhancement.skipped} omitidos, {lastEnhancement.failed} fallidos con preset{" "}
+                {formatPreset(lastEnhancement.preset_slug)}.
+              </p>
+            ) : null}
+            {selectedPhotoCount === 0 ? (
+              <article className="empty-state">
+                <h2>Sin fotos seleccionadas para mejorar</h2>
+                <p>Marca fotos como seleccionadas en la curacion antes de generar versiones.</p>
+              </article>
+            ) : null}
+            {enhancedItems.length === 0 && selectedPhotoCount > 0 ? (
+              <article className="empty-state">
+                <h2>Sin versiones mejoradas</h2>
+                <p>Procesa las fotos seleccionadas para crear archivos nuevos en 04_Mejorados.</p>
+              </article>
+            ) : null}
+            <div className="enhancement-list">
+              {enhancedItems.map((item) => (
+                <article className="enhancement-card" key={item.id}>
+                  <div className="comparison-strip">
+                    <div>
+                      <p className="metric-label">Original</p>
+                      <div className="comparison-image">
+                        {item.media.thumbnail_url ? (
+                          <img
+                            alt={`Original ${item.media.filename}`}
+                            loading="lazy"
+                            src={thumbnailSrc(item.media.thumbnail_url)}
+                          />
+                        ) : (
+                          <span>IMG</span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="metric-label">Mejorado</p>
+                      <div className="comparison-image">
+                        <img
+                          alt={`Version mejorada de ${item.media.filename}`}
+                          loading="lazy"
+                          src={thumbnailSrc(item.output_url)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="enhancement-card-body">
+                    <div>
+                      <strong>{item.media.filename}</strong>
+                      <span>{formatPreset(item.preset_slug)}</span>
+                      <span>{formatEnhancedStatus(item.status)}</span>
+                      <span>{formatDimensions(item.width, item.height)}</span>
+                    </div>
+                    <p>{formatEnhancementNotes(item.notes)}</p>
+                    <code>{item.output_path}</code>
+                    <div className="curation-actions">
+                      <button
+                        className="outline-action"
+                        disabled={actionLoading || item.status === "approved"}
+                        onClick={() =>
+                          handleEnhancedDecision(
+                            item.id,
+                            "approved",
+                            "Version mejorada aprobada manualmente."
+                          )
+                        }
+                        type="button"
+                      >
+                        Aprobar
+                      </button>
+                      <button
+                        className="danger-action"
+                        disabled={actionLoading || item.status === "rejected"}
+                        onClick={() =>
+                          handleEnhancedDecision(
+                            item.id,
+                            "rejected",
+                            "Version mejorada rechazada manualmente sin borrar archivo."
+                          )
+                        }
+                        type="button"
+                      >
+                        Rechazar
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="jobs-panel">
             <p className="section-label">Jobs recientes</p>
             {jobs.slice(0, 5).map((job) => (
@@ -952,4 +1155,53 @@ function formatCurationStatus(value: string) {
     user_selected: "Seleccionado por usuario"
   };
   return labels[value] ?? value;
+}
+
+function formatPreset(value: string | null) {
+  if (!value) {
+    return "Preset pendiente";
+  }
+  const preset = enhancementPresets.find((item) => item.value === value);
+  return preset?.label ?? value;
+}
+
+function formatEnhancedStatus(value: string) {
+  const labels: Record<string, string> = {
+    approved: "Aprobado",
+    completed: "Pendiente de aprobacion",
+    generated: "Generado",
+    rejected: "Rechazado"
+  };
+  return labels[value] ?? value;
+}
+
+function formatEnhancementNotes(value: string | null) {
+  if (!value) {
+    return "Sin notas de procesamiento.";
+  }
+  try {
+    const payload = JSON.parse(value) as { metadata_status?: string };
+    if (payload.metadata_status) {
+      return `Metadatos: ${formatMetadataStatus(payload.metadata_status)}.`;
+    }
+  } catch {
+    return value;
+  }
+  return value;
+}
+
+function formatMetadataStatus(value: string) {
+  if (value === "file_mtime_and_exif_written") {
+    return "fecha escrita con ExifTool y fecha de archivo";
+  }
+  if (value === "file_mtime_written_exiftool_unavailable") {
+    return "fecha de archivo ajustada; ExifTool no disponible";
+  }
+  if (value.startsWith("file_mtime_written_exiftool_failed")) {
+    return "fecha de archivo ajustada; ExifTool fallo";
+  }
+  if (value === "file_mtime_written_exiftool_timeout") {
+    return "fecha de archivo ajustada; ExifTool excedio el tiempo";
+  }
+  return value;
 }

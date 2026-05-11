@@ -85,8 +85,26 @@ class CurationProcessResponse(BaseModel):
     preserved_manual_overrides: int
 
 
+class PhotoEnhancementRequest(BaseModel):
+    preset_slug: str = Field(default="natural_premium", min_length=1, max_length=120)
+
+
+class PhotoEnhancementResponse(BaseModel):
+    job_id: int
+    total_selected: int
+    enhanced: int
+    skipped: int
+    failed: int
+    preset_slug: str
+
+
 class CuratedMediaUpdate(BaseModel):
     selection_status: str = Field(min_length=1, max_length=40)
+    reason: str | None = Field(default=None, max_length=1000)
+
+
+class EnhancedMediaUpdate(BaseModel):
+    status: str = Field(min_length=1, max_length=40)
     reason: str | None = Field(default=None, max_length=1000)
 
 
@@ -174,3 +192,27 @@ class CuratedMediaResponse(BaseModel):
 
 class CuratedMediaListResponse(BaseModel):
     items: list[CuratedMediaResponse]
+
+
+class EnhancedMediaResponse(BaseModel):
+    id: int
+    event_id: int
+    original_media_id: int
+    curated_media_id: int | None
+    output_path: str
+    output_url: str
+    enhancement_type: str
+    preset_slug: str | None
+    status: str
+    width: int | None
+    height: int | None
+    duration_seconds: float | None
+    notes: str | None
+    created_at: datetime
+    approved_at: datetime | None
+    rejected_at: datetime | None
+    media: OriginalMediaResponse
+
+
+class EnhancedMediaListResponse(BaseModel):
+    items: list[EnhancedMediaResponse]

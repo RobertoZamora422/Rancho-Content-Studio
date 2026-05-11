@@ -106,9 +106,28 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 7. Registra decisiones automaticas y manuales en `decision_log`.
 8. La UI permite seleccionar, enviar a revision o rechazar manualmente.
 
+## Flujo de mejora de fotos implementado en Fase 10
+
+1. El usuario ejecuta curacion y deja fotos en `selected` o `user_selected`.
+2. Desde el detalle del evento elige un preset visual y ejecuta `Procesar / reprocesar seleccionados`.
+3. El backend crea un job `enhance_photos`.
+4. Para cada foto seleccionada:
+   - valida que el original importado exista,
+   - omite videos y otros medios no fotograficos,
+   - abre la imagen con Pillow y corrige orientacion EXIF si aplica,
+   - aplica ajustes basicos de brillo, contraste, color y nitidez,
+   - guarda un JPEG versionado en `04_Mejorados`,
+   - registra `enhanced_media` con ruta relativa, preset, dimensiones, estado y notas,
+   - ajusta la fecha de archivo de la version generada,
+   - intenta escribir fechas EXIF si ExifTool esta disponible.
+5. Los errores por archivo se registran en `processing_job_log` y el job continua.
+6. La UI muestra comparador original vs mejorado.
+7. El usuario aprueba o rechaza cada version; la decision se guarda en `decision_log`.
+8. Reprocesar genera una nueva version y no sobrescribe versiones anteriores.
+
 ## Flujo de procesamiento futuro
 
-1. Crear versiones mejoradas.
+1. Procesar video basico.
 2. Sugerir piezas.
 3. Generar o editar copy.
 4. Exportar.

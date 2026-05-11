@@ -4,10 +4,14 @@ import type {
   CuratedMediaListResponse,
   CuratedMediaUpdate,
   CurationProcessResponse,
+  EnhancedMedia,
+  EnhancedMediaListResponse,
+  EnhancedMediaUpdate,
   ImportResponse,
   MediaSource,
   MetadataProcessResponse,
   OriginalMediaListResponse,
+  PhotoEnhancementResponse,
   ScanResponse,
   SimilarityDetectionResponse,
   SimilarityGroupListResponse,
@@ -92,6 +96,20 @@ export async function curateMedia(eventId: number): Promise<CurationProcessRespo
   return parseResponse<CurationProcessResponse>(response);
 }
 
+export async function enhancePhotos(
+  eventId: number,
+  presetSlug: string
+): Promise<PhotoEnhancementResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/enhance-photos`, {
+    body: JSON.stringify({ preset_slug: presetSlug }),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+  return parseResponse<PhotoEnhancementResponse>(response);
+}
+
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/media/original`);
   return parseResponse<OriginalMediaListResponse>(response);
@@ -120,6 +138,29 @@ export async function updateCuratedMedia(
     method: "PATCH"
   });
   return parseResponse<CuratedMedia>(response);
+}
+
+export async function listEnhancedMedia(eventId: number): Promise<EnhancedMediaListResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/enhanced-media`);
+  return parseResponse<EnhancedMediaListResponse>(response);
+}
+
+export async function updateEnhancedMedia(
+  eventId: number,
+  enhancedId: number,
+  payload: EnhancedMediaUpdate
+): Promise<EnhancedMedia> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/events/${eventId}/enhanced-media/${enhancedId}`,
+    {
+      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "PATCH"
+    }
+  );
+  return parseResponse<EnhancedMedia>(response);
 }
 
 export async function listEventJobs(eventId: number): Promise<JobListResponse> {

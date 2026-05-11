@@ -10,9 +10,14 @@ from app.schemas.importing import (
     CuratedMediaResponse,
     CuratedMediaUpdate,
     CurationProcessResponse,
+    EnhancedMediaListResponse,
+    EnhancedMediaResponse,
+    EnhancedMediaUpdate,
     ImportResponse,
     MetadataProcessResponse,
     OriginalMediaListResponse,
+    PhotoEnhancementRequest,
+    PhotoEnhancementResponse,
     ScanResponse,
     SimilarityDetectionResponse,
     SimilarityGroupListResponse,
@@ -21,6 +26,11 @@ from app.schemas.importing import (
     VisualAnalysisProcessResponse,
 )
 from app.services.curation_service import curate_event_media, list_curated_media, update_curated_media
+from app.services.enhancement_service import (
+    enhance_event_photos,
+    list_enhanced_media,
+    update_enhanced_media_status,
+)
 from app.services.event_service import (
     archive_event,
     create_event,
@@ -155,6 +165,36 @@ def update_curated_media_decision(
     db: Session = Depends(get_db),
 ) -> CuratedMediaResponse:
     return update_curated_media(db, event_id, curated_id, payload)
+
+
+@router.post("/{event_id}/enhance-photos", response_model=PhotoEnhancementResponse)
+def enhance_photos(
+    event_id: int,
+    payload: PhotoEnhancementRequest,
+    db: Session = Depends(get_db),
+) -> PhotoEnhancementResponse:
+    return enhance_event_photos(db, event_id, payload)
+
+
+@router.get("/{event_id}/enhanced-media", response_model=EnhancedMediaListResponse)
+def read_enhanced_media(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> EnhancedMediaListResponse:
+    return list_enhanced_media(db, event_id)
+
+
+@router.patch(
+    "/{event_id}/enhanced-media/{enhanced_id}",
+    response_model=EnhancedMediaResponse,
+)
+def update_enhanced_media_decision(
+    event_id: int,
+    enhanced_id: int,
+    payload: EnhancedMediaUpdate,
+    db: Session = Depends(get_db),
+) -> EnhancedMediaResponse:
+    return update_enhanced_media_status(db, event_id, enhanced_id, payload)
 
 
 @router.get("/{event_id}/similarity-groups", response_model=SimilarityGroupListResponse)

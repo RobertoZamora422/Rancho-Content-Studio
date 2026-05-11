@@ -271,6 +271,7 @@ h2 {
 .media-panel,
 .similarity-panel,
 .curation-panel,
+.enhancement-panel,
 .jobs-panel,
 .source-card,
 .media-row,
@@ -305,7 +306,8 @@ h2 {
   font-weight: 700;
 }
 
-.field-group input {
+.field-group input,
+.field-group select {
   background: #fbfaf7;
   border: 1px solid #cfc8bb;
   border-radius: 8px;
@@ -316,8 +318,13 @@ h2 {
   width: 100%;
 }
 
-.field-group input:disabled {
+.field-group input:disabled,
+.field-group select:disabled {
   color: #777;
+}
+
+.compact-field {
+  min-width: 220px;
 }
 
 .settings-actions {
@@ -443,6 +450,7 @@ h2 {
 .media-panel,
 .similarity-panel,
 .curation-panel,
+.enhancement-panel,
 .jobs-panel {
   display: grid;
   gap: 16px;
@@ -646,6 +654,75 @@ h2 {
   padding: 0 8px;
 }
 
+.enhancement-controls {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.enhancement-list {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.enhancement-card {
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  padding: 12px;
+}
+
+.comparison-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.comparison-image {
+  align-items: center;
+  aspect-ratio: 4 / 3;
+  background: #202722;
+  border-radius: 8px;
+  color: #f7f2e9;
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+}
+
+.comparison-image img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.enhancement-card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.enhancement-card-body p,
+.enhancement-card-body span {
+  color: #555e57;
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.enhancement-card-body code {
+  color: #303a33;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
 .job-row {
   align-items: center;
   display: grid;
@@ -725,6 +802,7 @@ h2 {
   .similarity-item,
   .curation-columns,
   .curation-actions,
+  .comparison-strip,
   .job-row {
     grid-template-columns: 1fr;
   }
@@ -732,6 +810,11 @@ h2 {
   .section-heading-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .enhancement-controls {
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .similarity-summary {

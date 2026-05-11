@@ -47,6 +47,10 @@ En Fase 8, `similarity_group` y `similarity_group_item` se usan para agrupar dup
 
 En Fase 9, `curated_media` se usa para guardar seleccionados, alternativas, descartes logicos y medios en revision manual. Las decisiones manuales se marcan con `is_manual_override` para que una nueva curacion automatica no las reemplace.
 
+## Uso actual de versiones mejoradas
+
+En Fase 10, `enhanced_media` se usa para registrar versiones JPEG generadas desde fotos seleccionadas. Cada registro apunta al evento, al `original_media` fuente y, cuando aplica, al `curated_media` que lo habilito. La ruta guardada es relativa a la carpeta del evento y apunta a `04_Mejorados`; aprobar o rechazar una version cambia su estado sin eliminar archivos.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

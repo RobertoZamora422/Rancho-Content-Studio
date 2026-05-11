@@ -83,3 +83,13 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Guarda estados reversibles en `curated_media`.
 - Mantiene overrides manuales y registra cambios en `decision_log`.
 - No modifica ni elimina archivos originales.
+
+## Implementacion local de Fase 10
+
+- La mejora de fotos vive en `services/enhancement_service.py`.
+- Usa `curated_media` como entrada y procesa solo fotos con estado `selected` o `user_selected`.
+- Aplica presets locales con Pillow y guarda versiones JPEG en `04_Mejorados`.
+- Cada salida se registra en `enhanced_media` con ruta relativa, preset, estado y notas tecnicas.
+- El archivo original importado queda intacto; reprocesar genera un nuevo nombre versionado.
+- ExifTool es opcional para escribir fechas EXIF en la version generada; si falta, se conserva EXIF posible y se ajusta la fecha de archivo.
+- El frontend consume las versiones mediante FastAPI, no mediante rutas locales directas.

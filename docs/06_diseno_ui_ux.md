@@ -85,3 +85,15 @@ El detalle de evento incluye una seccion `Curacion inteligente` que:
 - muestra miniatura, calidad y motivo de cada decision;
 - permite cambiar manualmente a seleccionar, revisar o rechazar;
 - conserva decisiones manuales para la siguiente ejecucion.
+
+## Fase 10 implementada en UI
+
+El detalle de evento incluye una seccion `Mejoras visuales` que:
+
+- muestra cuantas versiones mejoradas existen;
+- permite elegir un preset visual local;
+- ejecuta procesamiento o reprocesamiento de fotos seleccionadas;
+- compara miniatura original contra JPEG mejorado servido por backend local;
+- muestra preset, estado, dimensiones, ruta relativa y estado de metadatos;
+- permite aprobar o rechazar cada version sin borrar archivos;
+- mantiene estados vacios cuando no hay fotos seleccionadas o versiones generadas.

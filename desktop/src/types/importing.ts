@@ -74,6 +74,19 @@ export type CurationProcessResponse = {
   preserved_manual_overrides: number;
 };
 
+export type PhotoEnhancementRequest = {
+  preset_slug: string;
+};
+
+export type PhotoEnhancementResponse = {
+  job_id: number;
+  total_selected: number;
+  enhanced: number;
+  skipped: number;
+  failed: number;
+  preset_slug: string;
+};
+
 export type MediaAnalysis = {
   sharpness_score: number | null;
   brightness_score: number | null;
@@ -162,5 +175,34 @@ export type CuratedMediaListResponse = {
 
 export type CuratedMediaUpdate = {
   selection_status: string;
+  reason?: string | null;
+};
+
+export type EnhancedMedia = {
+  id: number;
+  event_id: number;
+  original_media_id: number;
+  curated_media_id: number | null;
+  output_path: string;
+  output_url: string;
+  enhancement_type: string;
+  preset_slug: string | null;
+  status: string;
+  width: number | null;
+  height: number | null;
+  duration_seconds: number | null;
+  notes: string | null;
+  created_at: string;
+  approved_at: string | null;
+  rejected_at: string | null;
+  media: OriginalMedia;
+};
+
+export type EnhancedMediaListResponse = {
+  items: EnhancedMedia[];
+};
+
+export type EnhancedMediaUpdate = {
+  status: string;
   reason?: string | null;
 };
