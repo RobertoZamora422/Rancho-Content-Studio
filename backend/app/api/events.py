@@ -12,6 +12,12 @@ from app.schemas.copywriting import (
     GeneratedCopyResponse,
     GeneratedCopyUpdate,
 )
+from app.schemas.exporting import (
+    ExportPackageListResponse,
+    ExportPackageRequest,
+    ExportPackageRunResponse,
+    OpenExportFolderResponse,
+)
 from app.schemas.importing import (
     CuratedMediaListResponse,
     CuratedMediaResponse,
@@ -56,6 +62,11 @@ from app.services.enhancement_service import (
     enhance_event_videos,
     list_enhanced_media,
     update_enhanced_media_status,
+)
+from app.services.export_service import (
+    export_event_package,
+    list_event_export_packages,
+    open_export_package_folder,
 )
 from app.services.event_service import (
     archive_event,
@@ -298,6 +309,35 @@ def update_copy_for_piece(
     db: Session = Depends(get_db),
 ) -> GeneratedCopyResponse:
     return update_piece_copy(db, event_id, piece_id, copy_id, payload)
+
+
+@router.post("/{event_id}/export-package", response_model=ExportPackageRunResponse)
+def export_package(
+    event_id: int,
+    payload: ExportPackageRequest,
+    db: Session = Depends(get_db),
+) -> ExportPackageRunResponse:
+    return export_event_package(db, event_id, payload)
+
+
+@router.get("/{event_id}/export-packages", response_model=ExportPackageListResponse)
+def read_export_packages(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> ExportPackageListResponse:
+    return list_event_export_packages(db, event_id)
+
+
+@router.post(
+    "/{event_id}/export-packages/{package_id}/open-folder",
+    response_model=OpenExportFolderResponse,
+)
+def open_export_folder(
+    event_id: int,
+    package_id: int,
+    db: Session = Depends(get_db),
+) -> OpenExportFolderResponse:
+    return open_export_package_folder(db, event_id, package_id)
 
 
 @router.get("/{event_id}/similarity-groups", response_model=SimilarityGroupListResponse)

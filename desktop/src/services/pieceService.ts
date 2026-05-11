@@ -3,6 +3,10 @@ import type {
   ContentPiece,
   ContentPieceListResponse,
   ContentPieceUpdate,
+  ExportPackageListResponse,
+  ExportPackageRequest,
+  ExportPackageRunResponse,
+  OpenExportFolderResponse,
   PieceGenerationResponse
 } from "../types/pieces";
 
@@ -48,4 +52,36 @@ export async function updateContentPiece(
     method: "PATCH"
   });
   return parseResponse<ContentPiece>(response);
+}
+
+export async function exportPackage(
+  eventId: number,
+  payload: ExportPackageRequest
+): Promise<ExportPackageRunResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/export-package`, {
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  });
+  return parseResponse<ExportPackageRunResponse>(response);
+}
+
+export async function listExportPackages(eventId: number): Promise<ExportPackageListResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/export-packages`);
+  return parseResponse<ExportPackageListResponse>(response);
+}
+
+export async function openExportPackageFolder(
+  eventId: number,
+  packageId: number
+): Promise<OpenExportFolderResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/events/${eventId}/export-packages/${packageId}/open-folder`,
+    {
+      method: "POST"
+    }
+  );
+  return parseResponse<OpenExportFolderResponse>(response);
 }

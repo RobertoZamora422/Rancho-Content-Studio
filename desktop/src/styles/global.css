@@ -279,6 +279,7 @@ h2 {
 .pieces-toolbar,
 .piece-editor-panel,
 .copywriting-panel,
+.export-panel,
 .job-row {
   background: #ffffff;
   border: 1px solid #ded8cc;
@@ -879,6 +880,45 @@ h2 {
   gap: 12px;
 }
 
+.export-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.export-summary-grid,
+.export-options-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.export-summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.export-summary-grid div {
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.export-summary-grid span {
+  color: #555e57;
+  font-size: 0.9rem;
+}
+
+.export-options-grid {
+  align-items: end;
+  grid-template-columns: minmax(240px, 1fr) repeat(4, auto);
+}
+
+.export-result {
+  display: grid;
+  gap: 6px;
+}
+
 .job-row {
   align-items: center;
   display: grid;
@@ -964,6 +1004,8 @@ h2 {
   .piece-editor-fields,
   .piece-media-row,
   .copy-editor-grid,
+  .export-summary-grid,
+  .export-options-grid,
   .editorial-form,
   .job-row {
     grid-template-columns: 1fr;

@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12 y Fase 13. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas y copywriting local. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy y pantalla de perfil editorial.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13 y Fase 14. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas, copywriting local y exportacion final. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy, pantalla de perfil editorial y controles de exportacion final.
 
 ## Fase 6 implementada
 
@@ -121,6 +121,20 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - Generador local deterministico sin dependencia cloud ni IA obligatoria.
 - UI `#/editorial-profile` para editar tono y reglas.
 - UI `#/pieces` para generar, regenerar con feedback, editar, aprobar o rechazar copy.
+
+## Fase 14 implementada
+
+- Endpoint `POST /api/events/{id}/export-package`.
+- Endpoint `GET /api/events/{id}/export-packages`.
+- Endpoint `POST /api/events/{id}/export-packages/{package_id}/open-folder`.
+- Job `export_package`.
+- Servicio local `services/export_service.py`.
+- Persistencia en `export_package` y `export_package_item`.
+- Carpeta final unica dentro de `09_Listo_Para_Publicar`.
+- Copia de medios finales y copies aprobados sin modificar fuentes.
+- Escritura de `resumen_exportacion.txt`.
+- Escritura de fecha de archivo y uso opcional de ExifTool para metadata.
+- UI `#/pieces` con tipo de paquete, opciones, ejecucion de exportacion y apertura de carpeta final.
 
 ## Criterios por bloque
 

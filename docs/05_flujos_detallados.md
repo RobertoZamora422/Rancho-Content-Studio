@@ -190,11 +190,30 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 11. No se permite aprobar copy vacio ni copy con palabras/frases a evitar.
 12. Aprobar o rechazar copy alimenta ejemplos del perfil editorial.
 
+## Flujo de exportacion final implementado en Fase 14
+
+1. El usuario aprueba una pieza y, si aplica, aprueba un copy.
+2. Desde `Piezas de contenido`, elige tipo de exportacion y opciones.
+3. El backend crea un job `export_package`.
+4. Crea registro `export_package` en estado `pending`.
+5. Crea carpeta unica en `09_Listo_Para_Publicar`.
+6. Para cada pieza aprobada incluida:
+   - copia medios finales desde `enhanced_media`,
+   - ordena nombres por pieza y posicion,
+   - exporta copies aprobados como `.txt`,
+   - ajusta fecha de archivo a la fecha del evento,
+   - intenta escribir metadata con ExifTool si esta disponible,
+   - registra cada salida en `export_package_item`.
+7. Si hay medios mejorados aprobados sin pieza y el tipo de paquete lo permite, los exporta en `Medios_Aprobados`.
+8. Si un archivo falla, registra `processing_job_log` y `export_package_item.error_message`; el resto continua.
+9. Escribe `resumen_exportacion.txt` cuando la opcion esta activa.
+10. Marca el paquete como `generated` o `failed` y registra `decision_log`.
+11. La UI muestra ruta local, conteos y accion para abrir carpeta final.
+
 ## Flujo de procesamiento futuro
 
-1. Exportar paquete final.
-2. Planificar en calendario.
-3. Consultar biblioteca historica.
+1. Planificar en calendario.
+2. Consultar biblioteca historica.
 
 ## Jobs
 

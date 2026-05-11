@@ -93,6 +93,32 @@ def ensure_incremental_schema() -> None:
                     text(f"ALTER TABLE generated_copy ADD COLUMN {column} {definition}")
                 )
 
+        export_columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(export_package)")).all()
+        }
+        export_additions = {
+            "export_type": "TEXT NOT NULL DEFAULT 'ready_to_publish'",
+        }
+        for column, definition in export_additions.items():
+            if column not in export_columns:
+                connection.execute(
+                    text(f"ALTER TABLE export_package ADD COLUMN {column} {definition}")
+                )
+
+        export_item_columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(export_package_item)")).all()
+        }
+        export_item_additions = {
+            "item_order": "INTEGER",
+        }
+        for column, definition in export_item_additions.items():
+            if column not in export_item_columns:
+                connection.execute(
+                    text(f"ALTER TABLE export_package_item ADD COLUMN {column} {definition}")
+                )
+
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()

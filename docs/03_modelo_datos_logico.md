@@ -57,7 +57,11 @@ En Fase 12, `content_piece` se usa para registrar propuestas de reels, carrusele
 
 ## Uso actual de perfil editorial y copy
 
-En Fase 13, `editorial_profile` guarda tono, nivel emocional, formalidad, reglas de emojis, hashtags, frases preferidas, palabras a evitar, ejemplos aprobados/rechazados y reglas editoriales. `generated_copy` guarda variantes generadas o editadas para una pieza aprobada. Cada copy puede aprobarse o rechazarse, se escribe como `.md` en `08_Copies` y queda disponible para la exportacion final futura.
+En Fase 13, `editorial_profile` guarda tono, nivel emocional, formalidad, reglas de emojis, hashtags, frases preferidas, palabras a evitar, ejemplos aprobados/rechazados y reglas editoriales. `generated_copy` guarda variantes generadas o editadas para una pieza aprobada. Cada copy puede aprobarse o rechazarse, se escribe como `.md` en `08_Copies` y queda disponible para la exportacion final.
+
+## Uso actual de exportaciones
+
+En Fase 14, `export_package` registra paquetes finales creados para un evento y guarda tipo de exportacion, ruta relativa de salida, estado y fecha de finalizacion. `export_package_item` registra cada medio, copy o resumen incluido, su orden, ruta relativa final, estado de metadata y error por archivo si existio. Los paquetes se crean dentro de `09_Listo_Para_Publicar` y no modifican originales ni versiones mejoradas fuente.
 
 ## Principios
 

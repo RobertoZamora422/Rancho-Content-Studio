@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12 y Fase 13:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13 y Fase 14:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -45,9 +45,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Mejora local basica de videos seleccionados con FFmpeg cuando esta disponible, sin forzar verticalidad.
 - Generacion de piezas sugeridas desde medios mejorados: reels, carruseles, historias y posts.
 - Perfil editorial editable y generacion local de copies por pieza.
+- Exportacion final local a `09_Listo_Para_Publicar` con medios, copies, resumen y registro en SQLite.
 - Scaffold Tauri preparado.
 
-No incluye todavia exportacion final, biblioteca ni calendario operativo.
+No incluye todavia biblioteca ni calendario operativo.
 
 ## Fase 1 implementada
 
@@ -383,6 +384,29 @@ Reglas aplicadas:
 - No se puede aprobar un copy vacio o con palabras/frases a evitar.
 - Aprobar o rechazar copy actualiza ejemplos del perfil editorial.
 
+## Fase 14 implementada
+
+La Fase 14 agrega exportacion final local para paquetes listos para publicar:
+
+- `POST /api/events/{id}/export-package`: crea un paquete final desde piezas aprobadas y medios aprobados.
+- `GET /api/events/{id}/export-packages`: lista paquetes exportados del evento.
+- `POST /api/events/{id}/export-packages/{package_id}/open-folder`: intenta abrir la carpeta final local.
+- Job `export_package`: registra progreso, archivos exportados, advertencias y errores por archivo.
+- Usa `export_package` y `export_package_item`.
+- Crea una carpeta unica dentro de `09_Listo_Para_Publicar`.
+- Copia medios finales sin modificar originales ni versiones mejoradas.
+- Exporta copies aprobados como `.txt` en la carpeta final.
+- Escribe `resumen_exportacion.txt` cuando la opcion esta activa.
+- Ajusta fecha de archivo a la fecha del evento y usa ExifTool si esta disponible para escribir metadata.
+- La UI `#/pieces` permite elegir tipo de paquete, opciones de exportacion, ejecutar exportacion y abrir la carpeta final.
+
+Reglas aplicadas:
+
+- No se sobrescriben paquetes anteriores; cada exportacion crea una carpeta unica.
+- No se borra ni modifica material original.
+- Si un archivo falla, se registra en `processing_job_log` y en `export_package_item`; el resto del paquete continua.
+- La integracion con Google Photos sigue siendo manual; el paquete queda organizado para subida manual.
+
 ## Backend
 
 ```powershell
@@ -427,6 +451,8 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-videos
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/generate-pieces
 Invoke-RestMethod http://127.0.0.1:8000/api/editorial-profile/default
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/content-pieces/1/generate-copy -ContentType "application/json" -Body '{"feedback":"mas_calido"}'
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/export-package -ContentType "application/json" -Body '{"export_type":"ready_to_publish","include_copies":true,"write_event_date_metadata":true,"group_by_type":true,"include_summary":true}'
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/export-packages
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
@@ -475,8 +501,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 ## Limitaciones pendientes
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
-- Hay ajustes incrementales minimos para agregar columnas de `original_media`, `editorial_profile` y `generated_copy` en bases existentes hasta introducir Alembic.
-- Los endpoints de biblioteca, calendario y exportacion final quedan para fases posteriores.
+- Hay ajustes incrementales minimos para agregar columnas de `original_media`, `editorial_profile`, `generated_copy`, `export_package` y `export_package_item` en bases existentes hasta introducir Alembic.
+- Los endpoints de biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
 - El analisis semantico avanzado de videos queda pendiente; Fase 11 solo aplica mejora local basica y segmento simple.
@@ -489,11 +515,14 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - La generacion de piezas de Fase 12 usa reglas deterministicas simples; todavia no clasifica escenas semanticas como baile, comida o protagonistas.
 - El editor de piezas permite editar metadatos y orden, pero aun no agrega/quita medios manualmente desde la UI.
 - La generacion de copy de Fase 13 usa plantillas locales; no usa IA externa, no interpreta escenas visuales avanzadas y puede requerir edicion humana.
-- Los archivos `.md` de Fase 13 se escriben en `08_Copies`, pero el paquete final `09_Listo_Para_Publicar` queda para Fase 14.
+- Los archivos `.md` de Fase 13 se escriben en `08_Copies`; Fase 14 exporta los copies aprobados como `.txt` dentro del paquete final.
+- La exportacion de Fase 14 no publica automaticamente en redes ni Google Photos; crea una carpeta local para subida manual.
+- La metadata de exportacion usa fecha de archivo como fallback cuando ExifTool no esta disponible.
+- Para evitar rutas largas en Windows, los nombres internos del paquete se acortan manteniendo orden y contexto.
 - La escritura EXIF completa en versiones mejoradas depende de ExifTool. Sin ExifTool, se conserva EXIF existente si Pillow puede hacerlo y se ajusta la fecha de archivo.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
-- La UI todavia no abre carpetas en el explorador del sistema; muestra la ruta local para uso manual.
+- La apertura de carpeta final depende de permisos del sistema local; si no puede abrirse, la UI mantiene visible la ruta.
 - La seleccion de carpeta todavia es manual por texto; el selector nativo Tauri queda pendiente.
 - No se ha validado `npm run tauri dev` porque requiere Rust/Cargo y dependencias Tauri del sistema.
 
@@ -634,6 +663,17 @@ Para validar Fase 13:
 7. Confirmar que aparece un archivo `.md` en `08_Copies`.
 8. Consultar `GET /api/events/{id}/content-pieces/{piece_id}/copies`.
 9. Consultar `GET /api/events/{id}/jobs` y verificar el job `generate_copy`.
+
+Para validar Fase 14:
+
+1. Tener al menos una pieza aprobada con medios y, si aplica, un copy aprobado.
+2. Abrir `http://127.0.0.1:5173/#/pieces`.
+3. Elegir tipo de exportacion y opciones.
+4. Ejecutar `Exportar listo para publicar`.
+5. Confirmar carpeta nueva en `09_Listo_Para_Publicar`.
+6. Revisar medios finales, copies `.txt` y `resumen_exportacion.txt`.
+7. Consultar `GET /api/events/{id}/export-packages`.
+8. Consultar `GET /api/events/{id}/jobs` y verificar el job `export_package`.
 
 ## Reglas centrales
 

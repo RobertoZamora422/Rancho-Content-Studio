@@ -140,3 +140,15 @@ La pantalla `Piezas de contenido` agrega un editor de copy:
 - advertencias visuales;
 - acciones para guardar edicion, aprobar o rechazar copy;
 - muestra la ruta `.md` generada en `08_Copies`.
+
+## Fase 14 implementada en UI
+
+La pantalla `Piezas de contenido` agrega una seccion `Exportacion final`:
+
+- resumen de piezas aprobadas, medios incluidos y paquetes anteriores;
+- selector de tipo de exportacion;
+- opciones para incluir copies `.txt`, escribir fecha del evento, agrupar por tipo y crear resumen;
+- accion `Exportar listo para publicar`;
+- resultado con ruta local del paquete en `09_Listo_Para_Publicar`;
+- accion `Abrir carpeta final` cuando el backend local puede solicitarlo al sistema operativo;
+- manejo visible de errores sin ocultar fallas por archivo.

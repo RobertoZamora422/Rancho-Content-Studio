@@ -104,6 +104,11 @@ class ExportPackage(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     event_id: Mapped[int] = mapped_column(ForeignKey("content_event.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(220), nullable=False)
+    export_type: Mapped[str] = mapped_column(
+        String(60),
+        nullable=False,
+        default="ready_to_publish",
+    )
     output_path: Mapped[str] = mapped_column(String(1024), nullable=False)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="draft")
     created_at: Mapped[datetime] = mapped_column(
@@ -148,6 +153,7 @@ class ExportPackageItem(Base):
     )
     item_type: Mapped[str] = mapped_column(String(60), nullable=False)
     output_path: Mapped[str] = mapped_column(String(1024), nullable=False)
+    item_order: Mapped[int | None] = mapped_column(Integer, nullable=True)
     metadata_written: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     metadata_status: Mapped[str | None] = mapped_column(String(80), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)

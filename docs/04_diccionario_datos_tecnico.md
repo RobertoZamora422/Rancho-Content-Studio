@@ -201,6 +201,36 @@ Notas de Fase 11:
 
 Las columnas nuevas de `editorial_profile` y `generated_copy` se agregan de forma incremental en bases SQLite existentes hasta introducir migraciones Alembic.
 
+## Campos usados en Fase 14
+
+`export_package` registra cada paquete final:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| event_id | integer | Evento exportado. |
+| name | string | Nombre de la carpeta del paquete. |
+| export_type | string | `ready_to_publish`, `full_event_package`, `reels_only`, `carousel_only`, `stories_only` o `google_photos_upload_package`. |
+| output_path | string | Ruta relativa a la carpeta del evento, dentro de `09_Listo_Para_Publicar`. |
+| status | string | `pending`, `generated` o `failed` en la implementacion actual. |
+| finished_at | datetime nullable | Fecha de finalizacion del paquete. |
+
+`export_package_item` registra cada archivo incluido o fallido:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| package_id | integer | Paquete al que pertenece. |
+| content_piece_id | integer nullable | Pieza asociada cuando aplica. |
+| generated_copy_id | integer nullable | Copy exportado cuando aplica. |
+| enhanced_media_id | integer nullable | Medio exportado cuando aplica. |
+| item_type | string | `media`, `standalone_media`, `copy` o `summary`. |
+| output_path | string | Ruta relativa final del archivo o ruta intentada si fallo. |
+| item_order | integer nullable | Orden dentro del paquete. |
+| metadata_written | boolean | Indica si se escribio fecha de archivo/metadata en medio exportado. |
+| metadata_status | string nullable | Resultado de metadata, por ejemplo `file_mtime_written_exiftool_unavailable`. |
+| error_message | text nullable | Error por item sin detener el paquete completo. |
+
+Las columnas `export_package.export_type` y `export_package_item.item_order` se agregan de forma incremental en bases SQLite existentes hasta introducir migraciones Alembic.
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

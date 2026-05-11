@@ -126,3 +126,17 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Solo genera copy para piezas aprobadas.
 - Cada variante se guarda en `generated_copy` y como archivo `.md` dentro de `08_Copies`.
 - Las decisiones de generacion, edicion, aprobacion o rechazo se registran en jobs y `decision_log`.
+
+## Implementacion local de Fase 14
+
+- La exportacion final vive en `services/export_service.py`.
+- La API expone `POST /api/events/{id}/export-package`.
+- La API expone `GET /api/events/{id}/export-packages`.
+- La API expone `POST /api/events/{id}/export-packages/{package_id}/open-folder`.
+- Usa piezas aprobadas, copies aprobados y medios mejorados aprobados como entradas.
+- Crea una carpeta unica dentro de `09_Listo_Para_Publicar`; no sobrescribe paquetes anteriores.
+- Copia archivos finales con `shutil.copy2`, manteniendo originales y versiones fuente intactos.
+- Escribe copies finales como `.txt` y un `resumen_exportacion.txt`.
+- Ajusta fecha de archivo a la fecha del evento y usa ExifTool si esta disponible.
+- Registra `export_package`, `export_package_item`, job `export_package` y `decision_log`.
+- La UI `#/pieces` concentra generacion, aprobacion, copy y exportacion para mantener el flujo humano visible.
