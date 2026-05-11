@@ -105,3 +105,13 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Conserva contenedor original para `.mp4`, `.mov` y `.m4v`; otros contenedores se normalizan a `.mp4`.
 - Video completo se guarda en `04_Mejorados`; segmentos simples se guardan en `05_Reels`.
 - Las versiones se registran en `enhanced_media` y se sirven por FastAPI con MIME detectado.
+
+## Implementacion local de Fase 12
+
+- La generacion de piezas vive en `services/content_piece_service.py`.
+- Usa `enhanced_media` con estado `completed` o `approved` y archivo local existente.
+- Crea entidades `content_piece` y `content_piece_media`; no exporta archivos finales.
+- Las reglas iniciales son deterministicas y locales.
+- Evita duplicar piezas con la misma combinacion de tipo y medios.
+- La UI `#/pieces` permite generar, revisar, reordenar y aprobar/rechazar piezas.
+- Las piezas quedan listas para Fase 13 de copywriting.

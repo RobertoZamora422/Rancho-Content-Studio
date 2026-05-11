@@ -28,6 +28,8 @@ Administrador o editor de contenido de Rancho Flor Maria, responsable de prepara
 - La IA externa es opcional.
 - El sistema debe funcionar sin internet para el flujo local.
 
-## Alcance implementado hasta Fase 10
+## Alcance implementado hasta Fase 12
 
-La base actual ya cubre estructura tecnica, healthcheck, SQLite inicial, layout desktop, configuracion local, eventos, importacion, metadatos/miniaturas, analisis visual de fotos, duplicados/similitud, curacion revisable, versiones mejoradas de fotos seleccionadas y mejora basica de videos seleccionados con FFmpeg opcional. Los modulos de piezas, copy, calendario y exportacion final quedan para fases posteriores.
+La base actual ya cubre estructura tecnica, healthcheck, SQLite inicial, layout desktop, configuracion local, eventos, importacion, metadatos/miniaturas, analisis visual de fotos, duplicados/similitud, curacion revisable, versiones mejoradas de fotos seleccionadas, mejora basica de videos seleccionados con FFmpeg opcional y generacion de piezas sugeridas desde medios mejorados.
+
+Las piezas se guardan en SQLite, conservan su orden de medios, pueden revisarse manualmente desde la UI y pueden aprobarse o rechazarse antes de copywriting/exportacion. Los modulos de copy, calendario editorial y exportacion final quedan para fases posteriores.

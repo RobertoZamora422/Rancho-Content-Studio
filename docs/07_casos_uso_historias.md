@@ -10,7 +10,7 @@
 - Como editor, quiero exportar una carpeta final lista para publicar.
 - Como editor, quiero conservar o escribir la fecha real del evento para que Google Photos ordene correctamente tras una subida manual.
 
-## Historias cubiertas hasta Fase 10
+## Historias cubiertas hasta Fase 12
 
 - Crear evento local con carpetas operativas.
 - Registrar una fuente local externa e importar copias a `01_Originales`.
@@ -22,6 +22,9 @@
 - Generar versiones basicas de videos seleccionados con FFmpeg cuando este disponible.
 - Crear segmentos simples en `05_Reels` sin forzar formato vertical.
 - Registrar error controlado si FFmpeg no esta configurado.
+- Generar piezas sugeridas desde medios mejorados y disponibles.
+- Editar titulo, proposito, plataforma, formato sugerido y orden de medios de una pieza.
+- Aprobar o rechazar piezas antes de generar copy o exportar.
 
 ## Casos fuera de alcance inicial
 

@@ -109,3 +109,15 @@ La seccion `Mejoras visuales` tambien:
 - reproduce versiones de video generadas con controles nativos;
 - muestra duracion, formato/plan en notas, ruta relativa y estado;
 - reutiliza aprobar/rechazar sin borrar archivos.
+
+## Fase 12 implementada en UI
+
+La pantalla `Piezas de contenido` deja de ser placeholder e incluye:
+
+- selector de evento activo;
+- accion `Generar piezas sugeridas`;
+- cards de piezas con tipo, titulo, cantidad de medios y estado;
+- editor basico de titulo, proposito, plataforma y formato recomendado;
+- lista ordenada de medios con portada sugerida;
+- acciones `Subir` y `Bajar` para reordenar medios;
+- acciones para guardar revision, aprobar o rechazar pieza.

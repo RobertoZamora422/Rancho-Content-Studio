@@ -5,6 +5,7 @@ import { ModulePage } from "../components/ModulePage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { EventDetailPage } from "../features/events/EventDetailPage";
 import { EventsPage } from "../features/events/EventsPage";
+import { PiecesPage } from "../features/pieces/PiecesPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 
 export const router = createHashRouter(
@@ -24,17 +25,7 @@ export const router = createHashRouter(
           />
         }
       />
-      <Route
-        path="pieces"
-        element={
-          <ModulePage
-            label="Piezas de contenido"
-            title="Piezas de contenido"
-            description="Modulo preparado para reels, carruseles, historias y publicaciones sugeridas."
-            nextPhase="Fase 12"
-          />
-        }
-      />
+      <Route path="pieces" element={<PiecesPage />} />
       <Route
         path="calendar"
         element={

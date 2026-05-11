@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10 y Fase 11. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas y mejora basica de videos con FFmpeg opcional. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual y comparador original vs mejorado para fotos/videos.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11 y Fase 12. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional y generacion de piezas sugeridas. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos y pantalla de piezas de contenido.
 
 ## Fase 6 implementada
 
@@ -92,6 +92,19 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - No se redimensiona ni se fuerza 9:16.
 - Si FFmpeg no esta disponible, el job queda en `completed_with_errors` con logs por archivo y sin modificar originales.
 - La UI permite elegir preset/modo, ejecutar mejora de videos y reproducir la version generada.
+
+## Fase 12 implementada
+
+- Endpoint `POST /api/events/{id}/generate-pieces`.
+- Endpoint `GET /api/events/{id}/content-pieces`.
+- Endpoint `PATCH /api/events/{id}/content-pieces/{piece_id}`.
+- Job `generate_pieces`.
+- Servicio local `services/content_piece_service.py`.
+- Persistencia en `content_piece` y `content_piece_media`.
+- Reglas deterministicas para `reel`, `carousel`, `story`, `single_post` y `promo_piece`.
+- Asociacion ordenada de medios mejorados completados o aprobados.
+- Deteccion de firmas para no duplicar piezas con el mismo tipo y medios.
+- UI `#/pieces` con selector de evento, generacion de piezas, cards, editor basico, reordenamiento y aprobar/rechazar.
 
 ## Criterios por bloque
 

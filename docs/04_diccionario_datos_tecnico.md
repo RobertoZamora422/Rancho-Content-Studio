@@ -136,6 +136,34 @@ Notas de Fase 11:
 - `notes` incluye modo de procesamiento, plan, estado de formato, estado de metadata y miniatura generada cuando existe.
 - El estado de error por archivo vive en `processing_job_log`; no se crea `enhanced_media` falso cuando FFmpeg falta o falla.
 
+## Campos usados en Fase 12
+
+`content_piece` guarda piezas sugeridas para redes sociales:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| event_id | integer | Evento al que pertenece la pieza. |
+| piece_type | string | Tipo: `reel`, `carousel`, `story`, `single_post` o `promo_piece`. |
+| title | string | Titulo editable de la pieza. |
+| purpose | string nullable | Proposito recomendado, por ejemplo `ambiente` o `resumen_evento`. |
+| target_platform | string nullable | Plataforma recomendada. |
+| aspect_ratio | string nullable | Formato recomendado; no obliga conversion vertical. |
+| status | string | Estado: `draft`, `generated`, `in_review`, `approved` o `rejected`. |
+| metadata_json | text nullable | Motivo de recomendacion, firma de medios y origen de la regla. |
+| approved_at | datetime nullable | Fecha de aprobacion manual. |
+| rejected_at | datetime nullable | Fecha de rechazo manual. |
+
+`content_piece_media` guarda los medios ordenados de cada pieza:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| piece_id | integer | Pieza a la que pertenece. |
+| original_media_id | integer nullable | Medio original asociado como referencia. |
+| enhanced_media_id | integer nullable | Version mejorada usada en la pieza. |
+| position | integer | Orden dentro de la pieza. |
+| role | string nullable | `cover` para portada sugerida o `sequence` para secuencia. |
+| notes | text nullable | Motivo o nota de asociacion. |
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

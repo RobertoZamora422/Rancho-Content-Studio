@@ -148,11 +148,32 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 7. Los errores por archivo se registran en `processing_job_log` y el job continua.
 8. La UI permite reproducir el resultado, aprobarlo o rechazarlo.
 
+## Flujo de generacion de piezas implementado en Fase 12
+
+1. El usuario genera o aprueba medios mejorados en un evento.
+2. Desde `Piezas de contenido`, elige el evento y ejecuta `Generar piezas sugeridas`.
+3. El backend crea un job `generate_pieces`.
+4. Filtra `enhanced_media` con estado `completed` o `approved` y archivo existente.
+5. Separa fotos y videos.
+6. Genera propuestas segun disponibilidad:
+   - reel con videos mejorados,
+   - carrusel principal con fotos suficientes,
+   - historias destacadas con seleccion corta,
+   - publicacion individual destacada,
+   - pieza promocional si hay fotos y video.
+7. Para cada propuesta:
+   - define tipo, titulo, proposito, plataforma y formato recomendado,
+   - asocia medios en `content_piece_media`,
+   - marca el primer medio como portada sugerida,
+   - guarda razon en `metadata_json` y `decision_log`.
+8. Evita duplicar piezas si ya existe una pieza del mismo tipo con los mismos medios.
+9. La UI permite cambiar titulo, proposito, plataforma, formato y orden.
+10. El usuario puede aprobar o rechazar la pieza.
+
 ## Flujo de procesamiento futuro
 
-1. Sugerir piezas.
-2. Generar o editar copy.
-3. Exportar.
+1. Generar o editar copy.
+2. Exportar.
 
 ## Jobs
 

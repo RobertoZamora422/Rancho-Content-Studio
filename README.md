@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10 y Fase 11:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11 y Fase 12:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -43,9 +43,10 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Curacion inteligente inicial con estados revisables y cambios manuales.
 - Mejora local de fotos seleccionadas con presets basicos y versiones en `04_Mejorados`.
 - Mejora local basica de videos seleccionados con FFmpeg cuando esta disponible, sin forzar verticalidad.
+- Generacion de piezas sugeridas desde medios mejorados: reels, carruseles, historias y posts.
 - Scaffold Tauri preparado.
 
-No incluye todavia generacion de piezas ni exportacion final.
+No incluye todavia copywriting ni exportacion final.
 
 ## Fase 1 implementada
 
@@ -327,6 +328,31 @@ Reglas aplicadas:
 - Reprocesar genera una nueva version y no sobrescribe versiones anteriores.
 - El usuario aprueba o rechaza cada resultado manualmente.
 
+## Fase 12 implementada
+
+La Fase 12 agrega generacion y edicion basica de piezas de contenido:
+
+- `POST /api/events/{id}/generate-pieces`: crea piezas sugeridas desde medios mejorados `completed` o `approved`.
+- `GET /api/events/{id}/content-pieces`: lista piezas con medios asociados.
+- `PATCH /api/events/{id}/content-pieces/{piece_id}`: permite editar datos, reordenar medios y aprobar/rechazar.
+- Job `generate_pieces`: registra piezas creadas, omitidas y logs.
+- Usa `content_piece` y `content_piece_media`.
+- Genera propuestas segun material disponible:
+  - `reel` con videos mejorados.
+  - `carousel` con fotos mejoradas suficientes.
+  - `story` con seleccion corta de fotos/videos.
+  - `single_post` con foto destacada.
+  - `promo_piece` si hay mezcla de video y fotos.
+- Evita duplicar piezas con la misma combinacion de tipo y medios.
+- La UI `#/pieces` permite elegir evento, generar piezas, editar titulo/proposito/plataforma/formato, reordenar medios y aprobar/rechazar.
+
+Reglas aplicadas:
+
+- No se exportan archivos finales en Fase 12.
+- No se genera copy automaticamente; las piezas quedan listas para Fase 13.
+- No se fuerzan formatos verticales; el formato queda como recomendacion editable.
+- No se modifica ni borra ningun medio original o mejorado.
+
 ## Backend
 
 ```powershell
@@ -368,10 +394,12 @@ Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/detect-similar
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/curate-media
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-photos -ContentType "application/json" -Body '{"preset_slug":"natural_premium"}'
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-videos -ContentType "application/json" -Body '{"preset_slug":"natural_premium","processing_mode":"auto","max_full_duration_seconds":90,"clip_duration_seconds":30}'
+Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/generate-pieces
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
 Invoke-RestMethod http://127.0.0.1:8000/api/events/1/enhanced-media
+Invoke-RestMethod http://127.0.0.1:8000/api/events/1/content-pieces
 ```
 
 Pruebas:
@@ -415,7 +443,7 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
 - Hay un ajuste incremental minimo para agregar `original_media.metadata_json` en bases existentes hasta introducir Alembic.
-- Los endpoints de piezas, copy, biblioteca y calendario quedan para fases posteriores.
+- Los endpoints de copy, biblioteca y calendario quedan para fases posteriores.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
 - El analisis semantico avanzado de videos queda pendiente; Fase 11 solo aplica mejora local basica y segmento simple.
@@ -425,6 +453,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - La mejora de Fase 10 aplica ajustes basicos con Pillow; no hay retoque avanzado, mascaras, restauracion de rostros ni reduccion de ruido profesional.
 - La mejora de video de Fase 11 requiere FFmpeg real para generar archivos; en esta maquina FFmpeg no esta disponible en `PATH`, por lo que se probo el manejo controlado de ausencia de herramienta, no la codificacion real.
 - La estabilizacion avanzada queda pendiente; Fase 11 no usa filtros `vidstab`.
+- La generacion de piezas de Fase 12 usa reglas deterministicas simples; todavia no clasifica escenas semanticas como baile, comida o protagonistas.
+- El editor de piezas permite editar metadatos y orden, pero aun no agrega/quita medios manualmente desde la UI.
 - La escritura EXIF completa en versiones mejoradas depende de ExifTool. Sin ExifTool, se conserva EXIF existente si Pillow puede hacerlo y se ajusta la fecha de archivo.
 - Si ExifTool no esta disponible, la fecha usa fallback local y la precision puede ser limitada.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
@@ -545,6 +575,18 @@ Para validar Fase 11:
 5. Ejecutar `Mejorar videos`.
 6. Si FFmpeg esta disponible, confirmar archivo nuevo en `04_Mejorados` o `05_Reels`.
 7. Si FFmpeg no esta disponible, confirmar que aparece un job `enhance_videos` con error por archivo y que no se modifico el original.
+
+Para validar Fase 12:
+
+1. Generar medios mejorados completados o aprobados en un evento.
+2. Abrir `http://127.0.0.1:5173/#/pieces`.
+3. Elegir el evento y ejecutar `Generar piezas sugeridas`.
+4. Confirmar que aparecen piezas con medios asociados.
+5. Abrir una pieza, cambiar titulo/proposito/plataforma/formato y guardar revision.
+6. Reordenar medios con `Subir` / `Bajar`.
+7. Aprobar o rechazar la pieza.
+8. Consultar `GET /api/events/{id}/content-pieces` y verificar estado y orden.
+9. Consultar `GET /api/events/{id}/jobs` y verificar el job `generate_pieces`.
 
 ## Reglas centrales
 

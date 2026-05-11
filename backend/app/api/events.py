@@ -27,6 +27,17 @@ from app.schemas.importing import (
     VideoEnhancementResponse,
     VisualAnalysisProcessResponse,
 )
+from app.schemas.pieces import (
+    ContentPieceListResponse,
+    ContentPieceResponse,
+    ContentPieceUpdate,
+    PieceGenerationResponse,
+)
+from app.services.content_piece_service import (
+    generate_event_pieces,
+    list_event_content_pieces,
+    update_content_piece,
+)
 from app.services.curation_service import curate_event_media, list_curated_media, update_curated_media
 from app.services.enhancement_service import (
     enhance_event_photos,
@@ -207,6 +218,35 @@ def update_enhanced_media_decision(
     db: Session = Depends(get_db),
 ) -> EnhancedMediaResponse:
     return update_enhanced_media_status(db, event_id, enhanced_id, payload)
+
+
+@router.post("/{event_id}/generate-pieces", response_model=PieceGenerationResponse)
+def generate_pieces(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> PieceGenerationResponse:
+    return generate_event_pieces(db, event_id)
+
+
+@router.get("/{event_id}/content-pieces", response_model=ContentPieceListResponse)
+def read_content_pieces(
+    event_id: int,
+    db: Session = Depends(get_db),
+) -> ContentPieceListResponse:
+    return list_event_content_pieces(db, event_id)
+
+
+@router.patch(
+    "/{event_id}/content-pieces/{piece_id}",
+    response_model=ContentPieceResponse,
+)
+def update_piece(
+    event_id: int,
+    piece_id: int,
+    payload: ContentPieceUpdate,
+    db: Session = Depends(get_db),
+) -> ContentPieceResponse:
+    return update_content_piece(db, event_id, piece_id, payload)
 
 
 @router.get("/{event_id}/similarity-groups", response_model=SimilarityGroupListResponse)

@@ -51,6 +51,10 @@ En Fase 9, `curated_media` se usa para guardar seleccionados, alternativas, desc
 
 En Fase 10, `enhanced_media` se usa para registrar versiones JPEG generadas desde fotos seleccionadas. En Fase 11, la misma entidad registra videos mejorados o segmentos simples generados desde videos seleccionados. Cada registro apunta al evento, al `original_media` fuente y, cuando aplica, al `curated_media` que lo habilito. La ruta guardada es relativa a la carpeta del evento y apunta a `04_Mejorados` o `05_Reels`; aprobar o rechazar una version cambia su estado sin eliminar archivos.
 
+## Uso actual de piezas de contenido
+
+En Fase 12, `content_piece` se usa para registrar propuestas de reels, carruseles, historias, posts individuales y piezas promocionales. `content_piece_media` mantiene los medios mejorados asociados y su orden dentro de cada pieza. Aprobar o rechazar una pieza cambia su estado sin exportar archivos finales ni modificar medios.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

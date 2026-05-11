@@ -123,7 +123,8 @@ button {
 .placeholder-view,
 .settings-view,
 .events-view,
-.event-detail-view {
+.event-detail-view,
+.pieces-view {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -275,6 +276,8 @@ h2 {
 .jobs-panel,
 .source-card,
 .media-row,
+.pieces-toolbar,
+.piece-editor-panel,
 .job-row {
   background: #ffffff;
   border: 1px solid #ded8cc;
@@ -537,6 +540,12 @@ h2 {
   width: 100%;
 }
 
+.media-thumb video {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
 .media-main-cell {
   min-width: 0;
 }
@@ -724,6 +733,91 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+.pieces-toolbar {
+  align-items: end;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(240px, 1fr) auto auto;
+}
+
+.pieces-layout {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
+.piece-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.piece-card {
+  background: #ffffff;
+  border: 1px solid #ded8cc;
+  border-radius: 8px;
+  color: #202722;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  text-align: left;
+}
+
+.piece-card.active,
+.piece-card:hover {
+  border-color: #202722;
+}
+
+.piece-card span,
+.piece-card small {
+  color: #555e57;
+}
+
+.piece-editor-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.piece-editor-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.piece-media-list {
+  display: grid;
+  gap: 10px;
+}
+
+.piece-media-row {
+  align-items: center;
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 86px minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.piece-media-row .media-thumb {
+  width: 86px;
+}
+
+.piece-media-row span {
+  color: #555e57;
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.piece-order-actions {
+  display: grid;
+  gap: 8px;
+}
+
 .job-row {
   align-items: center;
   display: grid;
@@ -804,6 +898,10 @@ h2 {
   .curation-columns,
   .curation-actions,
   .comparison-strip,
+  .pieces-toolbar,
+  .pieces-layout,
+  .piece-editor-fields,
+  .piece-media-row,
   .job-row {
     grid-template-columns: 1fr;
   }
