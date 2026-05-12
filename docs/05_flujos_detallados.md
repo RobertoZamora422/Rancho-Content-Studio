@@ -210,10 +210,35 @@ Crear evento -> Seleccionar carpeta -> Procesar -> Revisar -> Aprobar -> Exporta
 10. Marca el paquete como `generated` o `failed` y registra `decision_log`.
 11. La UI muestra ruta local, conteos y accion para abrir carpeta final.
 
-## Flujo de procesamiento futuro
+## Flujo de biblioteca historica implementado en Fase 15
 
-1. Planificar en calendario.
-2. Consultar biblioteca historica.
+1. El usuario abre `Biblioteca`.
+2. La UI consulta endpoints `GET /api/library/media`, `GET /api/library/pieces`, `GET /api/library/copies` o `GET /api/library/search`.
+3. El backend consulta SQLite sobre medios originales, curados, mejorados, piezas y copies existentes.
+4. Los filtros se combinan en backend:
+   - evento,
+   - fecha de evento,
+   - tipo de evento,
+   - tipo de archivo, pieza o copy,
+   - estado,
+   - busqueda por nombre de evento, archivo, pieza o texto de copy.
+5. La respuesta incluye datos ligeros: estado, ruta local, relacion con evento y miniatura cuando existe.
+6. La UI muestra resultados y panel de detalle sin cargar archivos multimedia pesados.
+7. Si falta el archivo fisico, el registro sigue visible con `file_exists = false`.
+
+## Flujo de calendario implementado en Fase 15
+
+1. El usuario abre `Calendario`.
+2. La UI carga piezas aprobadas desde biblioteca y publicaciones existentes desde `GET /api/calendar`.
+3. El usuario selecciona una pieza aprobada.
+4. Define fecha, hora, plataforma, estado y notas.
+5. El backend crea o actualiza `publishing_calendar_item`.
+6. El backend valida que la pieza exista y este aprobada antes de planificarla.
+7. El usuario puede cambiar estado a `not_scheduled`, `scheduled`, `ready_to_publish`, `published` o `cancelled`.
+8. `POST /api/calendar/items/{id}/mark-published` registra publicacion manual y URL opcional.
+9. `DELETE /api/calendar/items/{id}` cancela logicamente la programacion; no borra piezas ni archivos.
+10. Cada accion registra `decision_log`.
+11. El calendario no publica automaticamente en redes sociales.
 
 ## Jobs
 

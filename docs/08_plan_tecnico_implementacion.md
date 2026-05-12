@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13 y Fase 14. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas, copywriting local y exportacion final. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy, pantalla de perfil editorial y controles de exportacion final.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13, Fase 14 y Fase 15. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas, copywriting local, exportacion final, biblioteca historica y calendario manual de publicaciones. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy, pantalla de perfil editorial, controles de exportacion final, pantalla `#/library` y pantalla `#/calendar`.
 
 ## Fase 6 implementada
 
@@ -135,6 +135,29 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - Escritura de `resumen_exportacion.txt`.
 - Escritura de fecha de archivo y uso opcional de ExifTool para metadata.
 - UI `#/pieces` con tipo de paquete, opciones, ejecucion de exportacion y apertura de carpeta final.
+
+## Fase 15 implementada
+
+- Endpoint `GET /api/library/media`.
+- Endpoint `GET /api/library/pieces`.
+- Endpoint `GET /api/library/copies`.
+- Endpoint `GET /api/library/search`.
+- Servicio local `services/library_service.py`.
+- Consulta historica de `original_media`, `curated_media`, `enhanced_media`, `content_piece` y `generated_copy`.
+- Filtros por evento, fecha de evento, tipo de evento, tipo de archivo/pieza/copy, estado y busqueda textual.
+- Las respuestas exponen rutas locales y miniaturas cuando existen, sin cargar archivos multimedia pesados.
+- Endpoint `GET /api/calendar`.
+- Endpoint `POST /api/calendar/items`.
+- Endpoint `PUT /api/calendar/items/{item_id}`.
+- Endpoint `POST /api/calendar/items/{item_id}/mark-published`.
+- Endpoint `DELETE /api/calendar/items/{item_id}` como cancelacion logica.
+- Servicio local `services/calendar_service.py`.
+- Reuso de `publishing_calendar_item`; se agrego `published_url` para registrar URL publicada opcional.
+- Estados de publicacion soportados: `not_scheduled`, `scheduled`, `ready_to_publish`, `published` y `cancelled`.
+- Plataformas permitidas: `instagram`, `facebook`, `tiktok`, `whatsapp_business`, `google_photos`, `multiple` y `other`.
+- UI `#/library` con filtros, resultados por tipo, miniaturas, rutas locales y panel de detalle.
+- UI `#/calendar` con agenda agrupada por fecha, filtros, formulario de planificacion, cambio de estado, URL publicada, notas, accion de publicado y cancelacion.
+- No hay publicacion automatica ni dependencia cloud; Google Photos se maneja solo como destino manual.
 
 ## Criterios por bloque
 

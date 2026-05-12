@@ -231,6 +231,51 @@ Las columnas nuevas de `editorial_profile` y `generated_copy` se agregan de form
 
 Las columnas `export_package.export_type` y `export_package_item.item_order` se agregan de forma incremental en bases SQLite existentes hasta introducir migraciones Alembic.
 
+## Campos usados en Fase 15
+
+La biblioteca no agrega tablas nuevas. Consulta registros existentes de:
+
+- `original_media`
+- `curated_media`
+- `enhanced_media`
+- `content_piece`
+- `generated_copy`
+
+Endpoints de biblioteca:
+
+| Endpoint | Descripcion |
+| --- | --- |
+| `GET /api/library/media` | Lista medios originales, curados y mejorados con filtros y rutas locales. |
+| `GET /api/library/pieces` | Lista piezas de contenido con conteos de medios/copies y miniatura de referencia. |
+| `GET /api/library/copies` | Lista copies generados con vista previa y ruta `.md` cuando existe. |
+| `GET /api/library/search` | Busqueda unificada sobre medios, piezas y copies. |
+
+`publishing_calendar_item` se usa para calendario manual:
+
+| Campo | Tipo | Descripcion |
+| --- | --- | --- |
+| event_id | integer nullable | Evento asociado. En la implementacion actual se deriva de la pieza. |
+| piece_id | integer nullable | Pieza aprobada asociada al item. |
+| title | string | Titulo visible del item de calendario. |
+| platform | string nullable | Plataforma manual: `instagram`, `facebook`, `tiktok`, `whatsapp_business`, `google_photos`, `multiple` u `other`. |
+| scheduled_for | datetime nullable | Fecha y hora planificada combinadas. |
+| status | string | Estado de publicacion: `not_scheduled`, `scheduled`, `ready_to_publish`, `published` o `cancelled`. |
+| published_at | datetime nullable | Fecha en que el usuario marco la publicacion como realizada. |
+| published_url | string nullable | URL publicada opcional registrada manualmente. |
+| notes | text nullable | Notas del usuario. |
+
+La columna `publishing_calendar_item.published_url` se agrega de forma incremental en bases SQLite existentes.
+
+Endpoints de calendario:
+
+| Endpoint | Descripcion |
+| --- | --- |
+| `GET /api/calendar` | Lista publicaciones planificadas con filtros. |
+| `POST /api/calendar/items` | Crea item asociado a una pieza aprobada. |
+| `PUT /api/calendar/items/{id}` | Actualiza programacion, estado, plataforma, URL y notas. |
+| `POST /api/calendar/items/{id}/mark-published` | Marca publicacion manualmente como publicada. |
+| `DELETE /api/calendar/items/{id}` | Cancela logicamente la programacion. |
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

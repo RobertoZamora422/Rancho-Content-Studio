@@ -2,10 +2,12 @@ import { Navigate, Route, createHashRouter, createRoutesFromElements } from "rea
 
 import { AppShell } from "../components/AppShell";
 import { ModulePage } from "../components/ModulePage";
+import { CalendarPage } from "../features/calendar/CalendarPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { EditorialProfilePage } from "../features/editorial/EditorialProfilePage";
 import { EventDetailPage } from "../features/events/EventDetailPage";
 import { EventsPage } from "../features/events/EventsPage";
+import { LibraryPage } from "../features/library/LibraryPage";
 import { PiecesPage } from "../features/pieces/PiecesPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 
@@ -15,29 +17,9 @@ export const router = createHashRouter(
       <Route index element={<DashboardPage />} />
       <Route path="events" element={<EventsPage />} />
       <Route path="events/:eventId" element={<EventDetailPage />} />
-      <Route
-        path="library"
-        element={
-          <ModulePage
-            label="Biblioteca"
-            title="Biblioteca"
-            description="Vista reservada para consultar material y piezas exportadas cuando existan eventos procesados."
-            nextPhase="Fase 15"
-          />
-        }
-      />
+      <Route path="library" element={<LibraryPage />} />
       <Route path="pieces" element={<PiecesPage />} />
-      <Route
-        path="calendar"
-        element={
-          <ModulePage
-            label="Calendario"
-            title="Calendario"
-            description="Base para planificar publicaciones y marcar piezas como publicadas manualmente."
-            nextPhase="Fase 15"
-          />
-        }
-      />
+      <Route path="calendar" element={<CalendarPage />} />
       <Route
         path="editorial-profile"
         element={<EditorialProfilePage />}

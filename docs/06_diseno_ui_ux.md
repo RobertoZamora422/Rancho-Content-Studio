@@ -152,3 +152,26 @@ La pantalla `Piezas de contenido` agrega una seccion `Exportacion final`:
 - resultado con ruta local del paquete en `09_Listo_Para_Publicar`;
 - accion `Abrir carpeta final` cuando el backend local puede solicitarlo al sistema operativo;
 - manejo visible de errores sin ocultar fallas por archivo.
+
+## Fase 15 implementada en UI
+
+La pantalla `Biblioteca` deja de ser placeholder e incluye:
+
+- filtros por evento, tipo de evento, fecha desde/hasta, tipo, estado, origen y busqueda textual;
+- vistas para medios, piezas, copies y busqueda global;
+- cards con miniatura cuando existe, nombre, evento, estado y ruta local;
+- panel de detalle con relacion al evento, ruta local, estado y existencia de archivo;
+- enlace al evento de origen;
+- estados de carga, error y sin resultados.
+
+La pantalla `Calendario` deja de ser placeholder e incluye:
+
+- filtros por busqueda, evento, estado, plataforma y rango de fechas;
+- agenda agrupada por fecha con piezas planificadas;
+- formulario para elegir pieza aprobada, fecha, hora, plataforma y estado;
+- campos para URL publicada opcional y notas;
+- acciones para guardar, marcar como publicado y cancelar programacion;
+- enlace al evento de origen;
+- estados vacios y errores visibles.
+
+La UI mantiene planificacion manual: no publica automaticamente en redes sociales ni en Google Photos.

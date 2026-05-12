@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13 y Fase 14:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13, Fase 14 y Fase 15:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -46,9 +46,9 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Generacion de piezas sugeridas desde medios mejorados: reels, carruseles, historias y posts.
 - Perfil editorial editable y generacion local de copies por pieza.
 - Exportacion final local a `09_Listo_Para_Publicar` con medios, copies, resumen y registro en SQLite.
+- Biblioteca historica con filtros por evento, fecha, tipo, estado y busqueda sobre medios, piezas y copies.
+- Calendario local de publicaciones manuales con estados, plataforma, URL publicada y cancelacion logica.
 - Scaffold Tauri preparado.
-
-No incluye todavia biblioteca ni calendario operativo.
 
 ## Fase 1 implementada
 
@@ -407,6 +407,29 @@ Reglas aplicadas:
 - Si un archivo falla, se registra en `processing_job_log` y en `export_package_item`; el resto del paquete continua.
 - La integracion con Google Photos sigue siendo manual; el paquete queda organizado para subida manual.
 
+## Fase 15 implementada
+
+La Fase 15 agrega Biblioteca y Calendario local sin publicar automaticamente en redes:
+
+- `GET /api/library/media`: consulta medios originales, curados y mejorados con rutas locales, miniaturas cuando existen y filtros combinables.
+- `GET /api/library/pieces`: consulta piezas historicas por evento, fecha, tipo, estado y busqueda textual.
+- `GET /api/library/copies`: consulta copies generados o aprobados, incluyendo vista previa de texto y ruta local del `.md`.
+- `GET /api/library/search`: busqueda unificada sobre medios, piezas y copies.
+- `GET /api/calendar`: lista items de calendario por evento, fecha, plataforma, estado o busqueda.
+- `POST /api/calendar/items`: agenda una pieza aprobada en una plataforma permitida.
+- `PUT /api/calendar/items/{id}`: actualiza fecha, hora, estado, plataforma, URL publicada y notas.
+- `POST /api/calendar/items/{id}/mark-published`: marca una publicacion como publicada manualmente.
+- `DELETE /api/calendar/items/{id}`: cancela logicamente la programacion sin borrar contenido.
+- La UI `#/library` reemplaza el placeholder con filtros, cards, miniaturas, rutas locales y panel de detalle.
+- La UI `#/calendar` reemplaza el placeholder con agenda agrupada por fecha y formulario para planificar o actualizar publicaciones.
+
+Reglas aplicadas:
+
+- No se cargan archivos multimedia pesados desde la biblioteca; se usan miniaturas de backend cuando existen.
+- `PublishingCalendarItem` se reutiliza como entidad de calendario y se agrega `published_url` de forma incremental.
+- Solo piezas aprobadas pueden programarse.
+- El calendario no integra APIs de redes ni publica automaticamente; solo organiza y registra el control manual.
+
 ## Backend
 
 ```powershell
@@ -501,8 +524,7 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 ## Limitaciones pendientes
 
 - No hay migraciones Alembic todavia; durante estas primeras fases el esquema se crea con `Base.metadata.create_all`.
-- Hay ajustes incrementales minimos para agregar columnas de `original_media`, `editorial_profile`, `generated_copy`, `export_package` y `export_package_item` en bases existentes hasta introducir Alembic.
-- Los endpoints de biblioteca y calendario quedan para fases posteriores.
+- Hay ajustes incrementales minimos para agregar columnas de `original_media`, `editorial_profile`, `generated_copy`, `export_package`, `export_package_item` y `publishing_calendar_item` en bases existentes hasta introducir Alembic.
 - Los modelos usan estados como strings simples; las reglas de transicion y validaciones de negocio se agregaran en servicios backend.
 - El analisis visual de Fase 7 es basico y local; no detecta rostros, composicion semantica ni categorias automaticas todavia.
 - El analisis semantico avanzado de videos queda pendiente; Fase 11 solo aplica mejora local basica y segmento simple.
@@ -517,6 +539,9 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - La generacion de copy de Fase 13 usa plantillas locales; no usa IA externa, no interpreta escenas visuales avanzadas y puede requerir edicion humana.
 - Los archivos `.md` de Fase 13 se escriben en `08_Copies`; Fase 14 exporta los copies aprobados como `.txt` dentro del paquete final.
 - La exportacion de Fase 14 no publica automaticamente en redes ni Google Photos; crea una carpeta local para subida manual.
+- La biblioteca de Fase 15 muestra rutas y miniaturas; abrir archivos/carpetas historicas desde la UI queda pendiente.
+- El calendario de Fase 15 no tiene drag and drop ni vista mensual visual; usa agenda local y formulario controlado.
+- Google Photos aparece como plataforma manual permitida, no como integracion automatica.
 - La metadata de exportacion usa fecha de archivo como fallback cuando ExifTool no esta disponible.
 - Para evitar rutas largas en Windows, los nombres internos del paquete se acortan manteniendo orden y contexto.
 - La escritura EXIF completa en versiones mejoradas depende de ExifTool. Sin ExifTool, se conserva EXIF existente si Pillow puede hacerlo y se ajusta la fecha de archivo.
@@ -674,6 +699,17 @@ Para validar Fase 14:
 6. Revisar medios finales, copies `.txt` y `resumen_exportacion.txt`.
 7. Consultar `GET /api/events/{id}/export-packages`.
 8. Consultar `GET /api/events/{id}/jobs` y verificar el job `export_package`.
+
+Para validar Fase 15:
+
+1. Tener al menos un evento con medios importados, piezas aprobadas y, si aplica, copies generados.
+2. Abrir `http://127.0.0.1:5173/#/library`.
+3. Filtrar por evento, fecha, tipo, estado y busqueda; verificar que se muestran rutas locales y miniaturas cuando existen.
+4. Probar `GET /api/library/media`, `GET /api/library/pieces`, `GET /api/library/copies` y `GET /api/library/search`.
+5. Abrir `http://127.0.0.1:5173/#/calendar`.
+6. Seleccionar una pieza aprobada, definir fecha, hora, plataforma y guardar.
+7. Cambiar estado a `ready_to_publish`, marcar como publicada con URL opcional y cancelar una programacion de prueba.
+8. Probar `GET /api/calendar`, `POST /api/calendar/items`, `PUT /api/calendar/items/{id}`, `POST /api/calendar/items/{id}/mark-published` y `DELETE /api/calendar/items/{id}`.
 
 ## Reglas centrales
 

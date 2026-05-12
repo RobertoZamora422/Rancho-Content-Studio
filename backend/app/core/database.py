@@ -119,6 +119,19 @@ def ensure_incremental_schema() -> None:
                     text(f"ALTER TABLE export_package_item ADD COLUMN {column} {definition}")
                 )
 
+        calendar_columns = {
+            row[1]
+            for row in connection.execute(text("PRAGMA table_info(publishing_calendar_item)")).all()
+        }
+        calendar_additions = {
+            "published_url": "TEXT",
+        }
+        for column, definition in calendar_additions.items():
+            if column not in calendar_columns:
+                connection.execute(
+                    text(f"ALTER TABLE publishing_calendar_item ADD COLUMN {column} {definition}")
+                )
+
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()

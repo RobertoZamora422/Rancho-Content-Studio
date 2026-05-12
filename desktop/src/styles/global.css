@@ -124,7 +124,9 @@ button {
 .settings-view,
 .events-view,
 .event-detail-view,
-.pieces-view {
+.pieces-view,
+.library-view,
+.calendar-view {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -926,6 +928,224 @@ h2 {
   grid-template-columns: minmax(160px, 1fr) repeat(4, auto);
 }
 
+.library-filters,
+.calendar-filters,
+.calendar-editor-panel,
+.agenda-panel,
+.library-detail-panel,
+.library-summary-row,
+.calendar-summary-row {
+  background: #ffffff;
+  border: 1px solid #ded8cc;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.library-filters,
+.calendar-editor-panel,
+.agenda-panel,
+.library-detail-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.library-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.active-filter {
+  border-color: #202722;
+  box-shadow: inset 0 0 0 1px #202722;
+}
+
+.library-filter-grid,
+.calendar-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.library-summary-row,
+.calendar-summary-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.library-summary-row div,
+.calendar-summary-row div {
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.library-summary-row span,
+.calendar-summary-row span {
+  color: #555e57;
+  font-size: 0.9rem;
+}
+
+.library-layout,
+.calendar-layout {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.library-results-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.library-card {
+  background: #ffffff;
+  border: 1px solid #ded8cc;
+  border-radius: 8px;
+  color: #202722;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  text-align: left;
+}
+
+.library-card:hover,
+.agenda-item:hover,
+.agenda-item.active {
+  border-color: #202722;
+}
+
+.library-card span,
+.library-card small,
+.library-card p {
+  color: #555e57;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.library-card code,
+.detail-row strong {
+  color: #303a33;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.library-thumb,
+.agenda-thumb {
+  align-items: center;
+  background: #202722;
+  border-radius: 8px;
+  color: #f7f2e9;
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.library-thumb {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+}
+
+.library-thumb img,
+.agenda-thumb img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.text-card {
+  align-content: start;
+}
+
+.detail-card {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-card .library-thumb {
+  max-width: 260px;
+}
+
+.detail-row {
+  border-top: 1px solid #e3ddd1;
+  display: grid;
+  gap: 4px;
+  padding-top: 10px;
+}
+
+.detail-row span {
+  color: #555e57;
+  font-size: 0.9rem;
+}
+
+.copy-preview {
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  color: #303a33;
+  line-height: 1.5;
+  margin: 0;
+  padding: 12px;
+}
+
+.agenda-panel {
+  align-content: start;
+}
+
+.agenda-group {
+  border-top: 1px solid #ded8cc;
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.agenda-list {
+  display: grid;
+  gap: 10px;
+}
+
+.agenda-item {
+  align-items: center;
+  background: #fbfaf7;
+  border: 1px solid #e3ddd1;
+  border-radius: 8px;
+  color: #202722;
+  cursor: pointer;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 82px minmax(0, 1fr);
+  padding: 10px;
+  text-align: left;
+}
+
+.agenda-item span,
+.agenda-item small {
+  color: #555e57;
+  display: block;
+  margin-top: 4px;
+}
+
+.agenda-thumb {
+  aspect-ratio: 4 / 3;
+  width: 82px;
+}
+
+.calendar-editor-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .validation-card {
   display: grid;
   gap: 8px;
@@ -1006,6 +1226,13 @@ h2 {
   .copy-editor-grid,
   .export-summary-grid,
   .export-options-grid,
+  .library-filter-grid,
+  .library-summary-row,
+  .library-layout,
+  .calendar-filters,
+  .calendar-summary-row,
+  .calendar-layout,
+  .calendar-editor-grid,
   .editorial-form,
   .job-row {
     grid-template-columns: 1fr;

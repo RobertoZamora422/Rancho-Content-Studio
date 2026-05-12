@@ -63,6 +63,12 @@ En Fase 13, `editorial_profile` guarda tono, nivel emocional, formalidad, reglas
 
 En Fase 14, `export_package` registra paquetes finales creados para un evento y guarda tipo de exportacion, ruta relativa de salida, estado y fecha de finalizacion. `export_package_item` registra cada medio, copy o resumen incluido, su orden, ruta relativa final, estado de metadata y error por archivo si existio. Los paquetes se crean dentro de `09_Listo_Para_Publicar` y no modifican originales ni versiones mejoradas fuente.
 
+## Uso actual de biblioteca y calendario
+
+En Fase 15, la biblioteca es una vista de consulta sobre entidades existentes: `original_media`, `curated_media`, `enhanced_media`, `content_piece` y `generated_copy`. No agrega archivos ni duplica contenido; expone filtros backend y rutas locales para entender donde vive cada elemento.
+
+`publishing_calendar_item` se usa como entidad de planificacion manual asociada a una pieza aprobada. Guarda evento, pieza, titulo, plataforma, fecha/hora combinada en `scheduled_for`, estado de publicacion, `published_at`, `published_url` opcional y notas. Cancelar una programacion cambia el estado a `cancelled`; no elimina piezas ni archivos.
+
 ## Principios
 
 - SQLite es la fuente de verdad local.

@@ -135,8 +135,9 @@ class PublishingCalendarItem(Base):
     title: Mapped[str] = mapped_column(String(220), nullable=False)
     platform: Mapped[str | None] = mapped_column(String(80), nullable=True)
     scheduled_for: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    status: Mapped[str] = mapped_column(String(40), nullable=False, default="planned")
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="not_scheduled")
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    published_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
