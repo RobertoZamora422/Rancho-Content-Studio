@@ -32,7 +32,7 @@ export const navigationItems: NavigationItem[] = [
     key: "library",
     label: "Biblioteca",
     path: "/library",
-    description: "Consulta futura de material y piezas ya preparadas."
+    description: "Consulta historica de medios, piezas y copies preparados."
   },
   {
     key: "pieces",
@@ -56,7 +56,7 @@ export const navigationItems: NavigationItem[] = [
     key: "visualStyles",
     label: "Estilos visuales",
     path: "/visual-styles",
-    description: "Presets locales para mejoras visuales futuras."
+    description: "Presets locales disponibles para mejoras de foto y video."
   },
   {
     key: "settings",

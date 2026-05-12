@@ -81,7 +81,7 @@ export function SettingsPage() {
         ffmpegPath: config.ffmpeg_path ?? "",
         exiftoolPath: config.exiftool_path ?? ""
       });
-      setMessage("Configuracion guardada en SQLite local.");
+      setMessage("Configuracion guardada localmente.");
     } catch (currentError) {
       setError(
         currentError instanceof Error

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./healthService";
+import { API_BASE_URL, parseApiResponse } from "./apiClient";
 import type {
   ContentPiece,
   ContentPieceListResponse,
@@ -10,33 +10,16 @@ import type {
   PieceGenerationResponse
 } from "../types/pieces";
 
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message = `Backend local respondio con estado ${response.status}.`;
-    try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
-        message = payload.detail;
-      }
-    } catch {
-      // Keep the generic HTTP message.
-    }
-    throw new Error(message);
-  }
-
-  return response.json() as Promise<T>;
-}
-
 export async function generatePieces(eventId: number): Promise<PieceGenerationResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/generate-pieces`, {
     method: "POST"
   });
-  return parseResponse<PieceGenerationResponse>(response);
+  return parseApiResponse<PieceGenerationResponse>(response);
 }
 
 export async function listContentPieces(eventId: number): Promise<ContentPieceListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/content-pieces`);
-  return parseResponse<ContentPieceListResponse>(response);
+  return parseApiResponse<ContentPieceListResponse>(response);
 }
 
 export async function updateContentPiece(
@@ -51,7 +34,7 @@ export async function updateContentPiece(
     },
     method: "PATCH"
   });
-  return parseResponse<ContentPiece>(response);
+  return parseApiResponse<ContentPiece>(response);
 }
 
 export async function exportPackage(
@@ -65,12 +48,12 @@ export async function exportPackage(
     },
     method: "POST"
   });
-  return parseResponse<ExportPackageRunResponse>(response);
+  return parseApiResponse<ExportPackageRunResponse>(response);
 }
 
 export async function listExportPackages(eventId: number): Promise<ExportPackageListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/export-packages`);
-  return parseResponse<ExportPackageListResponse>(response);
+  return parseApiResponse<ExportPackageListResponse>(response);
 }
 
 export async function openExportPackageFolder(
@@ -83,5 +66,5 @@ export async function openExportPackageFolder(
       method: "POST"
     }
   );
-  return parseResponse<OpenExportFolderResponse>(response);
+  return parseApiResponse<OpenExportFolderResponse>(response);
 }

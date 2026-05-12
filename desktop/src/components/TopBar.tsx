@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../services/healthService";
+import { API_BASE_URL } from "../services/apiClient";
 import type { HealthCheckResult } from "../types/health";
 
 type TopBarProps = {

@@ -120,13 +120,13 @@ button {
 }
 
 .dashboard-view,
-.placeholder-view,
 .settings-view,
 .events-view,
 .event-detail-view,
 .pieces-view,
 .library-view,
-.calendar-view {
+.calendar-view,
+.visual-styles-view {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -169,8 +169,7 @@ h2 {
 }
 
 .page-heading p,
-.foundation-panel p,
-.placeholder-view p {
+.foundation-panel p {
   color: #555e57;
   line-height: 1.6;
   max-width: 760px;
@@ -259,8 +258,6 @@ h2 {
 
 .workflow-step,
 .foundation-panel,
-.placeholder-view,
-.module-state,
 .settings-panel,
 .validation-card,
 .event-form,
@@ -1187,6 +1184,66 @@ h2 {
   margin-bottom: 0;
 }
 
+.foundation-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.foundation-panel .link-action {
+  width: max-content;
+}
+
+.quick-action-grid,
+.visual-style-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-action-card,
+.visual-style-card,
+.visual-style-summary {
+  background: #ffffff;
+  border: 1px solid #ded8cc;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.quick-action-card {
+  color: #202722;
+  display: grid;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.quick-action-card:hover {
+  border-color: #202722;
+}
+
+.quick-action-card span,
+.visual-style-card p,
+.visual-style-summary span {
+  color: #555e57;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.visual-style-card {
+  display: grid;
+  gap: 8px;
+}
+
+.visual-style-card code {
+  color: #303a33;
+  overflow-wrap: anywhere;
+}
+
+.visual-style-summary {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
 @media (max-width: 860px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -1208,6 +1265,8 @@ h2 {
   .status-strip,
   .top-bar,
   .workflow-grid,
+  .quick-action-grid,
+  .visual-style-grid,
   .validation-grid,
   .event-form,
   .event-row,
@@ -1236,6 +1295,12 @@ h2 {
   .editorial-form,
   .job-row {
     grid-template-columns: 1fr;
+  }
+
+  .visual-style-summary {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .section-heading-row {

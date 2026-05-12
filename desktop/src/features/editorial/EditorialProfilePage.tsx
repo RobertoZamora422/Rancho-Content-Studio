@@ -111,7 +111,7 @@ export function EditorialProfilePage() {
         words_to_avoid: nullableText(form.wordsToAvoid)
       });
       setForm(profileToForm(profile));
-      setMessage("Perfil editorial guardado en SQLite local.");
+      setMessage("Perfil editorial guardado localmente.");
     } catch (currentError) {
       setError(
         currentError instanceof Error
@@ -126,11 +126,10 @@ export function EditorialProfilePage() {
   return (
     <section className="editorial-view">
       <div className="page-heading">
-        <p className="section-label">Fase 13</p>
+        <p className="section-label">Marca</p>
         <h1>Perfil editorial</h1>
         <p>
-          Define el tono, reglas y referencias que usara el generador local de copy. La IA externa
-          no es obligatoria para esta fase.
+          Define el tono, reglas y referencias que usara el generador local de copy.
         </p>
       </div>
 

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { eventSubdirectories } from "./eventFolders";
 import { archiveEvent, deleteEvent, getEvent } from "../../services/eventService";
-import { API_BASE_URL } from "../../services/healthService";
+import { API_BASE_URL } from "../../services/apiClient";
 import {
   addSource,
   analyzePhotos,
@@ -519,8 +519,8 @@ export function EventDetailPage() {
             <p className="section-label">{event.event_type ?? "Evento"}</p>
             <h1>{event.name}</h1>
             <p>
-              Carpeta local creada para este evento. Las siguientes fases usaran
-              esta estructura para importar, procesar y exportar material.
+              Carpeta local creada para importar, procesar, revisar y exportar
+              material sin modificar originales.
             </p>
           </div>
 
@@ -1178,7 +1178,7 @@ function formatScore(value: number | null | undefined) {
 
 function qualityLabel(value: number | null | undefined, mediaType: string) {
   if (mediaType !== "image") {
-    return "No aplica en Fase 7";
+    return "Analisis solo para fotos";
   }
   if (value === null || value === undefined) {
     return "Pendiente";

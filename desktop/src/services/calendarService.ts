@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./healthService";
+import { API_BASE_URL, parseApiResponse } from "./apiClient";
 import type {
   CalendarItem,
   CalendarItemCreate,
@@ -8,26 +8,9 @@ import type {
   CalendarQuery
 } from "../types/calendar";
 
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message = `Backend local respondio con estado ${response.status}.`;
-    try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
-        message = payload.detail;
-      }
-    } catch {
-      // Keep the generic HTTP message.
-    }
-    throw new Error(message);
-  }
-
-  return response.json() as Promise<T>;
-}
-
 export async function listCalendarItems(query: CalendarQuery = {}): Promise<CalendarItemListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/calendar${buildQuery(query)}`);
-  return parseResponse<CalendarItemListResponse>(response);
+  return parseApiResponse<CalendarItemListResponse>(response);
 }
 
 export async function createCalendarItem(payload: CalendarItemCreate): Promise<CalendarItem> {
@@ -38,7 +21,7 @@ export async function createCalendarItem(payload: CalendarItemCreate): Promise<C
     },
     method: "POST"
   });
-  return parseResponse<CalendarItem>(response);
+  return parseApiResponse<CalendarItem>(response);
 }
 
 export async function updateCalendarItem(
@@ -52,7 +35,7 @@ export async function updateCalendarItem(
     },
     method: "PUT"
   });
-  return parseResponse<CalendarItem>(response);
+  return parseApiResponse<CalendarItem>(response);
 }
 
 export async function markCalendarItemPublished(
@@ -66,14 +49,14 @@ export async function markCalendarItemPublished(
     },
     method: "POST"
   });
-  return parseResponse<CalendarItem>(response);
+  return parseApiResponse<CalendarItem>(response);
 }
 
 export async function cancelCalendarItem(itemId: number): Promise<CalendarItem> {
   const response = await fetch(`${API_BASE_URL}/api/calendar/items/${itemId}`, {
     method: "DELETE"
   });
-  return parseResponse<CalendarItem>(response);
+  return parseApiResponse<CalendarItem>(response);
 }
 
 function buildQuery(query: CalendarQuery) {

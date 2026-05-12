@@ -9,7 +9,7 @@ import {
   updateCalendarItem
 } from "../../services/calendarService";
 import { listEvents } from "../../services/eventService";
-import { API_BASE_URL } from "../../services/healthService";
+import { API_BASE_URL } from "../../services/apiClient";
 import { listLibraryPieces } from "../../services/libraryService";
 import type { CalendarItem } from "../../types/calendar";
 import type { ContentEvent } from "../../types/events";
@@ -208,7 +208,7 @@ export function CalendarPage() {
   return (
     <section className="calendar-view">
       <div className="page-heading">
-        <p className="section-label">Fase 15</p>
+        <p className="section-label">Agenda editorial</p>
         <h1>Calendario</h1>
         <p>
           Agenda local para planificar piezas aprobadas, registrar estado editorial y marcar

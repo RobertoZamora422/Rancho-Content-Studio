@@ -1,22 +1,5 @@
-import { API_BASE_URL } from "./healthService";
+import { API_BASE_URL, parseApiResponse } from "./apiClient";
 import type { ContentEvent, EventCreate, EventListResponse, EventUpdate } from "../types/events";
-
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message = `Backend local respondio con estado ${response.status}.`;
-    try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
-        message = payload.detail;
-      }
-    } catch {
-      // Keep the generic HTTP message.
-    }
-    throw new Error(message);
-  }
-
-  return response.json() as Promise<T>;
-}
 
 export async function listEvents(includeArchived = false): Promise<EventListResponse> {
   const searchParams = new URLSearchParams();
@@ -25,7 +8,7 @@ export async function listEvents(includeArchived = false): Promise<EventListResp
   }
   const query = searchParams.toString();
   const response = await fetch(`${API_BASE_URL}/api/events${query ? `?${query}` : ""}`);
-  return parseResponse<EventListResponse>(response);
+  return parseApiResponse<EventListResponse>(response);
 }
 
 export async function createEvent(payload: EventCreate): Promise<ContentEvent> {
@@ -36,12 +19,12 @@ export async function createEvent(payload: EventCreate): Promise<ContentEvent> {
     },
     method: "POST"
   });
-  return parseResponse<ContentEvent>(response);
+  return parseApiResponse<ContentEvent>(response);
 }
 
 export async function getEvent(eventId: number): Promise<ContentEvent> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}`);
-  return parseResponse<ContentEvent>(response);
+  return parseApiResponse<ContentEvent>(response);
 }
 
 export async function updateEvent(eventId: number, payload: EventUpdate): Promise<ContentEvent> {
@@ -52,19 +35,19 @@ export async function updateEvent(eventId: number, payload: EventUpdate): Promis
     },
     method: "PUT"
   });
-  return parseResponse<ContentEvent>(response);
+  return parseApiResponse<ContentEvent>(response);
 }
 
 export async function archiveEvent(eventId: number): Promise<ContentEvent> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/archive`, {
     method: "POST"
   });
-  return parseResponse<ContentEvent>(response);
+  return parseApiResponse<ContentEvent>(response);
 }
 
 export async function deleteEvent(eventId: number): Promise<ContentEvent> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}`, {
     method: "DELETE"
   });
-  return parseResponse<ContentEvent>(response);
+  return parseApiResponse<ContentEvent>(response);
 }

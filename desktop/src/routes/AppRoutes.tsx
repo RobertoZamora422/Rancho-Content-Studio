@@ -1,7 +1,6 @@
 import { Navigate, Route, createHashRouter, createRoutesFromElements } from "react-router-dom";
 
 import { AppShell } from "../components/AppShell";
-import { ModulePage } from "../components/ModulePage";
 import { CalendarPage } from "../features/calendar/CalendarPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { EditorialProfilePage } from "../features/editorial/EditorialProfilePage";
@@ -10,6 +9,7 @@ import { EventsPage } from "../features/events/EventsPage";
 import { LibraryPage } from "../features/library/LibraryPage";
 import { PiecesPage } from "../features/pieces/PiecesPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
+import { VisualStylesPage } from "../features/visualStyles/VisualStylesPage";
 
 export const router = createHashRouter(
   createRoutesFromElements(
@@ -24,17 +24,7 @@ export const router = createHashRouter(
         path="editorial-profile"
         element={<EditorialProfilePage />}
       />
-      <Route
-        path="visual-styles"
-        element={
-          <ModulePage
-            label="Estilos visuales"
-            title="Estilos visuales"
-            description="Base para exponer presets locales de mejora visual definidos en SQLite."
-            nextPhase="Fase 10"
-          />
-        }
-      />
+      <Route path="visual-styles" element={<VisualStylesPage />} />
       <Route
         path="settings"
         element={<SettingsPage />}

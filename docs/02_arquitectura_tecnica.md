@@ -65,7 +65,7 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - El analisis visual de fotos vive en `services/visual_analysis_service.py`.
 - Usa Pillow para abrir imagenes, corregir orientacion EXIF y calcular metricas basicas.
 - Guarda resultados en `media_analysis` sin modificar archivos originales.
-- Genera un hash perceptual local tipo average hash para la futura Fase 8.
+- Genera un hash perceptual local tipo average hash para la deteccion de duplicados y similares.
 - Los videos se omiten en Fase 7 y se analizaran en una fase posterior.
 
 ## Implementacion local de Fase 8
@@ -140,3 +140,18 @@ Google Drive no es dependencia del flujo principal. Google Photos no tiene integ
 - Ajusta fecha de archivo a la fecha del evento y usa ExifTool si esta disponible.
 - Registra `export_package`, `export_package_item`, job `export_package` y `decision_log`.
 - La UI `#/pieces` concentra generacion, aprobacion, copy y exportacion para mantener el flujo humano visible.
+
+## Implementacion local de Fase 15
+
+- La biblioteca vive en `services/library_service.py` y expone consultas historicas sin duplicar archivos.
+- El calendario vive en `services/calendar_service.py` y reutiliza `publishing_calendar_item`.
+- La UI consume miniaturas y archivos servidos por FastAPI; no abre rutas locales pesadas directamente.
+- La planificacion es manual y no publica en redes ni Google Photos.
+
+## Implementacion local de Fase 16
+
+- Los estilos visuales se exponen con `GET /api/visual-styles` desde la tabla `visual_style_preset`.
+- El frontend centraliza `API_BASE_URL` y parseo de errores en `services/apiClient.ts`.
+- El reset operativo vive en `services/reset_service.py` y se ejecuta con `scripts/reset_local_demo.py`.
+- El reset elimina solo registros operativos de SQLite y no borra archivos fisicos.
+- La preparacion Tauri mantiene rutas hash y `devUrl` en `http://127.0.0.1:5173`.

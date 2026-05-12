@@ -22,7 +22,7 @@
 
 ## Estado de esta implementacion
 
-La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13, Fase 14 y Fase 15. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas, copywriting local, exportacion final, biblioteca historica y calendario manual de publicaciones. El frontend desktop ya tiene shell, rutas de navegacion, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy, pantalla de perfil editorial, controles de exportacion final, pantalla `#/library` y pantalla `#/calendar`.
+La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13, Fase 14, Fase 15 y Fase 16. El backend local ya tiene modelos base, seed inicial, endpoints de configuracion, endpoints de eventos, importacion local inicial, procesamiento de metadatos/miniaturas, analisis visual local de fotos, deteccion de duplicados/similares, curacion inteligente revisable, mejora local de fotos seleccionadas, mejora basica de videos con FFmpeg opcional, generacion de piezas sugeridas, copywriting local, exportacion final, biblioteca historica, calendario manual de publicaciones, endpoint de estilos visuales y reset operativo seguro por CLI. El frontend desktop ya tiene shell, rutas de navegacion hash, healthcheck visible, pantalla de configuracion local, gestion inicial de eventos, flujo de importacion desde carpeta local, vista de material original con miniaturas/metricas, grupos similares, curacion manual, comparador original vs mejorado para fotos/videos, pantalla de piezas de contenido, editor de copy, pantalla de perfil editorial, controles de exportacion final, pantalla `#/library`, pantalla `#/calendar` y pantalla `#/visual-styles`.
 
 ## Fase 6 implementada
 
@@ -158,6 +158,19 @@ La base actual cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fas
 - UI `#/library` con filtros, resultados por tipo, miniaturas, rutas locales y panel de detalle.
 - UI `#/calendar` con agenda agrupada por fecha, filtros, formulario de planificacion, cambio de estado, URL publicada, notas, accion de publicado y cancelacion.
 - No hay publicacion automatica ni dependencia cloud; Google Photos se maneja solo como destino manual.
+
+## Fase 16 implementada
+
+- Endpoint `GET /api/visual-styles` para listar presets activos desde `visual_style_preset`.
+- Servicio local `services/visual_style_service.py`.
+- UI `#/visual-styles` conectada al backend con carga, error, estado vacio y cards de presets.
+- Cliente frontend compartido `services/apiClient.ts` para `API_BASE_URL` y errores HTTP.
+- Inicio actualizado como centro operativo del flujo completo.
+- Script `backend/scripts/reset_local_demo.py` para reset de datos operativos.
+- El reset corre en simulacion por defecto y requiere `--yes` para aplicar cambios.
+- El reset no elimina archivos fisicos ni carpetas; preserva originales y restaura seed base.
+- Documentacion alineada al puerto local `127.0.0.1:8010`.
+- Validacion esperada: backend `pytest`, frontend `npm run build`, `git diff --check` y rutas hash principales.
 
 ## Criterios por bloque
 

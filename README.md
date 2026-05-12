@@ -21,7 +21,7 @@ El flujo principal es local:
 
 ## Estado actual
 
-Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13, Fase 14 y Fase 15:
+Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, Fase 8, Fase 9, Fase 10, Fase 11, Fase 12, Fase 13, Fase 14, Fase 15 y Fase 16:
 
 - Estructura de repositorio.
 - Documentacion base en `docs/`.
@@ -48,6 +48,9 @@ Esta base cubre Fase 0, Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, Fase 6, Fase 7, 
 - Exportacion final local a `09_Listo_Para_Publicar` con medios, copies, resumen y registro en SQLite.
 - Biblioteca historica con filtros por evento, fecha, tipo, estado y busqueda sobre medios, piezas y copies.
 - Calendario local de publicaciones manuales con estados, plataforma, URL publicada y cancelacion logica.
+- Pantalla real de estilos visuales conectada a presets activos del backend.
+- Cliente API frontend compartido para errores consistentes.
+- Script seguro de reset operativo en modo simulacion por defecto.
 - Scaffold Tauri preparado.
 
 ## Fase 1 implementada
@@ -430,6 +433,19 @@ Reglas aplicadas:
 - Solo piezas aprobadas pueden programarse.
 - El calendario no integra APIs de redes ni publica automaticamente; solo organiza y registra el control manual.
 
+## Fase 16 implementada
+
+La Fase 16 pule estabilidad, UX, documentacion y preparacion para pruebas locales:
+
+- `GET /api/visual-styles`: expone presets visuales activos desde SQLite.
+- La ruta `#/visual-styles` deja de ser placeholder y muestra presets reales.
+- Inicio se actualiza como centro operativo del flujo completo, no como base inicial.
+- Servicios frontend comparten `API_BASE_URL` y parseo de errores en `src/services/apiClient.ts`.
+- Se agrega `python scripts/reset_local_demo.py` como reset seguro de datos operativos.
+- El reset corre en simulacion por defecto y requiere `--yes` para modificar la base.
+- El reset no borra archivos fisicos ni toca originales; solo limpia registros operativos locales.
+- La documentacion se alinea con el puerto real `127.0.0.1:8010`.
+
 ## Backend
 
 ```powershell
@@ -443,53 +459,64 @@ python run_backend.py
 Healthcheck:
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:8000/api/health
+Invoke-RestMethod http://127.0.0.1:8010/api/health
 ```
 
 Configuracion:
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:8000/api/config
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/config/validate-tools
+Invoke-RestMethod http://127.0.0.1:8010/api/config
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/config/validate-tools
 ```
 
 Eventos:
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:8000/api/events
+Invoke-RestMethod http://127.0.0.1:8010/api/events
 ```
 
 Fuentes e importacion:
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/sources
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/scan
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/import
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/process-metadata
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/analyze-photos
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/detect-similarity
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/curate-media
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-photos -ContentType "application/json" -Body '{"preset_slug":"natural_premium"}'
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/enhance-videos -ContentType "application/json" -Body '{"preset_slug":"natural_premium","processing_mode":"auto","max_full_duration_seconds":90,"clip_duration_seconds":30}'
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/generate-pieces
-Invoke-RestMethod http://127.0.0.1:8000/api/editorial-profile/default
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/content-pieces/1/generate-copy -ContentType "application/json" -Body '{"feedback":"mas_calido"}'
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/api/events/1/export-package -ContentType "application/json" -Body '{"export_type":"ready_to_publish","include_copies":true,"write_event_date_metadata":true,"group_by_type":true,"include_summary":true}'
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/export-packages
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/media/original
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/similarity-groups
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/curated-media
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/enhanced-media
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/content-pieces
-Invoke-RestMethod http://127.0.0.1:8000/api/events/1/content-pieces/1/copies
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/sources
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/scan
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/import
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/process-metadata
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/analyze-photos
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/detect-similarity
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/curate-media
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/enhance-photos -ContentType "application/json" -Body '{"preset_slug":"natural_premium"}'
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/enhance-videos -ContentType "application/json" -Body '{"preset_slug":"natural_premium","processing_mode":"auto","max_full_duration_seconds":90,"clip_duration_seconds":30}'
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/generate-pieces
+Invoke-RestMethod http://127.0.0.1:8010/api/editorial-profile/default
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/content-pieces/1/generate-copy -ContentType "application/json" -Body '{"feedback":"mas_calido"}'
+Invoke-RestMethod -Method Post http://127.0.0.1:8010/api/events/1/export-package -ContentType "application/json" -Body '{"export_type":"ready_to_publish","include_copies":true,"write_event_date_metadata":true,"group_by_type":true,"include_summary":true}'
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/export-packages
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/media/original
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/similarity-groups
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/curated-media
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/enhanced-media
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/content-pieces
+Invoke-RestMethod http://127.0.0.1:8010/api/events/1/content-pieces/1/copies
+Invoke-RestMethod http://127.0.0.1:8010/api/visual-styles
 ```
 
 Pruebas:
 
 ```powershell
 cd backend
-pytest
+.venv\Scripts\python.exe -m pytest
 ```
+
+Reset seguro de datos operativos locales:
+
+```powershell
+cd backend
+.venv\Scripts\python.exe scripts\reset_local_demo.py
+.venv\Scripts\python.exe scripts\reset_local_demo.py --yes
+```
+
+El primer comando solo muestra conteos. El segundo elimina registros operativos de eventos, medios, jobs, piezas, copies, exportaciones y calendario, y vuelve a ejecutar el seed base. No elimina carpetas ni archivos del usuario.
 
 ## Frontend / Desktop
 
@@ -502,7 +529,7 @@ npm run dev
 Por defecto el frontend consulta:
 
 ```text
-http://127.0.0.1:8000/api/health
+http://127.0.0.1:8010/api/health
 ```
 
 Build web:
@@ -519,7 +546,7 @@ cd desktop
 npm run tauri dev
 ```
 
-Tauri requiere Rust y dependencias del sistema instaladas.
+Tauri requiere Rust/Cargo y dependencias del sistema instaladas. Si `cargo --version` no responde, instalar Rust desde `https://rustup.rs/`, cerrar y abrir la terminal, y volver a ejecutar `npm run tauri dev`.
 
 ## Limitaciones pendientes
 
@@ -549,7 +576,8 @@ Tauri requiere Rust y dependencias del sistema instaladas.
 - Si FFmpeg no esta disponible o el video no es legible, la miniatura de video es un respaldo local, no un frame real.
 - La apertura de carpeta final depende de permisos del sistema local; si no puede abrirse, la UI mantiene visible la ruta.
 - La seleccion de carpeta todavia es manual por texto; el selector nativo Tauri queda pendiente.
-- No se ha validado `npm run tauri dev` porque requiere Rust/Cargo y dependencias Tauri del sistema.
+- El reset de Fase 16 limpia datos operativos de SQLite; no elimina artefactos fisicos generados. Si se necesita borrar carpetas generadas, debe hacerse manualmente y evitando `01_Originales`.
+- El empaquetado Tauri real queda pendiente hasta validar Rust/Cargo y dependencias del sistema en la maquina objetivo.
 
 ## Variables utiles
 
@@ -562,12 +590,12 @@ RANCHO_STUDIO_DB_PATH=C:\ruta\local\rancho_content_studio.sqlite3
 Frontend:
 
 ```text
-VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_API_BASE_URL=http://127.0.0.1:8010
 ```
 
 ## Validacion de Fase 2
 
-Con backend levantado en `127.0.0.1:8000`:
+Con backend levantado en `127.0.0.1:8010`:
 
 ```powershell
 cd backend
@@ -625,7 +653,7 @@ Para validar Fase 7:
 1. Importar fotos en un evento.
 2. En `#/events/{id}`, ejecutar `Analizar fotos`.
 3. Confirmar que las fotos muestran `Calidad` y metricas de nitidez, brillo, contraste y exposicion.
-4. Confirmar que los videos quedan como `No aplica en Fase 7`.
+4. Confirmar que los videos quedan fuera del analisis de fotos.
 5. Consultar `GET /api/events/{id}/jobs` y verificar el job `analyze_media`.
 
 Para validar Fase 8:
@@ -710,6 +738,14 @@ Para validar Fase 15:
 6. Seleccionar una pieza aprobada, definir fecha, hora, plataforma y guardar.
 7. Cambiar estado a `ready_to_publish`, marcar como publicada con URL opcional y cancelar una programacion de prueba.
 8. Probar `GET /api/calendar`, `POST /api/calendar/items`, `PUT /api/calendar/items/{id}`, `POST /api/calendar/items/{id}/mark-published` y `DELETE /api/calendar/items/{id}`.
+
+Para validar Fase 16:
+
+1. Abrir `http://127.0.0.1:5173/#/visual-styles` y confirmar que se listan presets activos.
+2. Probar `GET http://127.0.0.1:8010/api/visual-styles`.
+3. Ejecutar `python scripts\reset_local_demo.py` y verificar que solo muestra conteos.
+4. Ejecutar `python scripts\reset_local_demo.py --yes` solo sobre una base local de prueba.
+5. Confirmar que no se borran carpetas ni archivos fisicos.
 
 ## Reglas centrales
 

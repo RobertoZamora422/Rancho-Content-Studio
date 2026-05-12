@@ -276,6 +276,16 @@ Endpoints de calendario:
 | `POST /api/calendar/items/{id}/mark-published` | Marca publicacion manualmente como publicada. |
 | `DELETE /api/calendar/items/{id}` | Cancela logicamente la programacion. |
 
+## Campos usados en Fase 16
+
+`visual_style_preset` se expone para que la UI muestre los estilos activos sin duplicar la lista en React:
+
+| Endpoint | Descripcion |
+| --- | --- |
+| `GET /api/visual-styles` | Lista presets visuales activos con `id`, `slug`, `name`, `description` e `is_active`. |
+
+El reset operativo usa las tablas existentes de eventos, medios, jobs, piezas, copies, exportaciones y calendario. No agrega tablas y no borra archivos fisicos.
+
 ## Convenciones futuras
 
 - Usar claves foraneas explicitas.

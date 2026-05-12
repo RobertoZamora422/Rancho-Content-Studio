@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./healthService";
+import { API_BASE_URL, parseApiResponse } from "./apiClient";
 import type {
   CopyGenerationRequest,
   CopyGenerationResponse,
@@ -6,23 +6,6 @@ import type {
   GeneratedCopyListResponse,
   GeneratedCopyUpdate
 } from "../types/copywriting";
-
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message = `Backend local respondio con estado ${response.status}.`;
-    try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
-        message = payload.detail;
-      }
-    } catch {
-      // Keep the generic HTTP message.
-    }
-    throw new Error(message);
-  }
-
-  return response.json() as Promise<T>;
-}
 
 export async function generateCopy(
   eventId: number,
@@ -39,7 +22,7 @@ export async function generateCopy(
       method: "POST"
     }
   );
-  return parseResponse<CopyGenerationResponse>(response);
+  return parseApiResponse<CopyGenerationResponse>(response);
 }
 
 export async function listCopies(
@@ -49,7 +32,7 @@ export async function listCopies(
   const response = await fetch(
     `${API_BASE_URL}/api/events/${eventId}/content-pieces/${pieceId}/copies`
   );
-  return parseResponse<GeneratedCopyListResponse>(response);
+  return parseApiResponse<GeneratedCopyListResponse>(response);
 }
 
 export async function updateCopy(
@@ -68,5 +51,5 @@ export async function updateCopy(
       method: "PATCH"
     }
   );
-  return parseResponse<GeneratedCopy>(response);
+  return parseApiResponse<GeneratedCopy>(response);
 }

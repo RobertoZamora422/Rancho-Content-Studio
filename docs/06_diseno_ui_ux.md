@@ -44,7 +44,7 @@ Configuracion
 
 ## Base implementada
 
-La UI inicial incluye layout de escritorio, menu lateral y pantalla Inicio con estado del backend.
+La UI incluye layout de escritorio, menu lateral, rutas hash, pantalla Inicio operativa y estado del backend.
 
 ## Fase 6 implementada en UI
 
@@ -63,7 +63,7 @@ La seccion `Material original` tambien:
 - ejecuta `Analizar fotos`;
 - muestra calidad global por foto;
 - muestra nitidez, brillo, contraste y exposicion;
-- marca videos como `No aplica en Fase 7`;
+- marca videos como fuera del analisis de fotos;
 - mantiene el analisis como soporte tecnico para revision humana, no como decision automatica final.
 
 ## Fase 8 implementada en UI
@@ -175,3 +175,18 @@ La pantalla `Calendario` deja de ser placeholder e incluye:
 - estados vacios y errores visibles.
 
 La UI mantiene planificacion manual: no publica automaticamente en redes sociales ni en Google Photos.
+
+## Fase 16 implementada en UI
+
+La pantalla `Inicio` se ajusta como centro operativo del flujo completo:
+
+- muestra estado del backend local;
+- muestra pasos principales del flujo de evento;
+- ofrece accesos directos a eventos, biblioteca, piezas y calendario.
+
+La pantalla `Estilos visuales` deja de ser placeholder:
+
+- carga presets activos desde backend;
+- muestra cards con nombre, descripcion y slug;
+- incluye estados de carga, error y vacio;
+- enlaza hacia eventos para aplicar presets desde el detalle.

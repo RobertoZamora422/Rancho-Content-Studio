@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./healthService";
+import { API_BASE_URL, parseApiResponse } from "./apiClient";
 import type {
   CuratedMedia,
   CuratedMediaListResponse,
@@ -21,26 +21,9 @@ import type {
 } from "../types/importing";
 import type { JobListResponse } from "../types/jobs";
 
-async function parseResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    let message = `Backend local respondio con estado ${response.status}.`;
-    try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
-        message = payload.detail;
-      }
-    } catch {
-      // Keep the generic HTTP message.
-    }
-    throw new Error(message);
-  }
-
-  return response.json() as Promise<T>;
-}
-
 export async function listSources(eventId: number): Promise<MediaSource[]> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/sources`);
-  return parseResponse<MediaSource[]>(response);
+  return parseApiResponse<MediaSource[]>(response);
 }
 
 export async function addSource(eventId: number, sourcePath: string): Promise<MediaSource> {
@@ -51,21 +34,21 @@ export async function addSource(eventId: number, sourcePath: string): Promise<Me
     },
     method: "POST"
   });
-  return parseResponse<MediaSource>(response);
+  return parseApiResponse<MediaSource>(response);
 }
 
 export async function scanSources(eventId: number): Promise<ScanResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/scan`, {
     method: "POST"
   });
-  return parseResponse<ScanResponse>(response);
+  return parseApiResponse<ScanResponse>(response);
 }
 
 export async function importMedia(eventId: number): Promise<ImportResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/import`, {
     method: "POST"
   });
-  return parseResponse<ImportResponse>(response);
+  return parseApiResponse<ImportResponse>(response);
 }
 
 export async function processMetadataAndThumbnails(
@@ -74,28 +57,28 @@ export async function processMetadataAndThumbnails(
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/process-metadata`, {
     method: "POST"
   });
-  return parseResponse<MetadataProcessResponse>(response);
+  return parseApiResponse<MetadataProcessResponse>(response);
 }
 
 export async function analyzePhotos(eventId: number): Promise<VisualAnalysisProcessResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/analyze-photos`, {
     method: "POST"
   });
-  return parseResponse<VisualAnalysisProcessResponse>(response);
+  return parseApiResponse<VisualAnalysisProcessResponse>(response);
 }
 
 export async function detectSimilarity(eventId: number): Promise<SimilarityDetectionResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/detect-similarity`, {
     method: "POST"
   });
-  return parseResponse<SimilarityDetectionResponse>(response);
+  return parseApiResponse<SimilarityDetectionResponse>(response);
 }
 
 export async function curateMedia(eventId: number): Promise<CurationProcessResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/curate-media`, {
     method: "POST"
   });
-  return parseResponse<CurationProcessResponse>(response);
+  return parseApiResponse<CurationProcessResponse>(response);
 }
 
 export async function enhancePhotos(
@@ -109,7 +92,7 @@ export async function enhancePhotos(
     },
     method: "POST"
   });
-  return parseResponse<PhotoEnhancementResponse>(response);
+  return parseApiResponse<PhotoEnhancementResponse>(response);
 }
 
 export async function enhanceVideos(
@@ -123,22 +106,22 @@ export async function enhanceVideos(
     },
     method: "POST"
   });
-  return parseResponse<VideoEnhancementResponse>(response);
+  return parseApiResponse<VideoEnhancementResponse>(response);
 }
 
 export async function listOriginalMedia(eventId: number): Promise<OriginalMediaListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/media/original`);
-  return parseResponse<OriginalMediaListResponse>(response);
+  return parseApiResponse<OriginalMediaListResponse>(response);
 }
 
 export async function listSimilarityGroups(eventId: number): Promise<SimilarityGroupListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/similarity-groups`);
-  return parseResponse<SimilarityGroupListResponse>(response);
+  return parseApiResponse<SimilarityGroupListResponse>(response);
 }
 
 export async function listCuratedMedia(eventId: number): Promise<CuratedMediaListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/curated-media`);
-  return parseResponse<CuratedMediaListResponse>(response);
+  return parseApiResponse<CuratedMediaListResponse>(response);
 }
 
 export async function updateCuratedMedia(
@@ -153,12 +136,12 @@ export async function updateCuratedMedia(
     },
     method: "PATCH"
   });
-  return parseResponse<CuratedMedia>(response);
+  return parseApiResponse<CuratedMedia>(response);
 }
 
 export async function listEnhancedMedia(eventId: number): Promise<EnhancedMediaListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/enhanced-media`);
-  return parseResponse<EnhancedMediaListResponse>(response);
+  return parseApiResponse<EnhancedMediaListResponse>(response);
 }
 
 export async function updateEnhancedMedia(
@@ -176,10 +159,10 @@ export async function updateEnhancedMedia(
       method: "PATCH"
     }
   );
-  return parseResponse<EnhancedMedia>(response);
+  return parseApiResponse<EnhancedMedia>(response);
 }
 
 export async function listEventJobs(eventId: number): Promise<JobListResponse> {
   const response = await fetch(`${API_BASE_URL}/api/events/${eventId}/jobs`);
-  return parseResponse<JobListResponse>(response);
+  return parseApiResponse<JobListResponse>(response);
 }

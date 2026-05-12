@@ -14,6 +14,7 @@ from app.api.health import router as health_router
 from app.api.jobs import router as jobs_router
 from app.api.library import router as library_router
 from app.api.media import router as media_router
+from app.api.visual_styles import router as visual_styles_router
 from app.core.database import SessionLocal, init_database
 from app.core.seed import seed_initial_config
 
@@ -47,6 +48,7 @@ def create_app() -> FastAPI:
     app.include_router(library_router, prefix="/api")
     app.include_router(calendar_router, prefix="/api")
     app.include_router(media_router, prefix="/api")
+    app.include_router(visual_styles_router, prefix="/api")
     return app
 
 

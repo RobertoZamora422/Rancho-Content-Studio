@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { listEvents } from "../../services/eventService";
-import { API_BASE_URL } from "../../services/healthService";
+import { API_BASE_URL } from "../../services/apiClient";
 import {
   listLibraryCopies,
   listLibraryMedia,
@@ -126,11 +126,11 @@ export function LibraryPage() {
   return (
     <section className="library-view">
       <div className="page-heading">
-        <p className="section-label">Fase 15</p>
+        <p className="section-label">Biblioteca local</p>
         <h1>Biblioteca</h1>
         <p>
-          Consulta historica de medios, versiones, piezas y copies registrados en SQLite con rutas
-          locales visibles y miniaturas cuando existen.
+          Consulta historica de medios, versiones, piezas y copies con rutas locales visibles
+          y miniaturas cuando existen.
         </p>
       </div>
 

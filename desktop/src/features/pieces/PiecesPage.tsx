@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { generateCopy, listCopies, updateCopy } from "../../services/copywritingService";
 import { listEvents } from "../../services/eventService";
-import { API_BASE_URL } from "../../services/healthService";
+import { API_BASE_URL } from "../../services/apiClient";
 import {
   exportPackage,
   generatePieces,
@@ -348,7 +348,7 @@ export function PiecesPage() {
   return (
     <section className="pieces-view">
       <div className="page-heading">
-        <p className="section-label">Fases 12-14</p>
+        <p className="section-label">Produccion</p>
         <h1>Piezas de contenido</h1>
         <p>
           Genera propuestas revisables, aprueba copy y crea el paquete final en
@@ -399,7 +399,7 @@ export function PiecesPage() {
       <section className="export-panel">
         <div className="section-heading-row">
           <div>
-            <p className="section-label">Fase 14</p>
+            <p className="section-label">Exportacion final</p>
             <h2>Exportacion final</h2>
           </div>
           <strong>{latestPackage ? formatExportStatus(latestPackage.status) : "Sin paquete"}</strong>
@@ -632,7 +632,7 @@ export function PiecesPage() {
             <section className="copywriting-panel">
               <div className="section-heading-row">
                 <div>
-                  <p className="section-label">Fase 13</p>
+                  <p className="section-label">Copywriting</p>
                   <h2>Copywriting</h2>
                 </div>
                 <strong>{copies.length} variantes</strong>
